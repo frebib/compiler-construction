@@ -51,6 +51,7 @@ exp:
     | IF e = params; ib = body      
         ELSE eb = body                  { If (e, ib, eb) }
     | var = ident EQUAL e = exp         { Asg (var, e) }
+    | i = INT                           { Const i }
 
 ident:
     | s = STRING                        { Identifier s }

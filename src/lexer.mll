@@ -7,6 +7,7 @@
 (* Misc *)
 let whitespace = [' ' '\t']+
 let newline    = '\n' | '\r' | "\r\n"
+let number     = ['0'-'9'] ['0'-'9']*
 (* Identifiers can't start with a number *)
 let identifier = ['a'-'z' 'A'-'Z' '_' '~' '$'] ['a'-'z' 'A'-'Z' '0'-'9' '_' '~' '$']*
 
@@ -40,6 +41,7 @@ rule read = parse
   | "if"       { IF }
   | "else"     { ELSE }
 
+  | number     { INT (int_of_string (lexeme lexbuf)) }
   | identifier { STRING (lexeme lexbuf) }
   | eof        { EOF }
   | _          { raise (SyntaxError ("Unexpected token: " ^ lexeme lexbuf)) }
