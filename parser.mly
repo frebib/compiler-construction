@@ -31,13 +31,13 @@ func:
 
 params: 
     | LPAREN RPAREN                     { Empty }
-    | LPAREN es = exp+ RPAREN           { Types.flatten_exp es }
+    | LPAREN es = exp+ RPAREN           { flatten_exp es }
 
 sparams: 
     | LPAREN ps = STRING* RPAREN        { ps }
 
 body:
-    | LBRACE ss = exp* RBRACE           { Types.flatten_exp ss }
+    | LBRACE ss = exp* RBRACE           { flatten_exp ss }
 
 exp:
     | i = ident                         { i }

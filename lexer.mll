@@ -1,4 +1,5 @@
 {
+  open Lexing
   open Parser
   exception SyntaxError of string
 }
@@ -11,7 +12,7 @@ let identifier = ['a'-'z' 'A'-'Z' '_' '~' '$'] ['a'-'z' 'A'-'Z' '0'-'9' '_' '~' 
 
 rule read = parse
   | whitespace { read lexbuf }
-  | newline    { Lexing.new_line lexbuf; read lexbuf }
+  | newline    { new_line lexbuf; read lexbuf }
   | "//"       { read lexbuf (*line_comment "" lexbuf*) }
 
   | '.'        { PERIOD }
@@ -39,10 +40,10 @@ rule read = parse
   | "if"       { IF }
   | "else"     { ELSE }
 
-  | identifier { STRING (Lexing.lexeme lexbuf) }
+  | identifier { STRING (lexeme lexbuf) }
   | eof        { EOF }
-  | _          { raise (SyntaxError ("Unexpected token: " ^ Lexing.lexeme lexbuf)) }
+  | _          { raise (SyntaxError ("Unexpected token: " ^ lexeme lexbuf)) }
 
 and line_comment buf = parse
   | newline    { COMMENT buf }
-  | _          { line_comment (buf ^ Lexing.lexeme lexbuf) lexbuf }
+  | _          { line_comment (buf ^ lexeme lexbuf) lexbuf }
