@@ -9,8 +9,9 @@
 %token <int>    INT
 
 (* Punctuation *)
-%token          PERIOD COMMA COLON SEMICOLON
+%token          PERIOD COMMA COLON SEMICOLON TILDE
 %token          LBRACE RBRACE LPAREN RPAREN
+%token          ADD SUB MUL DIV
 %token          EQUAL LTHAN GTHAN LEQUAL GEQUAL
 
 (* Keywords *)
@@ -51,6 +52,9 @@ exp:
     | IF e = params; ib = body      
         ELSE eb = body                  { If (e, ib, eb) }
     | var = ident EQUAL e = exp         { Asg (var, e) }
+
+    (* Both positive and negative numbers *)
+    | SUB i = INT                       { Const (-i) }
     | i = INT                           { Const i }
 
 ident:

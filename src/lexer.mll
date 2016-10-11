@@ -20,10 +20,15 @@ rule read = parse
   | ','        { COMMA }
   | ':'        { COLON }
   | ';'        { SEMICOLON }
+  | '~'        { TILDE }
   | '{'        { LBRACE }
   | '}'        { RBRACE }
   | '('        { LPAREN }
   | ')'        { RPAREN }
+  | '+'        { ADD }
+  | '-'        { SUB }
+  | '*'        { MUL }
+  | '/'        { DIV }
   | '='        { EQUAL }
   | '<'        { GTHAN }
   | '>'        { LTHAN }
