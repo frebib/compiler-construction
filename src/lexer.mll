@@ -14,7 +14,8 @@ let identifier = ['a'-'z' 'A'-'Z' '_' '~' '$'] ['a'-'z' 'A'-'Z' '0'-'9' '_' '~' 
 rule read = parse
   | whitespace { read lexbuf }
   | newline    { new_line lexbuf; read lexbuf }
-  | "//"       { read lexbuf (*line_comment "" lexbuf*) }
+  | number     { INT (int_of_string (lexeme lexbuf)) }
+  | "//"       { line_comment "" lexbuf }
 
   | '.'        { PERIOD }
   | ','        { COMMA }
@@ -47,7 +48,6 @@ rule read = parse
   | "if"       { IF }
   | "else"     { ELSE }
 
-  | number     { INT (int_of_string (lexeme lexbuf)) }
   | identifier { STRING (lexeme lexbuf) }
   | eof        { EOF }
   | _          { raise (SyntaxError ("Unexpected token: " ^ lexeme lexbuf)) }
