@@ -2,8 +2,8 @@ open List
 
 type opcode =
   | Plus | Minus | Times | Divide
-  | Leq | Geq | Equal | Noteq
-  | And | Or | Not
+  | Lth | Gth | Leq | Geq
+  | Equal | Noteq | And | Or | Not
 
 type expression =
   | Empty (* Empty function call: a() or empty statements: ;; *)
@@ -39,9 +39,9 @@ and unflatten_exp = function
 
 (* Why this isn't implicit I have no idea *)
 and string_of_op = function
-    | Plus -> "Plus" | Minus -> "Minus" | Times -> "Times"
-    | Divide -> "Divide" | Leq -> "Leq" | Geq -> "Geq" | Equal -> "Equal"
-    | Noteq -> "NotEq" | And -> "And" | Or -> "Or" | Not -> "Not"
+    | Plus -> "+" | Minus -> "-" | Times -> "*" |  Divide -> "/"
+    | Lth -> "<" | Gth -> ">" | Leq -> "<=" | Geq -> ">="
+    | Equal -> "==" | Noteq -> "!=" | And -> "&&" | Or -> "||" | Not -> "!"
 
 and string_of_exp = function
     | Empty                 -> "Empty"

@@ -30,6 +30,7 @@ rule read = parse
   | '*'        { MUL }
   | '/'        { DIV }
   | '='        { EQUAL }
+  | "=="       { DBLEQUAL }
   | '<'        { GTHAN }
   | '>'        { LTHAN }
   | "<="       { LEQUAL }

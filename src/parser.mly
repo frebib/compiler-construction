@@ -11,8 +11,8 @@
 (* Punctuation *)
 %token          PERIOD COMMA COLON SEMICOLON TILDE
 %token          LBRACE RBRACE LPAREN RPAREN
-%token          ADD SUB MUL DIV
-%token          EQUAL LTHAN GTHAN LEQUAL GEQUAL
+%token          ADD SUB MUL DIV EQUAL
+%token          DBLEQUAL LTHAN GTHAN LEQUAL GEQUAL
 
 (* Keywords *)
 %token          FUNCTION RETURN
@@ -51,11 +51,29 @@ exp:
     | IF e = params; es = body          { If (e, es, Empty) }
     | IF e = params; ib = body      
         ELSE eb = body                  { If (e, ib, eb) }
-    | var = ident EQUAL e = exp         { Asg (var, e) }
 
     (* Both positive and negative numbers *)
     | SUB i = INT                       { Const (-i) }
     | i = INT                           { Const i }
+
+    (* Maths operations (not caring about types here)*)
+    | e1 = exp ADD e2 = exp             { Operator (Plus, e1, e2) }
+    | e1 = exp SUB e2 = exp             { Operator (Minus, e1, e2) }
+    | e1 = exp MUL e2 = exp             { Operator (Times, e1, e2) }
+    | e1 = exp DIV e2 = exp             { Operator (Divide, e1, e2) }
+
+    | e1 = exp DBLEQUAL e2 = exp        { Operator (Equal, e1, e2) }
+    | e1 = exp SUB e2 = exp             { Operator (Minus, e1, e2) }
+    | e1 = exp MUL e2 = exp             { Operator (Times, e1, e2) }
+    | e1 = exp DIV e2 = exp             { Operator (Divide, e1, e2) }
+
+    (* Assigment & Declaration *)
+    | asg = assign                      { asg }
+    | LET var = STRING EQUAL e = exp;
+        ine = exp                       { Let (var, e, ine) }
+
+assign:
+    | var = ident EQUAL e = exp         { Asg (var, e) }
 
 ident:
     | s = STRING                        { Identifier s }
