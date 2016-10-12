@@ -10,5 +10,5 @@ for file in ${1:-"$SRC_DIR/**.mly"}; do
     menhir --explain --base ${MENHIR_DIR}/$(basename $file) $file
 done
 
-tail -n +1 ${MENHIR_DIR}/**.conflicts || echo "No conflicts!"
+tail -n +1 ${MENHIR_DIR}/**.conflicts 2>/dev/null || echo "No conflicts!"
 
