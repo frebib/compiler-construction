@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+
+SRC_DIR="src"
+MENHIR_DIR="_menhir"
+
+cd $(dirname $0)
+mkdir -p ${MENHIR_DIR}
+
+for file in ${1:-"$SRC_DIR/**.mly"}; do
+    menhir --explain --base ${MENHIR_DIR}/$(basename $file) $file
+done
+
+tail -n +1 ${MENHIR_DIR}/**.conflicts || echo "No conflicts!"
+

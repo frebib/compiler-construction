@@ -26,7 +26,15 @@ or to clean then build:
 make clean all
 ```
 
-## To run the parser
+## Testing & Debugging
+### Debugging the parser
+The `explain` script will run `menhir --explain` on the `.mly` files and provide the output.
+Run it with no arguments to explain all files or optionally specify a file name to debug.
+```
+./explain <filename>
+```
+
+## Running the parser
 
 ```
 ./main.native <inputfile>
