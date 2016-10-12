@@ -30,8 +30,9 @@ rule read = parse
   | '-'        { SUB }
   | '*'        { MUL }
   | '/'        { DIV }
-  | '='        { EQUAL }
   | "=="       { DBLEQUAL }
+  | "!="       { NOTEQUAL }
+  | '='        { EQUAL }
   | '<'        { GTHAN }
   | '>'        { LTHAN }
   | "<="       { LEQUAL }
