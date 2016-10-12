@@ -4,7 +4,6 @@
 
 (* Misc *)
 %token          EOF
-%token <string> COMMENT
 %token <string> STRING
 %token <int>    INT
 

@@ -54,5 +54,5 @@ rule read = parse
   | _          { raise (SyntaxError ("Unexpected token: " ^ lexeme lexbuf)) }
 
 and line_comment buf = parse
-  | newline    { COMMENT buf }
+  | newline    { read lexbuf }
   | _          { line_comment (buf ^ lexeme lexbuf) lexbuf }
