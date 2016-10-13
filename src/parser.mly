@@ -34,7 +34,7 @@
 %%
 
 init:
-    | ss = func* EOF                    { ss }
+    | ss = func* EOF { ss }
 
 func:
     | FUNCTION name = STRING args = comma_str_params; ss = body { (name, args, ss) }
