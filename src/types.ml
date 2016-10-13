@@ -26,6 +26,10 @@ type expression =
 type fundef = string * string list * expression 
 type program = fundef list
 
+let opt_prepend l = function
+  | None   -> l
+  | Some a -> (a :: l)
+
 let esc s = "\"" ^ s ^ "\""
 let wrap s = "(" ^ s ^ ")"
 let rec flatten_exp = function

@@ -44,7 +44,8 @@ func:
 
 body:
     | s = statement                     { s }
-    | LBRACE ss = statement* RBRACE     { flatten_exp ss }
+    | LBRACE ss = statement*
+        d = def? RBRACE                 { flatten_exp (opt_prepend ss d) }
 
 statement:
     | e = exp SEMICOLON                 { e }
@@ -69,10 +70,16 @@ exp:
     | e = exp EQUAL v = exp             { Asg (e, v) }
 
     | RETURN e = exp                    { Return e }
+
+def: 
     | VAR var = STRING EQUAL e = exp;
-         SEMICOLON t = statement*       { New (var, e, flatten_exp t) }
+         SEMICOLON i = defin            { New (var, e, i) }
     | LET var = STRING EQUAL e = exp;
-        SEMICOLON t = statement*        { Let (var, e, flatten_exp t) }
+        SEMICOLON i = defin             { Let (var, e, i) }
+
+defin:
+    | d = def                           { d }
+    | ss = statement*                   { flatten_exp ss }
 
 %inline ident:
     | s = STRING { Identifier s }
