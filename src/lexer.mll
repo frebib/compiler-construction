@@ -43,10 +43,7 @@ rule read = parse
   | "return"   { RETURN }
   | "let"      { LET }
   | "var"      { VAR }
-  | "null"     { NULL }
   | "while"    { WHILE }
-  | "for"      { FOR }
-  | "do"       { DO }
   | "if"       { IF }
   | "else"     { ELSE }
 

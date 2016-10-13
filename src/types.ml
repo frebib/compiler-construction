@@ -9,7 +9,6 @@ type expression =
   | Empty (* Empty function call: a() or empty statements: ;; *)
   | Seq of expression * expression (* e; e *)
   | While of expression * expression (* while e do e *)
-  | For of expression * expression * expression * expression (* for (e;e;e) do e *)
   | If of expression * expression * expression (* if e do e else e *)
   | Asg of expression * expression (* e := e *)
   | Deref of expression (* !e *)
@@ -21,8 +20,9 @@ type expression =
   | Identifier of string (* x *)
   | Let of string * expression * expression (* let x = e in e *)
   | New of string * expression * expression (* new x = e in e *)
+  | Return of expression (* return exp *)
 
-type fundef = Func of string * string list * expression 
+type fundef = string * string list * expression 
 type program = fundef list
 
 let esc s = "\"" ^ s ^ "\""
@@ -61,7 +61,8 @@ and string_of_exp = function
     | Identifier s          -> "Identifier " ^ esc s
     | Let (x, v, e)         -> "Let " ^ x ^ " = " ^ string_of_exp v ^ " in " ^ string_of_exp e
     | New (x, v, e)         -> "New " ^ x ^ " = " ^ string_of_exp v ^ " in " ^ string_of_exp e
+    | Return e              -> "Return " ^ wrap (string_of_exp e)
 
 and string_of_func = function
-    | Func (name, args, exp) -> "Function " ^ esc name ^ "(" ^ String.concat ", " args ^
-                                    ") { " ^ string_of_exp exp ^ " }"
+    | (name, args, exp) -> "Function " ^ esc name ^ " [" ^ String.concat ", " (map esc args) ^
+                                    "] { " ^ string_of_exp exp ^ " }"

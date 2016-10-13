@@ -16,9 +16,21 @@
 
 (* Keywords *)
 %token          FUNCTION RETURN
-%token          IF ELSE
-%token          LET VAR NULL
-%token          WHILE FOR DO
+%token          IF ELSE WHILE
+%token          LET VAR
+
+%nonassoc DBLEQUAL NOTEQUAL
+%nonassoc LTHAN GTHAN LEQUAL GEQUAL
+%left COMMA
+%right EQUAL
+%left ADD SUB
+%left MUL DIV
+%left RETURN
+%right SEMICOLON
+%left LPAREN
+%right RPAREN
+%left LBRACE
+%right RBRACE
 
 %start <Types.program> init
 %%
@@ -27,54 +39,63 @@ init:
     | ss = func* EOF                    { ss }
 
 func:
-    | FUNCTION name = STRING;
-        args = sparams; ss = body       { Func (name, args, ss) }
-
-params: 
-    | LPAREN RPAREN                     { Empty }
-    | LPAREN es = exp+ RPAREN           { flatten_exp es }
-
-sparams: 
-    | LPAREN ps = STRING* RPAREN        { ps }
+    | FUNCTION name = STRING args = comma_str_params; ss = body { (name, args, ss) }
 
 body:
-    | LBRACE ss = exp* RBRACE           { flatten_exp ss }
+    | s = statement                     { s }
+    | LBRACE ss = statement* RBRACE     { flatten_exp ss }
+
+statement:
+    | e = exp SEMICOLON                 { e }
+    | e = blockexp                      { e }
+
+blockexp:
+    | IF e = exp_param ib = body
+        ELSE eb = body                  { If (e, ib, eb) }
+    | WHILE p = exp_param; ss = body    { While (p, ss) }
 
 exp:
-    | i = ident                         { i }
-    | WHILE p = params; ss = body       { While (p, ss) }
-    | FOR LPAREN  asg = exp;
-        SEMICOLON cmp = exp;
-        SEMICOLON inc = exp;
-        RPAREN; es = body               { For (asg, cmp, inc, es) }
-    (* Lookahead avoids shift/reduce conflict here *)
-    | IF e = params; es = body          { If (e, es, Empty) }
-    | IF e = params; ib = body      
-        ELSE eb = body                  { If (e, ib, eb) }
+    | LPAREN e = exp RPAREN             { e }
+    | LPAREN e = blockexp RPAREN        { e }
 
-    (* Both positive and negative numbers *)
-    | SUB i = INT                       { Const (-i) }
-    | i = INT                           { Const i }
+    | i = ident                         { Deref i }
+    | c = const                         { c }
+    | i = ident; ps = comma_exp_params  { Application (i, ps) }
 
-    (* Maths operations (not caring about types here)*)
-    | e1 = exp ADD e2 = exp             { Operator (Plus, e1, e2) }
-    | e1 = exp SUB e2 = exp             { Operator (Minus, e1, e2) }
-    | e1 = exp MUL e2 = exp             { Operator (Times, e1, e2) }
-    | e1 = exp DIV e2 = exp             { Operator (Divide, e1, e2) }
-
-    | e1 = exp DBLEQUAL e2 = exp        { Operator (Equal, e1, e2) }
-    | e1 = exp SUB e2 = exp             { Operator (Minus, e1, e2) }
-    | e1 = exp MUL e2 = exp             { Operator (Times, e1, e2) }
-    | e1 = exp DIV e2 = exp             { Operator (Divide, e1, e2) }
+    | e1 = exp; op = binop; e2 = exp    { Operator (op, e1, e2) }
 
     (* Assigment & Declaration *)
-    | asg = assign                      { asg }
+    | e = exp EQUAL v = exp             { Asg (e, v) }
+
+    | RETURN e = exp                    { Return e }
+    | VAR var = STRING EQUAL e = exp;
+         SEMICOLON t = statement*       { New (var, e, flatten_exp t) }
     | LET var = STRING EQUAL e = exp;
-        ine = exp                       { Let (var, e, ine) }
+        SEMICOLON t = statement*        { Let (var, e, flatten_exp t) }
 
-assign:
-    | var = ident EQUAL e = exp         { Asg (var, e) }
+%inline ident:
+    | s = STRING { Identifier s }
 
-ident:
-    | s = STRING                        { Identifier s }
+%inline const:
+    | i = INT   { Const i }
+
+%inline binop:
+    | ADD       { Plus }
+    | SUB       { Minus }
+    | MUL       { Times }
+    | DIV       { Divide }
+
+    | NOTEQUAL  { Noteq }
+    | DBLEQUAL  { Equal }
+    | LTHAN     { Lth }
+    | GTHAN     { Gth }
+    | LEQUAL    { Leq }
+    | GEQUAL    { Geq }
+
+exp_param: 
+    | LPAREN e = exp RPAREN { e }
+comma_exp_params: 
+    | LPAREN es = separated_list(COMMA, exp) RPAREN { flatten_exp es }
+comma_str_params: 
+    | LPAREN ps = separated_list(COMMA, STRING) RPAREN { ps }
 
