@@ -41,6 +41,7 @@ rule read = parse
   | "let"      { LET }
   | "var"      { VAR }
   | "while"    { WHILE }
+  | "do"       { DO }
   | "if"       { IF }
   | "else"     { ELSE }
   | "true"     { BOOL true }

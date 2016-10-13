@@ -17,11 +17,12 @@
 
 (* Keywords *)
 %token          FUNCTION RETURN
-%token          IF ELSE WHILE
+%token          IF ELSE WHILE DO
 %token          LET VAR
 
 %nonassoc DBLEQUAL NOTEQUAL
 %nonassoc LTHAN GTHAN LEQUAL GEQUAL
+%right ELSE DO
 %right EQUAL
 %left ADD SUB
 %left MUL DIV
@@ -65,6 +66,17 @@ exp:
     | e1 = exp; op = binop; e2 = exp    { Operator (op, e1, e2) }
 
     | RETURN e = exp                    { Return e }
+
+    (* Inline statements are if/while statements without the
+     * { } block syntax taking single expression arguments 
+     * If >1 expressions are required, use the block-type
+     * statements with parenthesis around: (if (x) { .. })
+     *)
+    | IF e = exp_param ib = exp ELSE eb = exp { If (e, ib, eb) }
+
+    (* Inline while loops differ as they require the 'do' keyword *)
+    (* Example: let x = while(true) do x++; *)
+    | WHILE p = exp_param DO ss = exp { While (p, ss) }
 
 def: 
     | VAR var = STRING EQUAL e = exp SEMICOLON i = defin { New (var, e, i) }
