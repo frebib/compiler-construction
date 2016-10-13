@@ -20,6 +20,7 @@ rule read = parse
 
   | ','        { COMMA }
   | ';'        { SEMICOLON }
+  | '!'        { EXCLAM }
   | '{'        { LBRACE }
   | '}'        { RBRACE }
   | '('        { LPAREN }
@@ -28,6 +29,8 @@ rule read = parse
   | '-'        { SUB }
   | '*'        { MUL }
   | '/'        { DIV }
+  | "++"       { INC }
+  | "--"       { DEC }
   | "=="       { DBLEQUAL }
   | "!="       { NOTEQUAL }
   | '='        { EQUAL }

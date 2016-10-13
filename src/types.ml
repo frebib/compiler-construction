@@ -2,8 +2,9 @@ open List
 
 (* Types *)
 type opcode =
-  | Plus | Minus | Times | Divide
+  | Plus | Minus | Times | Divide | Modulus
   | Lth | Gth | Leq | Geq
+  | PreInc | PreDec | PostInc | PostDec
   | Equal | Noteq | And | Or | Not
 
 type expression =
@@ -12,8 +13,9 @@ type expression =
   | While of expression * expression (* while e do e *)
   | If of expression * expression * expression (* if e do e else e *)
   | Asg of expression * expression (* e := e *)
-  | Operator of opcode * expression * expression (* e + e *)
   | Deref of expression (* e *)
+  | UnaryOp of opcode * expression (* !e *)
+  | BinaryOp of opcode * expression * expression (* e + e *)
   | Application of expression * expression (* e(e) *)
   | Const of int (* 7 *)
   | Boolean of bool (* true; false *)
@@ -48,9 +50,18 @@ and unflatten_exp = function
 
 (* string_of_x functions mostly for debugging *)
 and string_of_op = function
-  | Plus -> "+" | Minus -> "-" | Times -> "*" |  Divide -> "/"
+  | Plus -> "+" | Minus -> "-" | Times -> "*" |  Divide -> "/" | Modulus -> "%"
   | Lth -> "<" | Gth -> ">" | Leq -> "<=" | Geq -> ">="
+  | PreInc | PostInc -> "++" | PreDec | PostDec -> "--"
   | Equal -> "==" | Noteq -> "!=" | And -> "&&" | Or -> "||" | Not -> "!"
+
+and string_of_op_exp op exp = 
+  let e = string_of_exp exp in
+  match op with
+  | Not               -> "Not " ^ wrap e
+  | PostInc | PostDec -> wrap e ^ string_of_op op
+  | PreInc | PreDec   -> string_of_op op ^ wrap e
+  | _ -> failwith (Printf.sprintf "'%s' is not a unary operator" (string_of_op op))
 
 and string_of_exp = function
   | Empty                 -> "Empty"
@@ -59,7 +70,8 @@ and string_of_exp = function
   | If (e, a, b)          -> "If " ^ ([e;a;b] |> map string_of_exp |> map wrap |> String.concat ", ")
   | Asg (x, v)            -> "Assign " ^ string_of_exp x ^ " = " ^ string_of_exp v
   | Deref x               -> "Deref " ^ wrap (string_of_exp x)
-  | Operator (op, e1, e2) -> string_of_exp e1 ^ " " ^ string_of_op op ^ " " ^ string_of_exp e2
+  | UnaryOp (op, e)       -> string_of_op_exp op e
+  | BinaryOp (op, e1, e2) -> string_of_exp e1 ^ " " ^ string_of_op op ^ " " ^ string_of_exp e2
   | Application (i, e)    -> "Application " ^ wrap (string_of_exp i) ^ ", " ^ wrap (string_of_exp e)
   | Const n               -> "Const " ^ string_of_int n
   | Boolean b             -> string_of_bool b

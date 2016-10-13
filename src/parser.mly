@@ -10,9 +10,9 @@
 %token <bool>   BOOL
 
 (* Punctuation *)
-%token          COMMA SEMICOLON
+%token          COMMA SEMICOLON EXCLAM
 %token          LBRACE RBRACE LPAREN RPAREN
-%token          ADD SUB MUL DIV EQUAL
+%token          ADD SUB MUL DIV MOD EQUAL INC DEC
 %token          DBLEQUAL NOTEQUAL LTHAN GTHAN LEQUAL GEQUAL
 
 (* Keywords *)
@@ -25,7 +25,9 @@
 %right ELSE DO
 %right EQUAL
 %left ADD SUB
-%left MUL DIV
+%left MUL DIV MOD
+%right EXCLAM
+%nonassoc INC DEC
 %left RETURN
 
 %start <Types.program> init
@@ -63,7 +65,9 @@ exp:
     | i = ident; ps = comma_exp_params  { Application (i, ps) }
 
     | e = exp EQUAL v = exp             { Asg (e, v) }
-    | e1 = exp; op = binop; e2 = exp    { Operator (op, e1, e2) }
+    | op = pre_unop e = exp             { UnaryOp (op, e) }
+    | e = exp op = post_unop            { UnaryOp (op, e) }
+    | e1 = exp; op = binop; e2 = exp    { BinaryOp (op, e1, e2) }
 
     | RETURN e = exp                    { Return e }
 
@@ -92,12 +96,21 @@ defin:
 %inline const:
     | b = BOOL  { Boolean b }
     | i = INT   { Const i }
+%inline pre_unop:
+    | INC       { PreInc }
+    | DEC       { PreDec }
+    | EXCLAM    { Not }
+
+%inline post_unop:
+    | INC       { PostInc }
+    | DEC       { PostDec }
 
 %inline binop:
     | ADD       { Plus }
     | SUB       { Minus }
     | MUL       { Times }
     | DIV       { Divide }
+    | MOD       { Modulus }
 
     | NOTEQUAL  { Noteq }
     | DBLEQUAL  { Equal }
