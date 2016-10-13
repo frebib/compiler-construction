@@ -7,14 +7,15 @@ let usage () = printf "Usage: %s <filename>\n" Sys.argv.(0)
 
 let location_message filename lexbuf = 
   let offs = Lexing.lexeme_start_p lexbuf in
-  let col = offs.pos_cnum - offs.pos_bol + 1 in
+  let col_beg = offs.pos_cnum - offs.pos_bol + 1 in
+  let col_end = col_beg + (String.length (lexeme lexbuf)) in
   let line = offs.pos_lnum in
-  sprintf "%s: at line %d, column %d" filename line col
+  sprintf "File: \"%s\" at line %d, columns %d-%d" filename line col_beg col_end
 
 let safe_parse filename lexbuf =
   try Parser.init Lexer.read lexbuf
   with
-  | Parser.Error -> eprintf "Parse error on: %s\n%s\n" (Lexing.lexeme lexbuf)
+  | Parser.Error -> eprintf "Unexpected token: %s\n%s\n" (Lexing.lexeme lexbuf)
                     (location_message filename lexbuf);
                     exit (-1)
   | CompileError (typ, get_msg) -> match typ with
