@@ -7,6 +7,7 @@
 %token          EOF
 %token <string> STRING
 %token <int>    INT
+%token <bool>   BOOL
 
 (* Punctuation *)
 %token          PERIOD COMMA COLON SEMICOLON TILDE
@@ -77,6 +78,7 @@ exp:
     | s = STRING { Identifier s }
 
 %inline const:
+    | b = BOOL  { Boolean b }
     | i = INT   { Const i }
 
 %inline binop:

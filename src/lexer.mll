@@ -46,6 +46,8 @@ rule read = parse
   | "while"    { WHILE }
   | "if"       { IF }
   | "else"     { ELSE }
+  | "true"     { BOOL true }
+  | "false"    { BOOL false }
 
   | identifier { STRING (lexeme lexbuf) }
   | eof        { EOF }

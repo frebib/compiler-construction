@@ -15,6 +15,7 @@ type expression =
   | Operator of opcode * expression * expression (* e + e *)
   | Application of expression * expression (* e(e) *)
   | Const of int (* 7 *)
+  | Boolean of bool (* true; false *)
   | Readint (* read_int () *)
   | Printint of expression (* print_int (e) *)
   | Identifier of string (* x *)
@@ -56,6 +57,7 @@ and string_of_exp = function
     | Operator (op, e1, e2) -> string_of_exp e1 ^ string_of_op op ^ string_of_exp e2
     | Application (i, e)    -> string_of_exp i ^ "(" ^ string_of_exp e ^ ")"
     | Const n               -> "Const " ^ string_of_int n
+    | Boolean b             -> string_of_bool b
     | Readint               -> "read_int()"
     | Printint e            -> "print_int(" ^ string_of_exp e ^ ")"
     | Identifier s          -> "Identifier " ^ esc s
