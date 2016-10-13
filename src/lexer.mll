@@ -8,14 +8,14 @@
 (* Misc *)
 let whitespace = [' ' '\t']+
 let newline    = '\n' | '\r' | "\r\n"
-let number     = ['0'-'9'] ['0'-'9']*
+let integer    = '-'? ['0'-'9'] ['0'-'9']*
 (* Identifiers can't start with a number *)
 let identifier = ['a'-'z' 'A'-'Z' '_' '~' '$'] ['a'-'z' 'A'-'Z' '0'-'9' '_' '~' '$']*
 
 rule read = parse
   | whitespace { read lexbuf }
   | newline    { new_line lexbuf; read lexbuf }
-  | number     { INT (int_of_string (lexeme lexbuf)) }
+  | integer    { INT (int_of_string (lexeme lexbuf)) }
   | "//"       { line_comment "" lexbuf }
 
   | ','        { COMMA }
