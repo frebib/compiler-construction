@@ -22,7 +22,6 @@
 
 %nonassoc DBLEQUAL NOTEQUAL
 %nonassoc LTHAN GTHAN LEQUAL GEQUAL
-%left COMMA
 %right EQUAL
 %left ADD SUB
 %left MUL DIV
@@ -38,43 +37,42 @@ func:
     | FUNCTION name = STRING args = comma_str_params; ss = body { (name, args, ss) }
 
 body:
-    | s = statement                     { s }
-    | LBRACE ss = statement*
-        d = def? RBRACE                 { flatten_exp (opt_prepend ss d) }
+    (* A brace delimited body or a single statement*)
+    | s = statement { s }
+    | LBRACE ss = statement* d = def? RBRACE { flatten_exp (opt_prepend ss d) }
 
 statement:
-    | e = exp SEMICOLON                 { e }
-    | e = blockexp                      { e }
+    (* A complete statement; a brace block or semicolon terminated expression*)
+    | e = blockexp { e }
+    | e = exp SEMICOLON { e }
 
 blockexp:
-    | IF e = exp_param ib = body
-        ELSE eb = body                  { If (e, ib, eb) }
-    | WHILE p = exp_param; ss = body    { While (p, ss) }
+    (* These block-level expressions usually contain {  } 
+     * and specifically don't terminate with a semicolon *)
+    | IF e = exp_param ib = body ELSE eb = body { If (e, ib, eb) }
+    | WHILE p = exp_param ss = body             { While (p, ss) }
 
 exp:
+    (* Expressions are anything that can appear inline within a statement *)
     | LPAREN e = exp RPAREN             { e }
     | LPAREN e = blockexp RPAREN        { e }
 
-    | i = ident                         { Deref i }
     | c = const                         { c }
+    | i = ident                         { Deref i }
     | i = ident; ps = comma_exp_params  { Application (i, ps) }
 
-    | e1 = exp; op = binop; e2 = exp    { Operator (op, e1, e2) }
-
-    (* Assigment & Declaration *)
     | e = exp EQUAL v = exp             { Asg (e, v) }
+    | e1 = exp; op = binop; e2 = exp    { Operator (op, e1, e2) }
 
     | RETURN e = exp                    { Return e }
 
 def: 
-    | VAR var = STRING EQUAL e = exp;
-         SEMICOLON i = defin            { New (var, e, i) }
-    | LET var = STRING EQUAL e = exp;
-        SEMICOLON i = defin             { Let (var, e, i) }
+    | VAR var = STRING EQUAL e = exp SEMICOLON i = defin { New (var, e, i) }
+    | LET var = STRING EQUAL e = exp SEMICOLON i = defin { Let (var, e, i) }
 
 defin:
-    | d = def                           { d }
-    | ss = statement*                   { flatten_exp ss }
+    | d = def { d }
+    | ss = statement* { flatten_exp ss }
 
 %inline ident:
     | s = STRING { Identifier s }
@@ -96,6 +94,7 @@ defin:
     | LEQUAL    { Leq }
     | GEQUAL    { Geq }
 
+(* Expression or string parameters enclosed by (parenthesis) *)
 exp_param: 
     | LPAREN e = exp RPAREN { e }
 comma_exp_params: 

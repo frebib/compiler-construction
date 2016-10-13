@@ -1,5 +1,6 @@
 open List
 
+(* Types *)
 type opcode =
   | Plus | Minus | Times | Divide
   | Lth | Gth | Leq | Geq
@@ -11,8 +12,8 @@ type expression =
   | While of expression * expression (* while e do e *)
   | If of expression * expression * expression (* if e do e else e *)
   | Asg of expression * expression (* e := e *)
-  | Deref of expression (* !e *)
   | Operator of opcode * expression * expression (* e + e *)
+  | Deref of expression (* e *)
   | Application of expression * expression (* e(e) *)
   | Const of int (* 7 *)
   | Boolean of bool (* true; false *)
@@ -26,12 +27,14 @@ type expression =
 type fundef = string * string list * expression 
 type program = fundef list
 
+
+(* Helper functions *)
+let esc s = "\"" ^ s ^ "\""
+let wrap s = "(" ^ s ^ ")"
 let opt_prepend l = function
   | None   -> l
   | Some a -> (a :: l)
 
-let esc s = "\"" ^ s ^ "\""
-let wrap s = "(" ^ s ^ ")"
 let rec flatten_exp = function
   | []      -> Empty
   | [x]     -> x
@@ -42,7 +45,8 @@ and unflatten_exp = function
   | e            -> [e]
   (* failwith ("Can't unflatten a non-Seq expression: " ^ string_of_exp e) *)
 
-(* Why this isn't implicit I have no idea *)
+
+(* string_of_x functions mostly for debugging *)
 and string_of_op = function
     | Plus -> "+" | Minus -> "-" | Times -> "*" |  Divide -> "/"
     | Lth -> "<" | Gth -> ">" | Leq -> "<=" | Geq -> ">="
