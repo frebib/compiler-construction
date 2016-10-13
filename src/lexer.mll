@@ -55,5 +55,5 @@ rule read = parse
   | _          { raise (error_of_fn Syntax (fun buf -> "Unexpected token: " ^ lexeme buf)) }
 
 and line_comment buf = parse
-  | newline    { read lexbuf }
+  | newline    { new_line lexbuf; read lexbuf }
   | _          { line_comment (buf ^ lexeme lexbuf) lexbuf }
