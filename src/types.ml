@@ -27,6 +27,7 @@ type fundef = string * string list * expression
 type program = fundef list
 
 let esc s = "\"" ^ s ^ "\""
+let wrap s = "(" ^ s ^ ")"
 let rec flatten_exp = function
   | []      -> Empty
   | [x]     -> x
@@ -34,7 +35,6 @@ let rec flatten_exp = function
 
 and unflatten_exp = function
   | Seq (hd, tl) -> hd :: unflatten_exp tl
-  | Empty        -> []
   | e            -> [e]
   (* failwith ("Can't unflatten a non-Seq expression: " ^ string_of_exp e) *)
 
@@ -46,23 +46,20 @@ and string_of_op = function
 
 and string_of_exp = function
     | Empty                 -> "Empty"
-    | Seq (hd, tl)          -> "Seq (" ^ (unflatten_exp (Seq (hd, tl)) |> map string_of_exp |> String.concat ", ") ^ ")" 
+    | Seq (hd, tl)          -> "Seq [" ^ (unflatten_exp (Seq (hd, tl)) |> map string_of_exp |>  String.concat ", ") ^ "]"
     | While (e, f)          -> "While (" ^ string_of_exp e ^ ") { " ^ string_of_exp f ^ " }"
-    | For (a, b, c, d)      -> "For (" ^ (map string_of_exp [a;b;c] |> String.concat "; ") ^ ") {" ^ string_of_exp d ^ "}"
-    | If (e, a, b)          -> "If (" ^ string_of_exp e ^ ") { " ^ (match b with
-                                | Empty -> " }"
-                                | _     -> " } Else { " ^ string_of_exp b ^ " }")
-    | Asg (x, v)            -> string_of_exp x ^ " = " ^ string_of_exp v
-    | Deref x               -> string_of_exp x
-    | Operator (op, e1, e2) -> string_of_exp e1 ^ string_of_op op ^ string_of_exp e2
-    | Application (i, e)    -> string_of_exp i ^ "(" ^ string_of_exp e ^ ")"
+    | If (e, a, b)          -> "If " ^ ([e;a;b] |> map string_of_exp |> map wrap |> String.concat ", ")
+    | Asg (x, v)            -> "Assign " ^ string_of_exp x ^ " = " ^ string_of_exp v
+    | Deref x               -> "Deref " ^ wrap (string_of_exp x)
+    | Operator (op, e1, e2) -> string_of_exp e1 ^ " " ^ string_of_op op ^ " " ^ string_of_exp e2
+    | Application (i, e)    -> "Application " ^ wrap (string_of_exp i) ^ ", " ^ wrap (string_of_exp e)
     | Const n               -> "Const " ^ string_of_int n
     | Boolean b             -> string_of_bool b
     | Readint               -> "read_int()"
     | Printint e            -> "print_int(" ^ string_of_exp e ^ ")"
     | Identifier s          -> "Identifier " ^ esc s
-    | Let (x, v, e)         -> "Let " ^ x ^ " = " ^ string_of_exp v ^ " in " ^ string_of_exp e
-    | New (x, v, e)         -> "New " ^ x ^ " = " ^ string_of_exp v ^ " in " ^ string_of_exp e
+    | Let (x, v, e)         -> "Let " ^ esc x ^ " = " ^ wrap (string_of_exp v) ^ " in " ^ wrap (string_of_exp e)
+    | New (x, v, e)         -> "New " ^ esc x ^ " = " ^ string_of_exp v ^ " in " ^ string_of_exp e
     | Return e              -> "Return " ^ wrap (string_of_exp e)
 
 and string_of_func = function
