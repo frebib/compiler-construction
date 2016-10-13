@@ -18,11 +18,8 @@ rule read = parse
   | number     { INT (int_of_string (lexeme lexbuf)) }
   | "//"       { line_comment "" lexbuf }
 
-  | '.'        { PERIOD }
   | ','        { COMMA }
-  | ':'        { COLON }
   | ';'        { SEMICOLON }
-  | '~'        { TILDE }
   | '{'        { LBRACE }
   | '}'        { RBRACE }
   | '('        { LPAREN }

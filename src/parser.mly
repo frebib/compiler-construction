@@ -10,7 +10,7 @@
 %token <bool>   BOOL
 
 (* Punctuation *)
-%token          PERIOD COMMA COLON SEMICOLON TILDE
+%token          COMMA SEMICOLON
 %token          LBRACE RBRACE LPAREN RPAREN
 %token          ADD SUB MUL DIV EQUAL
 %token          DBLEQUAL NOTEQUAL LTHAN GTHAN LEQUAL GEQUAL
@@ -27,11 +27,6 @@
 %left ADD SUB
 %left MUL DIV
 %left RETURN
-%right SEMICOLON
-%left LPAREN
-%right RPAREN
-%left LBRACE
-%right RBRACE
 
 %start <Types.program> init
 %%
