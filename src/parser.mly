@@ -1,5 +1,6 @@
 %{ 
     open Types
+    open Error
 %}
 
 (* Misc *)

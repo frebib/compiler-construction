@@ -1,7 +1,8 @@
 {
+  open Types
+  open Error
   open Lexing
   open Parser
-  exception SyntaxError of string
 }
 
 (* Misc *)
@@ -51,7 +52,7 @@ rule read = parse
 
   | identifier { STRING (lexeme lexbuf) }
   | eof        { EOF }
-  | _          { raise (SyntaxError ("Unexpected token: " ^ lexeme lexbuf)) }
+  | _          { raise (error_of_fn Syntax (fun buf -> "Unexpected token: " ^ lexeme buf)) }
 
 and line_comment buf = parse
   | newline    { read lexbuf }
