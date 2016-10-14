@@ -1,2 +1,2 @@
-S src/**
+S src/main/**
 B _build/**
