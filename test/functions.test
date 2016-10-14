@@ -1,0 +1,23 @@
+/% TEST %/
+
+// This tests function creation with & without
+// parameters, with empty & non-empty bodies and
+// containing a single line comment.
+
+function funcOne(param1, param2) {
+  // this is a comment :)
+}
+function funcTwo(a, b, c) {
+  return b;
+}
+function alone() {  }
+
+/% OUTPUT %/
+
+[
+  ("funcOne", ["param1"; "param2"], Empty);
+  ("funcTwo", ["a"; "b"; "c"], Deref (Identifier "b"));
+  ("alone", [], Empty)
+]
+
+/% END %/
