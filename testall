@@ -15,13 +15,15 @@ SRC_DIR="src"
 TEST_SRC_DIR="${SRC_DIR}/test/generated"
 
 mkdir -p ${TEST_SRC_DIR} ${TEST_BIN_DIR}
-for testfile in ${1:-"test/*.test"}; do
+for testfile in ${1:-test/*.test}; do
     filenameext=$(basename ${testfile})
     filename="${filenameext%.*}"
     out_src_file="${TEST_SRC_DIR}/${filename}.ml"
     out_bin_file="${filename}.native"
 
-    ${GENTEST_BINARY} ${testfile} ${out_src_file}
+    echo $out_src_file
+
+    ${GENTEST_BINARY} ${testfile} ${out_src_file} && echo "=> Test ${filename} generated"
     ocamlbuild -use-menhir -use-ocamlfind ${filename}.native
     mv ${out_bin_file} ${TEST_BIN_DIR}
 done
