@@ -72,7 +72,7 @@ exp:
     | e = exp op = post_unop            { UnaryOp (op, e) }
     | e1 = exp op = binop e2 = exp      { BinaryOp (op, e1, e2) }
 
-    | RETURN e = exp                    { Return e }
+    | RETURN e = exp                    { e }
 
     (* Inline statements are if/while statements without the
      * { } block syntax taking single expression arguments 

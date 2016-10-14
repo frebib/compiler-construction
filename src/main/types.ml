@@ -25,7 +25,6 @@ type expression =
   | Identifier of string (* x *)
   | Let of string * expression * expression (* let x = e in e *)
   | New of string * expression * expression (* new x = e in e *)
-  | Return of expression (* return exp *)
 
 type fundef = string * string list * expression 
 type program = fundef list
@@ -83,7 +82,6 @@ and string_of_exp = function
   | Identifier s          -> "Identifier " ^ esc s
   | Let (x, v, e)         -> "Let " ^ esc x ^ " = " ^ wrap (string_of_exp v) ^ " in " ^ wrap (string_of_exp e)
   | New (x, v, e)         -> "New " ^ esc x ^ " = " ^ string_of_exp v ^ " in " ^ string_of_exp e
-  | Return e              -> "Return " ^ wrap (string_of_exp e)
 
 and string_of_func = function
   | (name, args, exp) -> let arr = String.concat ", " (map esc args) in
