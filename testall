@@ -29,7 +29,7 @@ for testfile in ${1:-test/*.test}; do
 done
 
 echo -e "\n:: All tests built. Running them now!"
-for exe in "${TEST_BIN_DIR}/*.native"; do
+for exe in ${TEST_BIN_DIR}/*.native; do
     echo -ne "\n=> Testing: $(basename ${exe}): "
     ${exe}
 done
