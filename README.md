@@ -1,5 +1,9 @@
 # A Language parser written with Menhir
 
+This project is written with [Merlin](https://github.com/the-lambda-church/merlin) in mind and provides some useful completion when using it. Make a full build with `make` and completion _should just work_.
+
+### Parser sources
+All parser source is stored in `src/main`
 * `main.ml` - Top level program that invokes the lexer/parser
 * `lexer.mll` - Text lexer that converts text into tokens
 * `parser.mly` - Token parser that generates the parse tree
@@ -8,7 +12,11 @@
 * `parse.ml` - Functions for running parse tasks, from file or `string` and to `Types.program` or `string`
 * `error.ml` - A small utility library to handle exceptions thrown by the parser
 
-This project is written with [Merlin](https://github.com/the-lambda-church/merlin) in mind and provides some useful completion when using it. Make a full build with `make` and completion _should just work_.
+### Testing sources
+The testing suite consists of the following code in `src/test`
+* `test.ml` - The generator and helper functions used to build and by the test executables
+* `testing.ml` - A small program to generate the code for the test programs
+* `testlex.mll` and `testpar.mly` - Simple lexer and parser pair to extract the test cases from the `.test` files
 
 # Compiling the parser
 
@@ -30,22 +38,22 @@ or to clean then build:
 make clean default
 ```
 
-## Testing & Debugging
-## Running the parser
+# Testing & Debugging
+### Running the parser
 Execute the program with a script to parse as the argument(s)
 
 ```
 ./main <inputfile>
 ```
 
-## Debugging the parser
+### Debugging the parser
 The `explain` script will run `menhir --explain` on the `.mly` files and provide the output.
 Run it with no arguments to explain all files or optionally specify a file name to debug.
 ```
 ./explain <filename>
 ```
 
-## Testing the parser
+### Testing the parser
 Along with the parser, I have built a very simple test parser and generator. All tests reside within the `tests/` directory and consist of a section of code to test followed by the OCaml tree that represents the code above. Upon compiling and running the tests, the code will be parsed and compared to the tree determining whether the test passed or failed.
 
 To initialise the testing facility, build the 'test builder' program:
