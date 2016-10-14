@@ -31,6 +31,8 @@ rule read = parse
   | '/'        { DIV }
   | "++"       { INC }
   | "--"       { DEC }
+  | "||"       { OR }
+  | "&&"       { AND }
   | "=="       { DBLEQUAL }
   | "!="       { NOTEQUAL }
   | '='        { EQUAL }
