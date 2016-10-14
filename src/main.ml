@@ -10,14 +10,13 @@ let location_message filename lexbuf =
   let col_beg = offs.pos_cnum - offs.pos_bol + 1 in
   let col_end = col_beg + (String.length (lexeme lexbuf)) in
   let line = offs.pos_lnum in
-  sprintf "File: \"%s\" at line %d, columns %d-%d" filename line col_beg col_end
+  sprintf "File \"%s\" at line %d, columns %d-%d" filename line col_beg col_end
 
 let safe_parse filename lexbuf =
   try Parser.init Lexer.read lexbuf
   with
-  | Parser.Error -> eprintf "Unexpected token: %s\n%s\n" (Lexing.lexeme lexbuf)
-                    (location_message filename lexbuf);
-                    exit (-1)
+  | Parser.Error -> eprintf "%s:\nUnexpected token: %s\n" (location_message filename lexbuf)
+                    (lexeme lexbuf); exit (-1)
   | CompileError (typ, get_msg) -> match typ with
     | _ -> eprintf "%s\n%s\n" (get_msg lexbuf) (location_message filename lexbuf);
            exit (-1)
