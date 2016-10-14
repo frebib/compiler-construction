@@ -1,0 +1,25 @@
+/% TEST %/
+
+function rootBisec(f, a, b, tolerance, nmax) {
+  let n = 1;
+  while (n <= nmax) { // limit iterations to prevent infinite loop
+    let c = (a + b) / 2; // new midpoint
+    if (f(c) == 0 || (b – a) / 2 < tolerance) { // solution found
+      // printf("Solution found!");
+      printInt(c);
+      return c;
+    }
+    n++; // increment step counter
+    (if (sign(f(c)) == sign(f(a))) a else b) = c // new interval
+  }
+  // max number of steps exceeded
+  // printf("Method failed.") 
+}
+
+/% OUTPUT %/
+
+[
+  ("rootBisec", ["f"; "a"; "b"; "tolerance"; "nmax"], Empty)
+]
+
+/% END %/
