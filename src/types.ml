@@ -1,4 +1,5 @@
 open List
+open Printf
 
 (* Types *)
 type opcode =
@@ -61,7 +62,7 @@ and string_of_op_exp op exp =
   | Not               -> "Not " ^ wrap e
   | PostInc | PostDec -> wrap e ^ string_of_op op
   | PreInc | PreDec   -> string_of_op op ^ wrap e
-  | _ -> failwith (Printf.sprintf "'%s' is not a unary operator" (string_of_op op))
+  | _ -> failwith (sprintf "'%s' is not a unary operator" (string_of_op op))
 
 and string_of_exp = function
   | Empty                 -> "Empty"
@@ -83,5 +84,6 @@ and string_of_exp = function
   | Return e              -> "Return " ^ wrap (string_of_exp e)
 
 and string_of_func = function
-  | (name, args, exp) -> "Function " ^ esc name ^ " [" ^ String.concat ", " (map esc args) ^
-                                    "] { " ^ string_of_exp exp ^ " }"
+  | (name, args, exp) -> let arr = String.concat ", " (map esc args) in
+                         let exp_str = string_of_exp exp in
+                         sprintf "Function (%s, [%s], { %s }" (esc name) arr exp_str 

@@ -26,7 +26,9 @@ let parse file = open_in file
   |> Lexing.from_channel
   |> safe_parse file
   |> List.map Types.string_of_func
-  |> String.concat "\n"
+  |> List.map wrap
+  |> String.concat ",\n"
+  |> sprintf "[%s]"
   |> print_string
   |> print_newline
 
