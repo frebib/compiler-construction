@@ -34,17 +34,19 @@ type program = fundef list
 (* Helper functions *)
 let esc s = "\"" ^ s ^ "\""
 let wrap s = "(" ^ s ^ ")"
-let opt_prepend l = function
+let rec opt_prepend_seq l opt = 
+  let prepend l = function
   | None   -> l
   | Some a -> (a :: l)
+  in seq_of_list (prepend l opt)
 
-let rec flatten_exp = function
+and seq_of_list = function
   | []      -> Empty
   | [x]     -> x
-  | x :: xs -> Seq (x, flatten_exp xs)
+  | x :: xs -> Seq (x, seq_of_list xs)
 
-and unflatten_exp = function
-  | Seq (hd, tl) -> hd :: unflatten_exp tl
+and list_of_seq = function
+  | Seq (hd, tl) -> hd :: list_of_seq tl
   | e            -> [e]
   (* failwith ("Can't unflatten a non-Seq expression: " ^ string_of_exp e) *)
 
@@ -66,7 +68,7 @@ and string_of_op_exp op exp =
 
 and string_of_exp = function
   | Empty                 -> "Empty"
-  | Seq (hd, tl)          -> "Seq [" ^ (unflatten_exp (Seq (hd, tl)) |> map string_of_exp |>  String.concat ", ") ^ "]"
+  | Seq (hd, tl)          -> "Seq [" ^ (list_of_seq (Seq (hd, tl)) |> map string_of_exp |>  String.concat ", ") ^ "]"
   | While (e, f)          -> "While (" ^ string_of_exp e ^ ") { " ^ string_of_exp f ^ " }"
   | If (e, a, b)          -> "If " ^ ([e;a;b] |> map string_of_exp |> map wrap |> String.concat ", ")
   | Asg (x, v)            -> "Assign " ^ string_of_exp x ^ " = " ^ string_of_exp v

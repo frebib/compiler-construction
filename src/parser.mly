@@ -45,7 +45,7 @@ func:
 body:
     (* A brace delimited body or a single statement*)
     | s = statement { s }
-    | LBRACE ss = statement* d = def? RBRACE { flatten_exp (opt_prepend ss d) }
+    | LBRACE ss = statement* d = def? RBRACE { opt_prepend_seq ss d }
 
 statement:
     (* A complete statement; a brace block or semicolon terminated expression*)
@@ -91,7 +91,7 @@ def:
 
 defin:
     | d = def { d }
-    | ss = statement* { flatten_exp ss }
+    | ss = statement* { seq_of_list ss }
 
 %inline ident:
     | s = STRING { Identifier s }
@@ -129,7 +129,7 @@ defin:
 exp_param: 
     | LPAREN e = exp RPAREN { e }
 comma_exp_params: 
-    | LPAREN es = separated_list(COMMA, exp) RPAREN { flatten_exp es }
+    | LPAREN es = separated_list(COMMA, exp) RPAREN { seq_of_list es }
 comma_str_params: 
     | LPAREN ps = separated_list(COMMA, STRING) RPAREN { ps }
 
