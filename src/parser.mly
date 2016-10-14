@@ -20,15 +20,18 @@
 %token          IF ELSE WHILE DO
 %token          LET VAR
 
-%nonassoc DBLEQUAL NOTEQUAL
+(* http://cs.stmarys.ca/~porter/csc/ref/cpp_operators.html *)
+%nonassoc EQUAL
+%right    ELSE DO
+%left     OR
+%left     AND
+%right    DBLEQUAL NOTEQUAL
 %nonassoc LTHAN GTHAN LEQUAL GEQUAL
-%right ELSE DO
-%right EQUAL
-%left ADD SUB
-%left MUL DIV MOD
-%right EXCLAM
+%left     ADD SUB
+%left     MUL DIV MOD
+%right    EXCLAM
 %nonassoc INC DEC
-%left RETURN
+%right    RETURN
 
 %start <Types.program> init
 %%
