@@ -10,7 +10,7 @@
 %token <bool>   BOOL
 
 (* Punctuation *)
-%token          COMMA SEMICOLON EXCLAM
+%token          COMMA SEMICOLON EXCLAM AND OR
 %token          LBRACE RBRACE LPAREN RPAREN
 %token          ADD SUB MUL DIV MOD EQUAL INC DEC
 %token          DBLEQUAL NOTEQUAL LTHAN GTHAN LEQUAL GEQUAL
@@ -67,7 +67,7 @@ exp:
     | e = exp EQUAL v = exp             { Asg (e, v) }
     | op = pre_unop e = exp             { UnaryOp (op, e) }
     | e = exp op = post_unop            { UnaryOp (op, e) }
-    | e1 = exp; op = binop; e2 = exp    { BinaryOp (op, e1, e2) }
+    | e1 = exp op = binop e2 = exp      { BinaryOp (op, e1, e2) }
 
     | RETURN e = exp                    { Return e }
 
@@ -111,6 +111,9 @@ defin:
     | MUL       { Times }
     | DIV       { Divide }
     | MOD       { Modulus }
+    
+    | AND {And}
+    | OR {Or}
 
     | NOTEQUAL  { Noteq }
     | DBLEQUAL  { Equal }
