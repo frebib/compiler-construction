@@ -1,2 +1,6 @@
 S src/main/**
-B _build/**
+S src/test/**
+
+B _build/src/**
+
+EXT test
