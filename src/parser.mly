@@ -77,8 +77,7 @@ exp:
     (* Inline statements are if/while statements without the
      * { } block syntax taking single expression arguments 
      * If >1 expressions are required, use the block-type
-     * statements with parenthesis around: (if (x) { .. })
-     *)
+     * statements with parenthesis around: (if (x) { .. }) *)
     | IF e = exp_param ib = exp ELSE eb = exp { If (e, ib, eb) }
 
     (* Inline while loops differ as they require the 'do' keyword *)
