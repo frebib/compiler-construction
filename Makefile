@@ -2,10 +2,14 @@ BUILD_DIR=_build
 MENHIR_DIR=_menhir
 TARGET=main.native
 
-all:
-	ocamlbuild -use-menhir -use-ocamlfind $(TARGET)
+default: main
+main: $(TARGET)
 
+%.native:
+	ocamlbuild -use-menhir -use-ocamlfind $@
+	mv $@ $*
 clean:
-	$(RM) -r $(BUILD_DIR) $(MENHIR_DIR) $(TARGET)
+	ocamlbuild -clean
+	$(RM) -r $(MENHIR_DIR)
 
 .PHONY: clean

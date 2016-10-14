@@ -35,8 +35,9 @@ Run it with no arguments to explain all files or optionally specify a file name 
 ```
 
 ## Running the parser
+Execute the program with a script to parse as the argument(s)
 
 ```
-./main.native <inputfile>
+./main <inputfile>
 ```
 
