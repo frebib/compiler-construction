@@ -41,6 +41,8 @@ rule read = parse
   | "<="       { LEQUAL }
   | ">="       { GEQUAL }
 
+  | "readInt"  { READINT }
+  | "printInt" { PRINTINT }
   | "function" { FUNCTION }
   | "return"   { RETURN }
   | "let"      { LET }

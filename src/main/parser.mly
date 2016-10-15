@@ -17,6 +17,7 @@
 
 (* Keywords *)
 %token          FUNCTION RETURN
+%token          READINT PRINTINT
 %token          IF ELSE WHILE DO
 %token          LET VAR
 
@@ -66,6 +67,8 @@ exp:
     | c = const                         { c }
     | i = ident                         { Deref i }
     | i = ident; ps = comma_exp_params  { Application (i, ps) }
+    | READINT LPAREN RPAREN             { Readint }
+    | PRINTINT LPAREN e = exp RPAREN    { Printint e }
 
     | e = exp EQUAL v = exp             { Asg (e, v) }
     | op = pre_unop e = exp             { UnaryOp (op, e) }
