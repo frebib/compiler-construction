@@ -1,0 +1,36 @@
+/% TEST %/
+
+function rootBisec(l, r) {
+  let mid = (~r - ~l) / 2;
+  if (~mid > ~E) { // E being the constant
+    if (f(~r) * f(~mid) < 0)
+      l = ~mid;
+    else
+      r = ~mid; 
+    bisect(~l, ~r);
+  } else { }
+  return ~mid;
+}
+
+/% OUTPUT %/
+
+[
+  ("rootBisec", ["l"; "r"],
+    Let ("mid", BinaryOp (Divide, BinaryOp (Minus, Deref (Identifier "r"), Deref (Identifier "l")), Const 2),
+      Seq (
+        If (BinaryOp (Gth, Deref (Identifier "mid"), Deref (Identifier "E")),
+          Seq (
+            If (BinaryOp (Lth, BinaryOp (Times, Application (Identifier "f", Deref (Identifier "r")), Application (Identifier "f", Deref (Identifier "mid"))), Const 0),
+              Asg (Identifier "l", Deref (Identifier "mid")),
+              (* else *)
+              Asg (Identifier "r", Deref (Identifier "mid"))),
+            Application (Identifier "bisect", Seq (Deref (Identifier "l"), Deref (Identifier "r")))),
+          (* Empty else *)
+          Empty),
+        Deref (Identifier "mid")
+      )
+    )
+  )
+]
+
+/% END %/
