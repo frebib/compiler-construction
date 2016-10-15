@@ -36,8 +36,8 @@ rule read = parse
   | "=="       { DBLEQUAL }
   | "!="       { NOTEQUAL }
   | '='        { EQUAL }
-  | '<'        { GTHAN }
-  | '>'        { LTHAN }
+  | '<'        { LTHAN }
+  | '>'        { GTHAN }
   | "<="       { LEQUAL }
   | ">="       { GEQUAL }
 
