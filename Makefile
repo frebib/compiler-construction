@@ -7,7 +7,7 @@ default: main
 main: $(TARGET)
 
 %.native:
-	ocamlbuild -use-menhir -use-ocamlfind $@
+	ocamlbuild -use-menhir -use-ocamlfind -pkg str $@
 	mkdir -p $(BINARY_DIR)
 	mv $@ $(BINARY_DIR)/$*
 

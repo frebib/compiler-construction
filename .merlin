@@ -1,5 +1,6 @@
 S src/main/**
 S src/test/**
+PKG str
 
 B _build/src/**
 
