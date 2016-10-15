@@ -30,6 +30,7 @@ rule read = parse
   | '-'        { SUB }
   | '*'        { MUL }
   | '/'        { DIV }
+  | '%'        { MOD }
   | "++"       { INC }
   | "--"       { DEC }
   | "||"       { OR }
