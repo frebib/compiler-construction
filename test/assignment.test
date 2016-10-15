@@ -1,0 +1,43 @@
+/% TEST %/
+
+function assignment() {
+  x = 4;
+  y = 3 / 0;
+  x = (x + y);
+  z = if (x || y) 1 else false;
+  things = stuff(and(things));
+}
+
+/% OUTPUT %/
+
+[
+  ("assignment", [],
+    Seq (
+      Asg (Identifier "x", Const 4), 
+      Seq (
+        Asg (Identifier "y", BinaryOp (Divide, Const 3, Const 0)), 
+        Seq (
+          Asg (Identifier "x", BinaryOp (Plus, Identifier "x", Identifier "y")), 
+          Seq (
+            Asg (Identifier "z", 
+              If (BinaryOp (Or,
+                Identifier "x",
+                Identifier "y"),
+                Const 1,
+                Boolean false)
+            ), 
+            Asg (Identifier "things", 
+              Application (Identifier "stuff", 
+                Application (Identifier "and", 
+                  Identifier "things"
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+]
+
+/% END %/

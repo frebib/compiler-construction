@@ -1,0 +1,37 @@
+/% TEST %/
+
+function deref(c) {
+  let x = ~c;
+  let y = ~(if (true) x else y);
+  let fourteen = ~y();
+  return ~(~c);
+}
+
+/% OUTPUT %/
+
+[
+  ("deref", ["c"], 
+    Let ("x", 
+      Deref (Identifier "c"),
+      Let ("y", 
+        Deref (
+          If (Boolean true,
+            Identifier "x",
+            Identifier "y"
+          )
+        ),
+        Let ("fourteen",
+          Deref (
+            Application (
+              Identifier "y",
+              Empty
+            )
+          ), 
+          Deref (Deref (Identifier "c"))
+        )
+      )
+    )
+  )
+]
+
+/% END %/

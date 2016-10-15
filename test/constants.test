@@ -1,0 +1,83 @@
+/% TEST %/
+
+function constants(pi) {
+  b = true;
+  notb = false;
+  c = !!b;
+
+  // Only positive integers for now
+  e = 19;
+  f = 34763567352346;
+  i = 0;
+  
+  printInt(readInt());
+
+  identifyThis;
+  functionIdentifier();
+
+  return 1 + 13 / false <= sqrt(PI + true);
+}
+
+/% OUTPUT %/
+
+[
+  ("constants", ["pi"],
+    Seq (
+      Asg (
+        Identifier "b",
+        Boolean true
+      ), Seq (
+        Asg (
+          Identifier "notb",
+          Boolean false
+        ), Seq (
+          Asg (
+            Identifier "c",
+            UnaryOp (Not, UnaryOp (Not, Identifier "b"))
+          ),
+          Seq (
+            Asg (
+              Identifier "e",
+              Const 19
+            ),
+            Seq (
+              Asg (
+                Identifier "f",
+                Const 34763567352346
+              ),
+              Seq (
+                Asg (
+                  Identifier "i",
+                  Const 0
+                ),
+                Seq (
+                  Printint(Readint),
+                  Seq (
+                    Identifier "identifyThis",
+                    Seq (
+                      Application (
+                        Identifier "functionIdentifier",
+                        Empty
+                      ), BinaryOp (
+                        Leq,
+                        BinaryOp (Plus, Const 1, BinaryOp (
+                          Divide, Const 13, Boolean false)
+                        ), Application (
+                          Identifier "sqrt",
+                          BinaryOp (
+                            Plus, Identifier "PI", Boolean true)
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+]
+
+/% END %/

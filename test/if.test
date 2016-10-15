@@ -1,0 +1,51 @@
+/% TEST %/
+
+function ifTest() {
+  if (x || y) {
+    if (x(y)) {
+      if (true) false else true;
+    } else {
+      yolo();
+    }
+  } else if (testy) {
+    thing(if (1) 0 else 4);
+  } else {
+    return false;
+  }
+}
+
+/% OUTPUT %/
+
+[
+  ("ifTest", [],
+    If (
+      BinaryOp (Or,
+        Identifier "x",
+        Identifier "y"
+      ), If (
+        Application (Identifier "x", Identifier "y"),
+        If (
+          Boolean true,
+          Boolean false,
+          Boolean true
+        ), Application (
+          Identifier "yolo",
+          Empty
+        )
+      ), If (
+        Identifier "testy",
+        Application (
+          Identifier "thing",
+          If (
+            Const 1,
+            Const 0,
+            Const 4
+          )
+        ),
+        Boolean false
+      )
+    )
+  )
+]
+
+/% END %/

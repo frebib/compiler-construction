@@ -1,0 +1,29 @@
+/% TEST %/
+
+function whileTest() {
+  while (true) {
+    while (false)
+      doThing();
+    (while (x) do y++) = 4 - y;
+  }
+}
+
+/% OUTPUT %/
+
+[
+  ("whileTest", [],
+    While (Boolean true, (
+      Seq (
+        While (Boolean false,
+          (Application (Identifier "doThing", Empty))
+        ), 
+        Asg (
+          While (Identifier "x", (UnaryOp (PostInc, Identifier "y"))),
+          BinaryOp (Minus, Const 4, Identifier "y")
+        )
+      )
+    ))
+  )
+]
+
+/% END %/

@@ -1,0 +1,35 @@
+/% TEST %/
+
+function application() {
+  return a(b(c(fish(), d(1, abc, xyz(1)))));
+}
+
+/% OUTPUT %/
+
+[
+  ("application", [],
+    Application (
+      Identifier "a",
+      Application (
+        Identifier "b",
+        Application (
+          Identifier "c",
+          Seq (
+            Application (
+              Identifier "fish", Empty),
+            Application (Identifier "d",
+              Seq (Const 1,
+                Seq (Identifier "abc",
+                  Application (Identifier "xyz",
+                    Const 1)
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+]
+
+/% END %/

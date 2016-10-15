@@ -1,0 +1,36 @@
+/% TEST %/
+
+function letvar(arg) {
+  let x = aThing(arg);
+  var child = getParent();
+  let fish = chips;
+  var ping = pong(4);
+  x + 1;
+  return 4;
+}
+
+/% OUTPUT %/
+
+[
+  ("letvar", ["arg"],
+    Let ("x",
+      Application (
+        Identifier "aThing",
+        Identifier "arg"
+      ), New ("child",
+        Application (Identifier "getParent", Empty),
+        Let ("fish",
+          Identifier "chips",
+          New ("ping",
+            Application (Identifier "pong", Const 4),
+            Seq (
+              BinaryOp (Plus, Identifier "x", Const 1),
+              Const 4)
+          )
+        )
+      )
+    )
+  )
+]
+
+/% END %/
