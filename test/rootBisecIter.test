@@ -2,14 +2,14 @@
 
 function rootBisec(f, a, b, tolerance, nmax) {
   let n = 1;
-  while (n <= nmax) { // limit iterations to prevent infinite loop
-    let c = (a + b) / 2; // new midpoint
-    if (f(c) == 0 || (b - a) / 2 < tolerance) { // solution found
-      printInt(c);
-      return c;
+  while (~n <= ~nmax) { // limit iterations to prevent infinite loop
+    let c = (~a + ~b) / 2; // new midpoint
+    if (f(~c) == 0 || (~b - ~a) / 2 < ~tolerance) { // solution found
+      printInt(~c);
+      return ~c;
     } else {
       n++; // increment step counter
-      (if (sign(f(c)) == sign(f(a))) a else b) = c; // new interval
+      (if (sign(f(~c)) == sign(f(~a))) a else b) = ~c; // new interval
     }
   }
   // max number of steps exceeded

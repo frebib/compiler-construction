@@ -10,7 +10,7 @@ let whitespace = [' ' '\t']+
 let newline    = '\n' | '\r' | "\r\n"
 let integer    = '-'? ['0'-'9'] ['0'-'9']*
 (* Identifiers can't start with a number *)
-let identifier = ['a'-'z' 'A'-'Z' '_' '~' '$'] ['a'-'z' 'A'-'Z' '0'-'9' '_' '~' '$']*
+let identifier = ['a'-'z' 'A'-'Z' '_' '$'] ['a'-'z' 'A'-'Z' '0'-'9' '_' '$']*
 
 rule read = parse
   | whitespace { read lexbuf }
@@ -21,6 +21,7 @@ rule read = parse
   | ','        { COMMA }
   | ';'        { SEMICOLON }
   | '!'        { EXCLAM }
+  | '~'        { TILDE }
   | '{'        { LBRACE }
   | '}'        { RBRACE }
   | '('        { LPAREN }

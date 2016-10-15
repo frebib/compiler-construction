@@ -11,7 +11,7 @@
 
 (* Punctuation *)
 %token          COMMA SEMICOLON EXCLAM AND OR
-%token          LBRACE RBRACE LPAREN RPAREN
+%token          LBRACE RBRACE LPAREN RPAREN TILDE
 %token          ADD SUB MUL DIV MOD EQUAL INC DEC
 %token          DBLEQUAL NOTEQUAL LTHAN GTHAN LEQUAL GEQUAL
 
@@ -65,7 +65,8 @@ exp:
     | LPAREN e = blockexp RPAREN        { e }
 
     | c = const                         { c }
-    | i = ident                         { Deref i }
+    | i = ident                         { i }
+    | TILDE i = ident                   { Deref i }
     | i = ident; ps = comma_exp_params  { Application (i, ps) }
     | READINT LPAREN RPAREN             { Readint }
     | PRINTINT LPAREN e = exp RPAREN    { Printint e }
