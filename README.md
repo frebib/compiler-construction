@@ -54,7 +54,7 @@ Run it with no arguments to explain all files or optionally specify a file name 
 ```
 
 ### Testing the parser
-Along with the parser, I have built a very simple test parser and generator. All tests reside within the `tests/` directory and consist of a section of code to test followed by the OCaml tree that represents the code above. Upon compiling and running the tests, the code will be parsed and compared to the tree determining whether the test passed or failed.
+Along with the parser, I have built a very simple test parser and generator. All tests reside within the `test/` directory and consist of a section of code to test followed by the OCaml tree that represents the code above. Upon compiling and running the tests, the code will be parsed and compared to the tree determining whether the test passed or failed.
 
 To initialise the testing facility, build the 'test builder' program:
 ```
@@ -62,14 +62,17 @@ make test
 ```
 
 #### Running the tests
-Compiling and running all available tests are as simple as running the following script which will initialise the 'test builder', compile all tests in `tests/` and run them, printing `PASS` or `FAIL` for each one in turn.
+Compiling and running all available tests are as simple as running the following script which will initialise the 'test builder', compile all tests in `test/` and run them, printing `PASS` or `FAIL` for each one in turn.
 
 ```
 ./testall
 ```
 
 #### Creating a test
-Simply drop a file following the structure below into the `tests/` directory and run the `testall <testname>` script to compile and run it.
+Simply drop a file following the structure below into the `test/` directory and run the `testall <testname>` script to compile and run it. 
+
+There is a `newtest.sh` script in the `test/` folder that when called with an argument will generate an empty test from template with appropriate naming and in the correct format, just as below.
+
 
 ```
 /% TEST %/
