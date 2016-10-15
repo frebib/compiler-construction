@@ -30,6 +30,7 @@
 %nonassoc LTHAN GTHAN LEQUAL GEQUAL
 %left     ADD SUB
 %left     MUL DIV MOD
+%left     TILDE
 %right    EXCLAM
 %nonassoc INC DEC
 %right    RETURN
@@ -66,8 +67,8 @@ exp:
 
     | c = const                         { c }
     | i = ident                         { i }
-    | TILDE i = ident                   { Deref i }
     | i = ident; ps = comma_exp_params  { Application (i, ps) }
+    | TILDE e = exp                     { Deref e }
     | READINT LPAREN RPAREN             { Readint }
     | PRINTINT LPAREN e = exp RPAREN    { Printint e }
 
