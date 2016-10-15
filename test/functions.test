@@ -8,7 +8,7 @@ function funcOne(param1, param2) {
   // this is a comment :)
 }
 function funcTwo(a, b, c) {
-  return b;
+  return ~b;
 }
 function alone() {  }
 
