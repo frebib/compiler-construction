@@ -43,7 +43,7 @@ make clean default
 Execute the program with a script to parse as the argument(s)
 
 ```
-./main <inputfile>
+bin/main <inputfile>
 ```
 
 ### Debugging the parser
