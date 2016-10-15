@@ -28,7 +28,7 @@ let safe parse lex filename lexbuf =
   try parse lex lexbuf
   with
   | CompileError (typ, get_msg) -> (match typ with
-    | _ -> eprintf "%s\n%s\n" (get_msg lexbuf) (location_message filename lexbuf);
+    | _ -> eprintf "%s:\n%s\n" (location_message filename lexbuf) (get_msg lexbuf);
            exit (-1))
   | _ -> eprintf "%s:\nUnexpected token: %s\n" (location_message filename lexbuf)
                     (lexeme lexbuf); exit (-1) 

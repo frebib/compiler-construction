@@ -9,6 +9,6 @@ let indent count =
 ;;
 
 let generate_test = function
-| (code, expected) -> sprintf "open Types\n\nlet _ =\n  let code = \"%s\" in\n  let expected = %s in\n  let actual = Parse.parse \"%%inline%%\" (Lexing.from_string code) in\n  print_string (if actual = expected then \"PASS!\" else \"FAIL\"); print_newline (); Parse.parse_print \"\" (Lexing.from_string code);  print_newline " (String.escaped code) (indent 2 (String.trim expected))
+| (code, expected) -> sprintf "open Types\nopen Print\n\nlet _ =\n  let code = \"%s\" in\n  let expected = %s in\n  let actual = Parse.parse \"%%inline%%\" (Lexing.from_string code) in\n  print_string (if actual = expected then \"PASS!\" else \"FAIL\"); print_newline (); Parse.parse_print \"\" (Lexing.from_string code);  print_string (expected |> List.map string_of_func |> String.concat \"\n\"); print_newline " (String.escaped code) (indent 2 (String.trim expected))
 ;;
 
