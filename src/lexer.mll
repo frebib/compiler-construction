@@ -58,7 +58,7 @@ rule read = parse
 
   | identifier { STRING (lexeme lexbuf) }
   | eof        { EOF }
-  | _          { raise (error_of_fn Syntax (fun buf -> "Unexpected token: " ^ lexeme buf)) }
+  | _          { raise lexer_error }
 
 and line_comment buf = parse
   | newline    { new_line lexbuf; read lexbuf }

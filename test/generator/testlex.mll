@@ -1,4 +1,5 @@
 { 
+  open Error
   open Lexing
   open Testpar
 }
@@ -16,7 +17,7 @@ rule read = parse
   | "OUTPUT"    { OUTPUT }
   | "END"       { END }
   | eof         { EOF }
-  | _           { failwith ("Lexer error: " ^ (Lexing.lexeme lexbuf)) }
+  | _           { raise lexer_error }
 
 and code str = parse
   | eof         { EOF }

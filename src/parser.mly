@@ -48,6 +48,7 @@ body:
     (* A brace delimited body or a single statement*)
     | s = statement { s }
     | LBRACE ss = statement* d = def? RBRACE { opt_prepend_seq ss d }
+    | LBRACE ss = statement* d = def? error { raise (syntax_error "Expected a '}'") }
 
 statement:
     (* A complete statement; a brace block or semicolon terminated expression*)
