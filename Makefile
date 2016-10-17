@@ -11,7 +11,7 @@ main: $(TARGET)
 	mkdir -p $(BINARY_DIR)
 	mv $@ $(BINARY_DIR)/$*
 
-test: testing.native
+test: gentest.native
 	mkdir -p _build/test
 
 clean:

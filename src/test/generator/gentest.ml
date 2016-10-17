@@ -17,7 +17,7 @@ let parse file_in =
 
 let _ = 
   if Array.length Sys.argv < 3
-  then (eprintf "Usage: %s <input.test> <output.native>\n" Sys.argv.(0); exit 1)
+  then (eprintf "Generates test case programs for the parser program.\nUsage: %s <input.test> <output.native>\n" Sys.argv.(0); exit 1)
   else parse Sys.argv.(1)
   |> write Sys.argv.(2)
 

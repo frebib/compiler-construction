@@ -5,17 +5,18 @@ cd $(dirname $0)
 
 BIN_DIR="bin"
 TEST_BIN_DIR="${BIN_DIR}/test"
-GENTEST_BINARY="${BIN_DIR}/testing"
+GENTEST_BINARY="${BIN_DIR}/gentest"
 
 if ! [ -f ${GENTEST_BINARY} ]; then
     make clean default test
 fi
 
 SRC_DIR="src"
-TEST_SRC_DIR="${SRC_DIR}/test/generated"
+TEST_DIR="${SRC_DIR}/test"
+TEST_SRC_DIR="${TEST_DIR}/generated"
 
 mkdir -p ${TEST_SRC_DIR} ${TEST_BIN_DIR}
-for testfile in ${1:-test/*.test}; do
+for testfile in ${1:-$TEST_DIR/*.test}; do
     filenameext=$(basename ${testfile})
     filename="${filenameext%.*}"
     out_src_file="${TEST_SRC_DIR}/${filename}.ml"
