@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-cd $(dirname $0)/src/test
+cd $(dirname $0)/test
 
 if [ -z $1 ]; then
     echo "Usage: $(basename $0) <testname>"

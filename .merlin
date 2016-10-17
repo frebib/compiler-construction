@@ -1,7 +1,8 @@
-S src/main/**
-S src/test/**
+S src/**
+S test/generator/**
 PKG str
 
 B _build/src/**
+B _build/test/generator/**
 
 EXT test

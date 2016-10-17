@@ -1,6 +1,6 @@
 # Binaries and Generated sources
 bin
-src/test/generated
+test/generated
 
 # OCaml and Menhir files
 _build/

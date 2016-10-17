@@ -1,4 +1,6 @@
-GEN_SRC_DIR=src/test/generated
+SRC_DIR=src
+TEST_SRC_DIR=test/generator
+GEN_SRC_DIR=test/generated
 BINARY_DIR=bin
 MENHIR_DIR=_menhir
 TARGET=main.native
@@ -7,7 +9,7 @@ default: main
 main: $(TARGET)
 
 %.native:
-	ocamlbuild -use-menhir -use-ocamlfind -pkg str $@
+	ocamlbuild -use-menhir -use-ocamlfind -I $(SRC_DIR) -I $(TEST_SRC_DIR) -pkg str $@
 	mkdir -p $(BINARY_DIR)
 	mv $@ $(BINARY_DIR)/$*
 

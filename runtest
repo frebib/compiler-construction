@@ -12,7 +12,7 @@ if ! [ -f ${GENTEST_BINARY} ]; then
 fi
 
 SRC_DIR="src"
-TEST_DIR="${SRC_DIR}/test"
+TEST_DIR="test"
 TEST_SRC_DIR="${TEST_DIR}/generated"
 
 mkdir -p ${TEST_SRC_DIR} ${TEST_BIN_DIR}
@@ -23,7 +23,7 @@ for testfile in ${1:-$TEST_DIR/*.test}; do
     out_bin_file="${filename}.native"
 
     ${GENTEST_BINARY} ${testfile} ${out_src_file} && echo "=> Generating test '${filename}'"
-    ocamlbuild -use-menhir -use-ocamlfind ${filename}.native 1>/dev/null
+    ocamlbuild -use-menhir -use-ocamlfind -I ${TEST_SRC_DIR} ${filename}.native 1>/dev/null
     mv ${out_bin_file} ${TEST_BIN_DIR}
 done
 
@@ -53,4 +53,4 @@ done
 failcount=${#failed[@]}
 echo -e "\nTest summary:"
 echo -e "\t$((count - failcount)) passed."
-[ $failcount -gt 0 ] && echo -e "\t$((failcount)) failed: ${failed[@]}"
+[ $failcount -gt 0 ] && echo -e "\t$((failcount)) failed: ${failed[@]}" || true
