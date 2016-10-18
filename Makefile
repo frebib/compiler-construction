@@ -15,7 +15,7 @@ main: $(TARGET)
 
 test: gentest.native
 	mkdir -p _build/test
-	./runtest
+	./runtest $(TESTS)
 
 clean:
 	ocamlbuild -clean
