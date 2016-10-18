@@ -24,7 +24,7 @@ let syntax_error msg = error_of Parse msg
 let error_message buf = function
   | CompileError (err, None) -> sprintf "%sError: Unspecified reason :(" (string_of_etype err)
   | CompileError (err, Some get_msg) -> sprintf "%sError: %s" (string_of_etype err) (get_msg buf)
-  | Failure s -> failwith "Error: Failure " ^ s
+  | Failure s -> failwith s
   | _ -> failwith "Error: Unknown exception"
 ;;
 
