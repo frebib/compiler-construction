@@ -28,11 +28,14 @@ let error_message buf = function
   | _ -> failwith "Error: Unknown exception"
 ;;
 
+let line_of_buf buf = (Lexing.lexeme_start_p buf).pos_lnum
+let col_of_buf buf  = let offs = Lexing.lexeme_start_p buf in
+                      offs.pos_cnum - offs.pos_bol + 1
+
 let location_message filename lexbuf = 
-  let offs = Lexing.lexeme_start_p lexbuf in
-  let col_beg = offs.pos_cnum - offs.pos_bol + 1 in
+  let col_beg = col_of_buf lexbuf in
   let col_end = col_beg + (String.length (lexeme lexbuf)) in
-  let line = offs.pos_lnum in
+  let line = line_of_buf lexbuf in
   sprintf "File \"%s\" at line %d, columns %d-%d:" filename line col_beg col_end
 
 let safe parse lex filename lexbuf =
