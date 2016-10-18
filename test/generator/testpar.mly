@@ -1,6 +1,5 @@
 %{ 
   open Test 
-  
   let join = String.concat "\n"
 %}
 
@@ -15,4 +14,4 @@ parse_test:
     c = CODE*
     OUTPUT
     o = CODE* 
-    END EOF {(join c, join o) }
+    END EOF { Test (join c, join o) }

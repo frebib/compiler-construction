@@ -6,7 +6,7 @@ function application() {
 
 /% OUTPUT %/
 
-[
+Program [
   ("application", [],
     Application (
       Identifier "a",

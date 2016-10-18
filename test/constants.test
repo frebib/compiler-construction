@@ -20,7 +20,7 @@ function constants(pi) {
 
 /% OUTPUT %/
 
-[
+Program [
   ("constants", ["pi"],
     Seq (
       Asg (

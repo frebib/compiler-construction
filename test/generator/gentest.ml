@@ -12,6 +12,7 @@ let parse file_in =
   open_in file_in
   |> Lexing.from_channel
   |> safe Testpar.parse_test Testlex.read file_in
+  |> name_test file_in
   |> generate_test
 ;;
 

@@ -10,7 +10,7 @@ function whileTest() {
 
 /% OUTPUT %/
 
-[
+Program [
   ("whileTest", [],
     While (Boolean true, (
       Seq (

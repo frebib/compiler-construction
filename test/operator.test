@@ -17,7 +17,7 @@ function operator() {
 
 /% OUTPUT %/
 
-[
+Program [
   ("operator", [], 
     Seq (
       BinaryOp (Plus, Identifier "x", Const 1),

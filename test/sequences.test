@@ -8,7 +8,7 @@ function sequences() {
 
 /% OUTPUT %/
 
-[
+Program [
   ("sequences", [],
     (* A sequence of function calls *)
     Seq (

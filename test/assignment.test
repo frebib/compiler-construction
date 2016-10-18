@@ -10,7 +10,7 @@ function assignment() {
 
 /% OUTPUT %/
 
-[
+Program [
   ("assignment", [],
     Seq (
       Asg (Identifier "x", Const 4), 

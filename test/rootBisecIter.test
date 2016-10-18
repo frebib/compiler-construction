@@ -19,7 +19,7 @@ function rootBisec(f, a, b, tolerance, nmax) {
 
 /% OUTPUT %/
 
-[
+Program [
   ("rootBisec", ["f"; "a"; "b"; "tolerance"; "nmax"],
     Let ("n", Const 1,
       Seq(

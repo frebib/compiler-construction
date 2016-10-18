@@ -9,7 +9,7 @@ function deref(c) {
 
 /% OUTPUT %/
 
-[
+Program [
   ("deref", ["c"], 
     Let ("x", 
       Deref (Identifier "c"),

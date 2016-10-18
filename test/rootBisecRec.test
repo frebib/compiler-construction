@@ -14,7 +14,7 @@ function rootBisec(l, r) {
 
 /% OUTPUT %/
 
-[
+Program [
   ("rootBisec", ["l"; "r"],
     Let ("mid", BinaryOp (Divide, BinaryOp (Minus, Deref (Identifier "r"), Deref (Identifier "l")), Const 2),
       Seq (
