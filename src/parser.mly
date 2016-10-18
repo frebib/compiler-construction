@@ -120,8 +120,8 @@ defin:
     | DIV       { Divide }
     | MOD       { Modulus }
     
-    | AND {And}
-    | OR {Or}
+    | AND       { And }
+    | OR        { Or }
 
     | NOTEQUAL  { Noteq }
     | DBLEQUAL  { Equal }
