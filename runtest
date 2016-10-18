@@ -25,8 +25,6 @@ tests=(${1:-${TEST_DIR}/*.test})
 count=${#tests[@]}
 shopt -u nullglob
 
-echo "Count: $count"
-
 mkdir -p ${TEST_SRC_DIR} ${TEST_BIN_DIR}
 for testfile in ${tests[@]}; do
     filenameext=$(basename ${testfile})
