@@ -38,8 +38,10 @@ let location_message filename lexbuf =
   let line = line_of_buf lexbuf in
   sprintf "File \"%s\" at line %d, columns %d-%d:" filename line col_beg col_end
 
+let print_trace err filename buf = eprintf "%s\n%s" (location_message filename buf) (error_message buf err)
+
 let safe parse lex filename lexbuf =
   try parse lex lexbuf
-  with err -> eprintf "%s\n%s" (location_message filename lexbuf) (error_message lexbuf err); exit (-1)
+  with err -> print_trace err filename lexbuf; exit (-1)
 ;;
 
