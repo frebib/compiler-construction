@@ -15,7 +15,7 @@ SRC_DIR="src"
 TEST_DIR="test"
 
 TEST_SRC_DIR="${TEST_DIR}/generated"
-TEST_GEN_SRC_DIR="${TEST_DIR}/generator"
+TEST_GEN_SRC_DIR="${SRC_DIR}/test"
 
 set +e # Dont fail if a test fails
 failed=()

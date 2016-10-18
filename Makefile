@@ -1,5 +1,5 @@
 SRC_DIR=src
-TEST_SRC_DIR=test/generator
+TEST_SRC_DIR=src/test
 GEN_SRC_DIR=test/generated
 BINARY_DIR=bin
 MENHIR_DIR=_menhir
