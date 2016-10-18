@@ -13,30 +13,41 @@ fi
 
 SRC_DIR="src"
 TEST_DIR="test"
+
 TEST_SRC_DIR="${TEST_DIR}/generated"
+TEST_GEN_SRC_DIR="${TEST_DIR}/generator"
+
+set +e # Dont fail if a test fails
+failed=()
+
+shopt -s nullglob
+tests=(${1:-${TEST_DIR}/*.test})
+count=${#tests[@]}
+shopt -u nullglob
+
+echo "Count: $count"
 
 mkdir -p ${TEST_SRC_DIR} ${TEST_BIN_DIR}
-for testfile in ${1:-$TEST_DIR/*.test}; do
+for testfile in ${tests[@]}; do
     filenameext=$(basename ${testfile})
     filename="${filenameext%.*}"
     out_src_file="${TEST_SRC_DIR}/${filename}.ml"
     out_bin_file="${filename}.native"
 
     ${GENTEST_BINARY} ${testfile} ${out_src_file} && echo "=> Generating test '${filename}'"
-    ocamlbuild -use-menhir -use-ocamlfind -I ${TEST_SRC_DIR} ${filename}.native 1>/dev/null
-    mv ${out_bin_file} ${TEST_BIN_DIR}
+    buildout=$(ocamlbuild -use-menhir -use-ocamlfind -I ${TEST_SRC_DIR} -I ${TEST_GEN_SRC_DIR} ${filename}.native -pkg str)
+    # If the build fails, print the output
+    if [ $? -ne 0 ]; then
+        echo ":: Error generating test:"
+        echo -e "$buildout\n" | sed 's|^|  |g'
+        failed+=("$filename")
+    else
+        mv ${out_bin_file} ${TEST_BIN_DIR}
+    fi
 done
 
-set +e # Dont fail if a test fails
-failed=()
-
-shopt -s nullglob
-test_binaries=(${TEST_BIN_DIR}/*.native)
-count=${#test_binaries[@]}
-shopt -u nullglob
-
 echo -e "\n:: All tests built. Running them now!\n"
-for exe in ${test_binaries[@]}; do
+for exe in ${TEST_BIN_DIR}/*.native; do
     filename=$(basename $exe)
     testname=${filename%.*}
     echo -ne "=> Running test '${testname}': "
