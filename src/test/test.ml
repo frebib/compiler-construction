@@ -31,12 +31,6 @@ type test_ret =
 ;;
 let err_from_buf typ buf = CompileErr (typ, line_of_buf buf, col_of_buf buf)
 
-(* Indents lines by n spaces *)
-let indent count =
-  let spaces = Bytes.to_string (Bytes.make count ' ') in
-  Str.global_replace (Str.regexp "\n") ("\n" ^ spaces)
-;;
-
 (* Generating and running the test *)
 let rec test_passed buf act exp = match act, exp with
   | Program _,    Program _
