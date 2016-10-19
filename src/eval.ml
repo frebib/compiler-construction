@@ -79,17 +79,3 @@ let rec eval_exp ht = function
   | e            -> e
 
 let eval exp = eval_exp (Hashtbl.create 8) exp;
-
-open Parse
-
-let parse_eval_print file =
-  parse_from file
-  |> List.map (function (name, _, body) -> sprintf "%s: %s" name (eval body |> string_of_exp))
-  |> String.concat "\n"
-  |> printf "%s\n"
-;;
-
-let _ =
-  if Array.length Sys.argv < 2
-  then (printf "Parses and evaluates a program.\nUsage: %s <filename>\n" Sys.argv.(0); exit 1)
-  else parse_eval_print Sys.argv.(1)

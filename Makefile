@@ -14,8 +14,6 @@ main: $(TARGET)
 	mkdir -p $(BINARY_DIR)
 	mv $@ $(BINARY_DIR)/$*
 
-eval: eval.native
-
 test: gentest.native
 	mkdir -p _build/test
 	./runtest $(TESTS)

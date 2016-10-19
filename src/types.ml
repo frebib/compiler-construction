@@ -47,4 +47,6 @@ and seq_of_list = function
 and list_of_seq = function
   | Seq (hd, tl) -> hd :: list_of_seq tl
   | e            -> [e]
+
+and func_body = function (name, args, body) -> body
 ;;

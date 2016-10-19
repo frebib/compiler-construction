@@ -9,7 +9,18 @@ type test =
 ;;
 let name_test name test = match test with
   | Test (code, expected) -> NamedTest (name, code, expected)
-  | NamedTest (_, _, _)   -> test
+  | NamedTest _   -> test
+;;
+
+let code = function
+  | Test (code, _)         -> code
+  | NamedTest (_, code, _) -> code
+and expected = function
+  | Test (_, exp)         -> exp
+  | NamedTest (_, _, exp) -> exp
+and name = function
+  | NamedTest (name, _, _) -> name
+  | _ -> failwith "Test has no name"
 ;;
 
 (* Exception thrown by test: type, line-num, col-num *)

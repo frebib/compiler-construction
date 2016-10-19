@@ -50,4 +50,6 @@ and string_of_func = function
   | (name, args, exp) -> let arr = concat "; " (map esc args) in
   let exp_str = string_of_exp exp in
   sprintf "(%s, [%s], %s)" (esc name) arr exp_str 
+
+and string_of_prog p = p |> List.map string_of_func |> String.concat ";\n" |> sprintf "[\n%s\n]"
 ;;
