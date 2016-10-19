@@ -8,17 +8,17 @@ let write filename data =
   close_out out;
 ;;
 
-let parse file_in =
-  open_in file_in
+let parse_from file =
+  open_in file
   |> Lexing.from_channel
-  |> safe Testpar.parse_test Testlex.read file_in
-  |> name_test file_in
-  |> generate_test
+  |> Error.safe Testpar.parse_test Testlex.read file
+  |> name_test file
 ;;
 
-let _ = 
+let _ =
   if Array.length Sys.argv < 3
   then (eprintf "Generates test case programs for the parser program.\nUsage: %s <input.test> <output.native>\n" Sys.argv.(0); exit 1)
-  else parse Sys.argv.(1)
+  else parse_from Sys.argv.(1)
+  |> generate_test
   |> write Sys.argv.(2)
 
