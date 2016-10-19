@@ -22,7 +22,7 @@ function ${name%.*}() {
 
 /% OUTPUT %/
 
-[
+Program [
     ("${name%.*}", [], Empty)
 ]
 
