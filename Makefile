@@ -9,7 +9,8 @@ default: main
 main: $(TARGET)
 
 %.native:
-	ocamlbuild -use-menhir -use-ocamlfind -I $(SRC_DIR) -I $(TEST_SRC_DIR) -pkg str $@
+	export OCAMLRUNPARAM=b
+	ocamlbuild -use-menhir -use-ocamlfind -cflag -g -I $(SRC_DIR) -I $(TEST_SRC_DIR) -pkg str $@
 	mkdir -p $(BINARY_DIR)
 	mv $@ $(BINARY_DIR)/$*
 
