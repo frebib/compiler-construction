@@ -15,8 +15,9 @@ rule read = parse
   | "/*"        { comment read lexbuf }
   | "/%"        { read lexbuf }
   | close_nl    { code "" lexbuf }
-  | "TEST"      { TEST }
-  | "OUTPUT"    { OUTPUT }
+  | "CODE"      { CODE }
+  | "TREE"      { TREE }
+  | "RESULT"    { RESULT }
   | "END"       { END }
   | eof         { EOF }
   | _           { raise lexer_error }

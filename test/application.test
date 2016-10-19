@@ -1,10 +1,10 @@
-/% TEST %/
+/% CODE %/
 
 function application() {
   return a(b(c(fish(), d(1, abc, xyz(1)))));
 }
 
-/% OUTPUT %/
+/% TREE %/
 
 Program [
   ("application", [],
@@ -31,5 +31,8 @@ Program [
     )
   )
 ]
+
+/% RESULT %/
+
 
 /% END %/

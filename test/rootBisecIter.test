@@ -1,4 +1,4 @@
-/% TEST %/
+/% CODE %/
 
 function rootBisec(f, a, b, tolerance, nmax) {
   let n = 1;
@@ -17,7 +17,7 @@ function rootBisec(f, a, b, tolerance, nmax) {
   // printf("Method failed.") 
 }
 
-/% OUTPUT %/
+/% TREE %/
 
 Program [
   ("rootBisec", ["f"; "a"; "b"; "tolerance"; "nmax"],
@@ -42,5 +42,8 @@ Program [
     )
   )
 ]
+
+/% RESULT %/
+
 
 /% END %/

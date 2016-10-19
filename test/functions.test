@@ -1,4 +1,4 @@
-/% TEST %/
+/% CODE %/
 
 // This tests function creation with & without
 // parameters, with empty & non-empty bodies and
@@ -12,12 +12,15 @@ function funcTwo(a, b, c) {
 }
 function alone() {  }
 
-/% OUTPUT %/
+/% TREE %/
 
 Program [
   ("funcOne", ["param1"; "param2"], Empty);
   ("funcTwo", ["a"; "b"; "c"], Deref (Identifier "b"));
   ("alone", [], Empty)
 ]
+
+/% RESULT %/
+
 
 /% END %/

@@ -1,4 +1,4 @@
-/% TEST %/
+/% CODE %/
 
 function letvar(arg) {
   let x = aThing(arg);
@@ -9,7 +9,7 @@ function letvar(arg) {
   return 4;
 }
 
-/% OUTPUT %/
+/% TREE %/
 
 Program [
   ("letvar", ["arg"],
@@ -32,5 +32,8 @@ Program [
     )
   )
 ]
+
+/% RESULT %/
+
 
 /% END %/

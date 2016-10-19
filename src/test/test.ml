@@ -4,22 +4,22 @@ open Printf
 
 (* Code, Output: name, code, expected *)
 type test = 
-  | Test of string * string 
-  | NamedTest of string * string * string
+  | Test of string * string * string
+  | NamedTest of string * string * string * string
 ;;
 let name_test name test = match test with
-  | Test (code, expected) -> NamedTest (name, code, expected)
+  | Test (code, expected, result) -> NamedTest (name, code, expected, result)
   | NamedTest _   -> test
 ;;
 
 let code = function
-  | Test (code, _)         -> code
-  | NamedTest (_, code, _) -> code
+  | Test (code, _, _)         -> code
+  | NamedTest (_, code, _, _) -> code
 and expected = function
-  | Test (_, exp)         -> exp
-  | NamedTest (_, _, exp) -> exp
+  | Test (_, exp, _)         -> exp
+  | NamedTest (_, _, exp, _) -> exp
 and name = function
-  | NamedTest (name, _, _) -> name
+  | NamedTest (name, _, _, _) -> name
   | _ -> failwith "Test has no name"
 ;;
 
@@ -59,7 +59,7 @@ let run_test name code expected =
 
 (* Generate OCaml code for a test *)
 let rec generate_test = function
-  | NamedTest (name, code, expected) -> sprintf "open Test\nopen Types\nopen Error\nopen Print\n\nlet _ =\n  let code = \"%s\" in\n  let expected = %s in\n  run_test \"%s\" code expected" (String.escaped code) (indent 2 (String.trim expected)) name
-  | Test (code, exp) -> generate_test (NamedTest ("%inline%", code, exp))
+  | NamedTest (name, code, expected, result) -> sprintf "open Test\nopen Types\nopen Error\nopen Print\n\nlet _ =\n  let code = \"%s\" in\n  let expected = %s in\n  run_test \"%s\" code expected" (String.escaped code) (indent 2 (String.trim expected)) name
+  | test -> generate_test (name_test "%inline%" test)
 ;;
 

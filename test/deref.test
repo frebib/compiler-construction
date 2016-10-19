@@ -1,4 +1,4 @@
-/% TEST %/
+/% CODE %/
 
 function deref(c) {
   let x = ~c;
@@ -7,7 +7,7 @@ function deref(c) {
   return ~(~c);
 }
 
-/% OUTPUT %/
+/% TREE %/
 
 Program [
   ("deref", ["c"], 
@@ -33,5 +33,8 @@ Program [
     )
   )
 ]
+
+/% RESULT %/
+
 
 /% END %/

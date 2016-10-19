@@ -1,4 +1,4 @@
-/% TEST %/
+/% CODE %/
 
 function assignment() {
   x = 4;
@@ -8,7 +8,7 @@ function assignment() {
   things = stuff(and(things));
 }
 
-/% OUTPUT %/
+/% TREE %/
 
 Program [
   ("assignment", [],
@@ -39,5 +39,8 @@ Program [
     )
   )
 ]
+
+/% RESULT %/
+
 
 /% END %/

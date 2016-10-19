@@ -1,4 +1,4 @@
-/% TEST %/
+/% CODE %/
 
 function whileTest() {
   while (true) {
@@ -8,7 +8,7 @@ function whileTest() {
   }
 }
 
-/% OUTPUT %/
+/% TREE %/
 
 Program [
   ("whileTest", [],
@@ -25,5 +25,8 @@ Program [
     ))
   )
 ]
+
+/% RESULT %/
+
 
 /% END %/

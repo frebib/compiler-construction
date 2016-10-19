@@ -1,4 +1,4 @@
-/% TEST %/
+/% CODE %/
 
 function constants(pi) {
   b = true;
@@ -18,7 +18,7 @@ function constants(pi) {
   return 1 + 13 / false <= sqrt(PI + true);
 }
 
-/% OUTPUT %/
+/% TREE %/
 
 Program [
   ("constants", ["pi"],
@@ -79,5 +79,8 @@ Program [
     )
   )
 ]
+
+/% RESULT %/
+
 
 /% END %/

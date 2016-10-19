@@ -1,4 +1,4 @@
-/% TEST %/
+/% CODE %/
 
 function ifTest() {
   if (x || y) {
@@ -14,7 +14,7 @@ function ifTest() {
   }
 }
 
-/% OUTPUT %/
+/% TREE %/
 
 Program [
   ("ifTest", [],
@@ -47,5 +47,8 @@ Program [
     )
   )
 ]
+
+/% RESULT %/
+
 
 /% END %/

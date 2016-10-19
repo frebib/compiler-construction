@@ -15,16 +15,20 @@ else
 fi
 
 cat << EOF > $name
-/% TEST %/
+/% CODE %/
 
 function ${name%.*}() {
 }
 
-/% OUTPUT %/
+/% TREE %/
 
 Program [
     ("${name%.*}", [], Empty)
 ]
+
+/% RESULT %/
+
+Empty
 
 /% END %/
 EOF

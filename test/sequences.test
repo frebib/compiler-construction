@@ -1,4 +1,4 @@
-/% TEST %/
+/% CODE %/
 
 function sequences() {
   callme(one, two, three, four, five);
@@ -6,7 +6,7 @@ function sequences() {
   onestopshop(noope);
 }
 
-/% OUTPUT %/
+/% TREE %/
 
 Program [
   ("sequences", [],
@@ -45,5 +45,8 @@ Program [
     )
   )
 ]
+
+/% RESULT %/
+
 
 /% END %/

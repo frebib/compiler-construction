@@ -1,4 +1,4 @@
-/% TEST %/
+/% CODE %/
 
 function operator() {
   x + 1;
@@ -15,7 +15,7 @@ function operator() {
   return 3 && chickens;
 }
 
-/% OUTPUT %/
+/% TREE %/
 
 Program [
   ("operator", [], 
@@ -52,5 +52,8 @@ Program [
     )
   )
 ]
+
+/% RESULT %/
+
 
 /% END %/
