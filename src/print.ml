@@ -38,7 +38,7 @@ and string_of_exp = function
   | UnaryOp (op, e)       -> "UnaryOp " ^ wrap (string_of_unop_exp op e)
   | BinaryOp (op, e1, e2) -> "BinaryOp "  ^ wrap (string_of_op op ^ ", " ^ string_of_exp e1 ^ ", " ^ string_of_exp e2)
   | Application (i, e)    -> "Application " ^ wrap ([i;e] |> map string_of_exp |> concat ", ")
-  | Const n               -> "Const " ^ string_of_int n
+  | Const n               -> "Const " ^ if n < 0 then wrap (string_of_int n) else string_of_int n
   | Boolean b             -> "Boolean " ^ string_of_bool b
   | Readint               -> "Readint"
   | Printint e            -> "Printint" ^ wrap (string_of_exp e)
