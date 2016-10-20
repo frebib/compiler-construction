@@ -1,3 +1,4 @@
+open Error
 open Types
 open Print
 open Printf
@@ -12,7 +13,7 @@ and map_int_inc e = Const (map_int (fun i -> i + 1) e)
 and map_int_dec e = Const (map_int (fun i -> i - 1) e)
 and get_int = function
   | Const i   -> i
-  | _ -> failwith "Not an integer type"
+  | _ -> raise (eval_error "Not an integer type")
 
 and exp_compare a b = match a, b with
   | Const i, Const j     -> compare i j
@@ -22,11 +23,11 @@ and exp_compare a b = match a, b with
 
 let rec find_var ht = function
   | Identifier s -> Hashtbl.find ht s
-  | e -> failwith ("Not a variable. Can't lookup: " ^ string_of_exp e)
+  | e -> raise (eval_error ("Not a variable. Can't lookup: " ^ string_of_exp e))
 
 and put_var ht e v = match e with
   | Identifier s -> Hashtbl.replace ht s v
-  | e -> failwith ("Not a variable. Can't store: " ^ string_of_exp e)
+  | e -> raise (eval_error ("Not a variable. Can't store: " ^ string_of_exp e))
 
 and map_var ht fn = function
   (* Fetch, map and update the value. Return the Identifier *)
@@ -51,7 +52,7 @@ let rec eval_exp ht = function
                         | PostInc -> eval_exp ht e |> map_var ht map_int_inc
                         | PostDec -> eval_exp ht e |> map_var ht map_int_dec
                         | Not     -> Boolean (eval_exp ht e |> map_bool (not))
-                        | _ -> failwith ("Not a unary operator: " ^ string_of_op op))
+                        | _ -> raise (eval_error ("Not a unary operator: " ^ string_of_op op)))
 
   | BinaryOp (op, e1, e2) -> let v1 = eval_exp ht e1 in
                              let v2 = eval_exp ht e2 in
@@ -69,7 +70,11 @@ let rec eval_exp ht = function
                               | Gth     -> Boolean ((exp_compare v1 v2) > 0)
                               | Leq     -> Boolean ((exp_compare v1 v2) <= 0)
                               | Geq     -> Boolean ((exp_compare v1 v2) >= 0)
-                              | _ -> failwith ("Not a binary operator" ^ string_of_op op))
+                              | _ -> raise (eval_error ("Not a binary operator" ^ string_of_op op)))
+  
+  | Let _         -> raise (unimpl_error "Let statements are unimplemented")
+  | New _         -> raise (unimpl_error "New statements are unimplemented")
+  | Application _ -> raise (unimpl_error "Function applicatoin is unimplemented")
 
   | Printint e   -> printf "%d\n" (get_int (eval_exp ht e)); Empty
   | Readint      -> Const (read_line () |> int_of_string)

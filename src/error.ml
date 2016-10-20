@@ -4,10 +4,14 @@ open Lexing
 type error =
   | Syntax
   | Parse
+  | Eval
+  | Unimplemented
 ;;
 let string_of_etype = function
   | Syntax -> "Syntax"
   | Parse  -> "Parse"
+  | Eval   -> "Eval"
+  | Unimplemented -> "Unimplemented"
 ;;
 
 exception CompileError of error * (Lexing.lexbuf -> string) option
@@ -19,7 +23,9 @@ let error_empty tru fal = function
   | _    -> tru
 ;;
 let lexer_error = error_of_fn Syntax (fun buf -> "Unexpected token: " ^ (lexeme buf))
+let unimpl_error msg = error_of Unimplemented msg
 let syntax_error msg = error_of Parse msg
+let eval_error msg = error_of Eval msg
 
 let error_message buf = function
   | CompileError (err, None) -> sprintf "%sError: Unspecified reason :(" (string_of_etype err)
