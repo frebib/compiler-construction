@@ -7,7 +7,7 @@ let rec map_bool fn e = fn (get_bool e)
 and get_bool = function
   | Boolean b -> b
   | Const i   -> (i > 0)
-  | e -> raise (eval_error ("Not a boolean type" ^ string_of_exp e))
+  | e -> raise (eval_error ("Not a boolean type: " ^ string_of_exp e))
 and map_int fn e  = fn (get_int e)
 and map_int_inc e = Const (map_int (fun i -> i + 1) e)
 and map_int_dec e = Const (map_int (fun i -> i - 1) e)
