@@ -14,6 +14,12 @@ else
     name="$1.test"
 fi
 
+if [ -f $name ]; then
+    echo "Error: A test with that name already exists"
+    echo "Exiting..."
+    exit 5
+fi
+
 cat << EOF > $name
 /% CODE %/
 
