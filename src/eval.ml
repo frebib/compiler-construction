@@ -22,7 +22,11 @@ and exp_compare a b = match a, b with
 ;;
 
 let rec find_var ht = function
-  | Identifier s -> Hashtbl.find ht s
+  | Identifier s -> (try
+                      Hashtbl.find ht s
+                    with
+                      | Not_found -> raise (eval_error (sprintf "Variable '%s' is not defined" s))
+                      | e -> raise e)
   | e -> raise (eval_error ("Not a variable. Can't lookup: " ^ string_of_exp e))
 
 and put_var ht e v = match e with
