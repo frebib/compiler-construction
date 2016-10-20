@@ -58,8 +58,8 @@ for exe in ${natives[@]}; do
     if testoutput="$($exe 2>&1)"; then
         echo "PASS!"
     else
-        echo "FAIL!"
-        echo "$testoutput"
+        echo "FAIL! (returned $?)"
+        echo -e "$testoutput\n"
         failed+=("$testname")
     fi
 done
