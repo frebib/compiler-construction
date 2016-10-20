@@ -57,6 +57,6 @@ and string_of_prog p = p |> List.map string_of_func |> String.concat ";\n" |> sp
 (* Indents lines by n spaces *)
 let indent count =
   let spaces = Bytes.to_string (Bytes.make count ' ') in
-  Str.global_replace (Str.regexp "\n") ("\n" ^ spaces)
+  Str.global_replace (Str.regexp "^") spaces
 ;;
 
