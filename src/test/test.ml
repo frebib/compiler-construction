@@ -52,14 +52,16 @@ let run_test name code tree result =
   if (test_passed buf actual tree) then
     try
       let output = Eval.eval_all (prog_from_ret actual) in
-      if output = result
-      then exit 0
+      if output = result then
+        exit 0
       else 
-        let out_str = List.map (fun e -> string_of_exp e |> indent 2) output |> String.concat ", " |> indent 2 |> sprintf "[\n%s\n]" in
+        let out_str = List.map (fun e -> string_of_exp e |> indent 2) output
+          |> String.concat ";\n" |> indent 2 |> sprintf "[\n%s\n]" in
         eprintf ":: Evaluation failed.\n  :: Output:\n%s\n" (indent 2 out_str); exit 1
-      with err -> match err with
-        | CompileError (Unimplemented, _) -> eprintf " :: %s\n" (error_message buf err); exit 10
-        | _ -> error_message buf err |> eprintf "%s\n" |> exit 1
+    with err -> match err with
+      | CompileError (Unimplemented, _) -> eprintf " :: %s\n" (error_message buf err); exit 10
+      | CompileError (Eval, _) -> eprintf " :: %s\n" (error_message buf err); exit 3
+      | _ -> raise err
 
   else
     (match actual with
@@ -67,7 +69,7 @@ let run_test name code tree result =
       | Exception err -> print_trace err name buf
       | CompileErr (e, _, _) -> let err = CompileError (e, Some (fun _ -> "")) in
                                 print_trace err name buf);
-    exit 1
+    exit 2
 ;;
 
 (* Generate OCaml code for a test *)
