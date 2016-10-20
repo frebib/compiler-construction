@@ -4,11 +4,14 @@ This project is written with [Merlin](https://github.com/the-lambda-church/merli
 
 ### Parser sources
 All parser source is stored in `src/`
-* `main.ml` - Top level program that invokes the lexer/parser
-* `lexer.mll` - Text lexer that converts text into tokens
+* `main.ml`    - Top level program that invokes the lexer/parser
+* `lexer.mll`  - Text lexer that converts text into tokens
 * `parser.mly` - Token parser that generates the parse tree
+* `eval.ml`    - Expression evaluation for 'running' programs without compilation  
+  
 
-* `types.ml` - The Abstract Syntax Tree definition and accompanying helper functions for construction and printing
+* `types.ml` - The Abstract Syntax Tree definition and accompanying helper functions for construction
+* `print.ml` - Utility functions for printing expressions as defined in `types.ml` in a OCaml 'toplevel' format
 * `parse.ml` - Functions for running parse tasks, from file or `string` and to `Types.program` or `string`
 * `error.ml` - A small utility library to handle exceptions thrown by the parser
 
@@ -40,11 +43,17 @@ make clean default
 
 # Testing & Debugging
 ### Running the parser
-Execute the program with a script to parse as the argument(s)
+The `bin/main` entrypoint has several functions.
+For more information on how these work, consult the help page with `bin/main --help`
 
-```
-bin/main <inputfile>
-```
+The first argument specified to the program is the command to run. The following options are available:
+* `parse`    - Parses the program code and prints the tree
+* `eval`     - Evaluates a tree and prints the result (including any printed text from running the program)
+* `parseval` - Combines the above options, parsing then evaluating the program code.
+
+Additionally this can be used with `*.test` formatted files too. When supplied with the `--test` flag, the program will parse the test data from the script before executing the given command.  
+
+_It should be noted that this doesn't run the testing facility and does no checking that the test is correct or valid. You will have to use `runtest <file>` for that. More is explained about this in the test documentation in `doc/test.md`_
 
 ### Debugging the parser
 The `explain` script will run `menhir --explain` on the `.mly` files and provide the output.
@@ -61,33 +70,6 @@ To initialise the testing facility, build the 'test builder' program:
 make test
 ```
 
-#### Running the tests
-Compiling and running all available tests are as simple as running the following script which will initialise the 'test builder', compile all tests in `test/` and run them, printing `PASS` or `FAIL` for each one in turn.
+Subsequent runs of the tests can be completed with either `make clean test` or the `runtest` script
 
-```
-./runtest
-```
-
-#### Creating a test
-Simply drop a file following the structure below into the `test/` directory and run the `./runtest <testname>` script to compile and run it. 
-
-The `newtest` script when called with an argument will generate an empty test from template with appropriate naming and in the correct format, just as below.
-
-
-```
-/% TEST %/
-
-function testme(abc) {
-...
-}
-...
-
-/% OUTPUT %/
-
-[
-    ("testme", ["abc"], ...);
-    ...
-]
-
-/% END %/
-```
+More information about the test tools in the test documentation in `doc/test.md`
