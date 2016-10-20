@@ -1,0 +1,49 @@
+/% CODE %/
+
+// Just some random integer maths with an if
+function eval1() {
+  x = 4;
+  y = 5;
+  if (~x < ~y) {
+    a = 3;
+  } else {
+    a = 1;
+  }
+  return ~x + ~y - ~a;
+}
+
+/% TREE %/
+
+Program [
+  ("eval1", [], Seq (
+    Asg (Identifier "x", Const 4),
+    Seq (
+      Asg (Identifier "y", Const 5),
+      Seq (
+        If (
+          BinaryOp (Lth,
+            Deref (Identifier "x"),
+            Deref (Identifier "y")
+          ),
+          Asg (Identifier "a", Const 3),
+          Asg (Identifier "a", Const 1)
+        ),
+        BinaryOp (Minus,
+          BinaryOp (Plus,
+            Deref (Identifier "x"),
+            Deref (Identifier "y")
+          ),
+          Deref (Identifier "a")
+        )
+      )
+    )
+  ))
+]
+
+/% RESULT %/
+
+[
+  Const 6
+]
+
+/% END %/

@@ -1,27 +1,28 @@
 /% CODE %/
 
-function constants(pi) {
+function constants(PI) {
   b = true;
   notb = false;
-  c = !!b;
+  c = !!~b;
 
   // Only positive integers for now
   e = 19;
   f = 34763567352346;
   i = 0;
   
-  printInt(readInt());
+  // Tests shouldn't be interactive.
+  // hard-code a value instead
+  //in = readInt();
+  in = 50;
+  printInt(~in);
 
-  identifyThis;
-  functionIdentifier();
-
-  return 1 + 13 / false <= sqrt(PI + true);
+  return 1 + 13 / 8 <= sqrt(PI);
 }
 
 /% TREE %/
 
 Program [
-  ("constants", ["pi"],
+  ("constants", ["PI"],
     Seq (
       Asg (
         Identifier "b",
@@ -33,7 +34,7 @@ Program [
         ), Seq (
           Asg (
             Identifier "c",
-            UnaryOp (Not, UnaryOp (Not, Identifier "b"))
+            UnaryOp (Not, UnaryOp (Not, Deref (Identifier "b")))
           ),
           Seq (
             Asg (
@@ -51,22 +52,21 @@ Program [
                   Const 0
                 ),
                 Seq (
-                  Printint(Readint),
+                  Asg (
+                    Identifier "in",
+                    Const 50
+                  ),
                   Seq (
-                    Identifier "identifyThis",
-                    Seq (
-                      Application (
-                        Identifier "functionIdentifier",
-                        Empty
-                      ), BinaryOp (
-                        Leq,
-                        BinaryOp (Plus, Const 1, BinaryOp (
-                          Divide, Const 13, Boolean false)
-                        ), Application (
-                          Identifier "sqrt",
-                          BinaryOp (
-                            Plus, Identifier "PI", Boolean true)
-                        )
+                    Printint (
+                      Deref (Identifier "in")
+                    ),
+                    BinaryOp (
+                      Leq,
+                      BinaryOp (Plus, Const 1, BinaryOp (
+                        Divide, Const 13, Const 8)
+                      ), Application (
+                        Identifier "sqrt",
+                        Identifier "PI"
                       )
                     )
                   )

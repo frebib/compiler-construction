@@ -1,0 +1,55 @@
+/% CODE %/
+
+// Tests while loops & printInt
+function evalWhile() {
+  x = 0;
+  while (~x < 10) {
+    n = 3 * ~x++;
+    n = ~n / 2;
+    printInt(~n);
+  }
+  return ~n;
+}
+
+/% TREE %/
+
+Program [
+  ("evalWhile", [], Seq (
+    Asg (Identifier "x", Const 0),
+    Seq (
+      While (
+        BinaryOp (Lth, Deref (Identifier "x"), Const 10),
+        Seq (
+          Asg (
+            Identifier "n",
+            BinaryOp (
+              Times,
+              Const 3,
+              Deref (UnaryOp (PostInc, Identifier "x"))
+            )
+          ),
+          Seq (
+            Asg (
+              Identifier "n",
+              BinaryOp (
+                Divide,
+                Deref (Identifier "n"),
+                Const 2
+              )
+            ),
+            Printint(Deref (Identifier "n"))
+          )
+        )
+      ),
+     Deref (Identifier "n")
+    )
+  ))
+]
+
+/% RESULT %/
+
+[ 
+  Const 15
+]
+
+/% END %/

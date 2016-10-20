@@ -1,6 +1,6 @@
 /% CODE %/
 
-function ifTest() {
+function ifTest(x, y) {
   if (x || y) {
     if (x(y)) {
       if (true) false else true;
@@ -17,7 +17,7 @@ function ifTest() {
 /% TREE %/
 
 Program [
-  ("ifTest", [],
+  ("ifTest", ["x"; "y"],
     If (
       BinaryOp (Or,
         Identifier "x",
