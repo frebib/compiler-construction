@@ -59,8 +59,8 @@ let run_test name code tree result =
           |> String.concat ";\n" |> indent 2 |> sprintf "[\n%s\n]" in
         eprintf ":: Evaluation failed.\n  :: Output:\n%s\n" (indent 2 out_str); exit 1
     with err -> match err with
-      | CompileError (Unimplemented, _) -> eprintf " :: %s\n" (error_message buf err); exit 10
-      | CompileError (Eval, _) -> eprintf " :: %s\n" (error_message buf err); exit 3
+      | CompileError (Unimplemented, _) -> eprintf ":: %s\n" (error_message buf err); exit 10
+      | CompileError (Eval, _) -> eprintf ":: %s\n" (error_message buf err); exit 3
       | _ -> raise err
 
   else

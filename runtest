@@ -22,6 +22,7 @@ TEST_GEN_SRC_DIR="${SRC_DIR}/test"
 
 set +e # Dont fail if a test fails
 failed=()
+unimpl=()
 
 shopt -s nullglob
 tests=(${1:-${TEST_DIR}/*.test})
@@ -58,13 +59,21 @@ for exe in ${natives[@]}; do
     if testoutput="$($exe 2>&1)"; then
         echo "PASS!"
     else
-        echo "FAIL! (returned $?)"
-        echo -e "$testoutput\n"
-        failed+=("$testname")
+        retval=$?
+        if [ $retval -eq 10 ]; then
+            echo "UNIMPL.. (returned $retval)"
+            unimpl+=("$testname")
+        else
+            echo "FAIL! (returned $retval)"
+            echo -e "$testoutput" | sed 's/^/  /'
+            failed+=("$testname")
+        fi
     fi
 done
 
 failcount=${#failed[@]}
+unimplcount=${#unimpl[@]}
 echo -e "\nTest summary:"
-echo -e "\t$((count - failcount)) passed."
+echo -e "\t$((count - failcount - unimplcount)) passed."
 [ $failcount -gt 0 ] && echo -e "\t$((failcount)) failed: ${failed[@]}" || true
+[ $unimplcount -gt 0 ] && echo -e "\t$((unimplcount)) unimplemented: ${unimpl[@]}" || true
