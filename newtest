@@ -23,12 +23,14 @@ function ${name%.*}() {
 /% TREE %/
 
 Program [
-    ("${name%.*}", [], Empty)
+  ("${name%.*}", [], Empty)
 ]
 
 /% RESULT %/
 
-Empty
+[
+  Empty
+]
 
 /% END %/
 EOF
