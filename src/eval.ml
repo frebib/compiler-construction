@@ -74,7 +74,7 @@ let rec eval_exp ht = function
   
   | Let _         -> raise (unimpl_error "Let statements are unimplemented")
   | New _         -> raise (unimpl_error "New statements are unimplemented")
-  | Application _ -> raise (unimpl_error "Function applicatoin is unimplemented")
+  | Application _ -> raise (unimpl_error "Function application is unimplemented")
 
   | Printint e   -> printf "%d\n" (get_int (eval_exp ht e)); Empty
   | Readint      -> Const (read_line () |> int_of_string)
