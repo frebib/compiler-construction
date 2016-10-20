@@ -7,13 +7,13 @@ let rec map_bool fn e = fn (get_bool e)
 and get_bool = function
   | Boolean b -> b
   | Const i   -> (i > 0)
-  | _ -> failwith "Not a boolean type"
+  | e -> raise (eval_error ("Not a boolean type" ^ string_of_exp e))
 and map_int fn e  = fn (get_int e)
 and map_int_inc e = Const (map_int (fun i -> i + 1) e)
 and map_int_dec e = Const (map_int (fun i -> i - 1) e)
 and get_int = function
   | Const i   -> i
-  | _ -> raise (eval_error "Not an integer type")
+  | e -> raise (eval_error ("Not an integer type: " ^ string_of_exp e))
 
 and exp_compare a b = match a, b with
   | Const i, Const j     -> compare i j
