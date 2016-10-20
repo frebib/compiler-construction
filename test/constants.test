@@ -82,5 +82,8 @@ Program [
 
 /% RESULT %/
 
+[
+  Empty
+]
 
 /% END %/

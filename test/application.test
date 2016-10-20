@@ -34,5 +34,8 @@ Program [
 
 /% RESULT %/
 
+[
+  Empty
+]
 
 /% END %/

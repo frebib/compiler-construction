@@ -22,5 +22,8 @@ Program [
 
 /% RESULT %/
 
+[
+  Empty
+]
 
 /% END %/

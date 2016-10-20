@@ -83,4 +83,6 @@ let rec eval_exp ht = function
   | Deref e      -> eval_exp ht e |> find_var ht
   | e            -> e
 
-let eval exp = eval_exp (Hashtbl.create 8) exp;
+let eval exp = eval_exp (Hashtbl.create 8) exp
+let eval_all : fundef list -> expression list = List.map (fun f -> Types.func_body f |> eval)
+
