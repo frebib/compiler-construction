@@ -42,9 +42,11 @@ let rec eval_exp ht = function
                        then eval_exp ht tr
                        else eval_exp ht fa
 
-  | While (e, body) -> while get_bool (eval_exp ht e) do
-                       eval_exp ht body |> ignore done;
-                       Empty
+  | While (e, body) -> let ret = ref Empty in
+                       while get_bool (eval_exp ht e) do
+                         ret := eval_exp ht body
+                       done;
+                       !ret
 
   | UnaryOp (op, e) -> (match op with
                         | PreInc  -> map_var ht map_int_inc e |> eval_exp ht
