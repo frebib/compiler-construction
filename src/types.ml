@@ -1,5 +1,4 @@
 open List
-open Printf
 
 (* Types *)
 type opcode =
