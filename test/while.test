@@ -12,17 +12,22 @@ function whileTest() {
 
 Program [
   ("whileTest", [],
-    While (Boolean true, (
-      Seq (
-        While (Boolean false,
-          (Application (Identifier "doThing", Empty))
-        ), 
+    While (
+      Boolean true,
+      Seq [
+        While (
+          Boolean false,
+          Application (Identifier "doThing", Empty)
+        );
         Asg (
-          While (Identifier "x", (UnaryOp (PostInc, Identifier "y"))),
+          While (
+            Identifier "x",
+            UnaryOp (PostInc, Identifier "y")
+          ),
           BinaryOp (Minus, Const 4, Identifier "y")
         )
-      )
-    ))
+      ]
+    )
   )
 ]
 

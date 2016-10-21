@@ -17,15 +17,17 @@ Program [
       Application (
         Identifier "aThing",
         Identifier "arg"
-      ), New ("child",
+      ),
+      New ("child",
         Application (Identifier "getParent", Empty),
         Let ("fish",
           Identifier "chips",
           New ("ping",
             Application (Identifier "pong", Const 4),
-            Seq (
-              BinaryOp (Plus, Identifier "x", Const 1),
-              Const 4)
+            Seq [
+              BinaryOp (Plus, Identifier "x", Const 1);
+              Const 4
+            ]
           )
         )
       )
@@ -36,7 +38,7 @@ Program [
 /% RESULT %/
 
 [
-  Empty
+  Const 4
 ]
 
 /% END %/

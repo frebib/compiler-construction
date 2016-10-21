@@ -14,36 +14,32 @@ function evalWhile() {
 /% TREE %/
 
 Program [
-  ("evalWhile", [], Seq (
-    Asg (Identifier "x", Const 0),
-    Seq (
-      While (
-        BinaryOp (Lth, Deref (Identifier "x"), Const 10),
-        Seq (
-          Asg (
-            Identifier "n",
-            BinaryOp (
-              Times,
-              Const 3,
-              Deref (UnaryOp (PostInc, Identifier "x"))
-            )
-          ),
-          Seq (
-            Asg (
-              Identifier "n",
-              BinaryOp (
-                Divide,
-                Deref (Identifier "n"),
-                Const 2
-              )
-            ),
-            Printint(Deref (Identifier "n"))
+  ("evalWhile", [], Seq [
+    Asg (Identifier "x", Const 0);
+    While (
+      BinaryOp (Lth, Deref (Identifier "x"), Const 10),
+      Seq [
+        Asg (
+          Identifier "n",
+          BinaryOp (
+            Times,
+            Const 3,
+            Deref (UnaryOp (PostInc, Identifier "x"))
           )
-        )
-      ),
-     Deref (Identifier "n")
-    )
-  ))
+        );
+        Asg (
+          Identifier "n",
+          BinaryOp (
+            Divide,
+            Deref (Identifier "n"),
+            Const 2
+          )
+        );
+        Printint(Deref (Identifier "n"))
+      ]
+    );
+    Deref (Identifier "n")
+  ])
 ]
 
 /% RESULT %/

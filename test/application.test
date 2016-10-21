@@ -14,18 +14,16 @@ Program [
         Identifier "b",
         Application (
           Identifier "c",
-          Seq (
-            Application (
-              Identifier "fish", Empty),
-            Application (Identifier "d",
-              Seq (Const 1,
-                Seq (Identifier "abc",
-                  Application (Identifier "xyz",
-                    Const 1)
-                )
-              )
+          Seq [
+            Application (Identifier "fish", Empty);
+            Application (Identifier "d", 
+              Seq [
+                Const 1;
+                Identifier "abc";
+                Application (Identifier "xyz", Const 1)
+              ]
             )
-          )
+          ]
         )
       )
     )

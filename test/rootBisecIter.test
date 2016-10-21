@@ -21,24 +21,67 @@ function rootBisec(f, a, b, tolerance, nmax) {
 
 Program [
   ("rootBisec", ["f"; "a"; "b"; "tolerance"; "nmax"],
-    Let ("n", Const 1,
-      Seq(
-        While ((BinaryOp (Leq, Deref (Identifier "n"), Deref (Identifier "nmax"))),
-          (Let ("c", BinaryOp (Divide, BinaryOp (Plus, Deref (Identifier "a"), Deref (Identifier "b")), Const 2),
-            If (BinaryOp (Or, BinaryOp (Equal, Application (Identifier "f", Deref (Identifier "c")), Const 0), BinaryOp (Lth, BinaryOp (Divide, BinaryOp (Minus, Deref (Identifier "b"), Deref (Identifier "a")), Const 2), Deref (Identifier "tolerance"))),
-              Seq (Printint(Deref (Identifier "c")),
-              Deref (Identifier "c")),
-            (* else *)
-              Seq (UnaryOp (PostInc, Identifier "n"),
-              Asg (If (BinaryOp (Equal, Application (Identifier "sign", Application (Identifier "f", Deref (Identifier "c"))), Application (Identifier "sign", Application (Identifier "f", Deref (Identifier "a")))),
-                (* if *)
-                Identifier "a",
-                (* else *)
-                Identifier "b"),
-                (* = *)
-                Deref (Identifier "c"))))))),
+    Let (
+      "n",
+      Const 1,
+      Seq [
+        While (
+          BinaryOp (Leq, Deref (Identifier "n"), Deref (Identifier "nmax")),
+          Let (
+            "c",
+            BinaryOp (Divide, BinaryOp (Plus, Deref (Identifier "a"), Deref (Identifier "b")), Const 2),
+            If (
+              BinaryOp (Or,
+                BinaryOp (Equal,
+                  Application (Identifier "f", Deref (Identifier "c")),
+                  Const 0
+                ),
+                BinaryOp (Lth,
+                  BinaryOp (Divide,
+                    BinaryOp (Minus,
+                      Deref (Identifier "b"),
+                      Deref (Identifier "a")
+                    ),
+                    Const 2
+                  ),
+                  Deref (Identifier "tolerance")
+                )
+              ),
+              Seq [
+                Printint(Deref (Identifier "c"));
+                Deref (Identifier "c")
+              ],
+              Seq [
+                UnaryOp (PostInc, Identifier "n");
+                Asg (
+                  If (
+                    BinaryOp (Equal,
+                      Application (
+                        Identifier "sign",
+                        Application (
+                          Identifier "f",
+                          Deref (Identifier "c")
+                        )
+                      ),
+                      Application (
+                        Identifier "sign",
+                        Application (
+                          Identifier "f",
+                          Deref (Identifier "a")
+                        )
+                      )
+                    ),
+                    Identifier "a",
+                    Identifier "b"
+                  ), 
+                  Deref (Identifier "c")
+                )
+              ]
+            )
+          )
+        );
         Const (-1)
-      )
+      ]
     )
   )
 ]

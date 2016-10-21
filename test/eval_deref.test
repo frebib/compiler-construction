@@ -1,86 +1,67 @@
 /% CODE %/
 
 function eval_deref() {
-    i = 0;
-    while (~i < 5) {
-      printInt(~++i);
-    }
-    x = 5;
-    y = 3;
-    z = (~x + ~y) * 3;
-    e = z;
-    f = i;
+  i = 0;
+  while (~i < 5) {
+    printInt(~++i);
+  }
+  x = 5;
+  y = 3;
+  z = (~x + ~y) * 3;
+  e = z;
+  f = i;
 
-    printInt(~~e);
-    printInt(~~f);
-    ~(if (true) e else f) = ~~e / ~~f;
-    printInt(~~e);
-    printInt(~~f);
+  printInt(~~e);
+  printInt(~~f);
+  ~(if (true) e else f) = ~~e / ~~f;
+  printInt(~~e);
+  printInt(~~f);
 
-    return ~z;
+  return ~z;
 }
 
 /% TREE %/
 
 Program [
-  ("eval_deref", [], Seq (
-    Asg (Identifier "i", Const 0),
-    Seq (
-      While (
-        BinaryOp (
-          Lth,
-          Deref (Identifier "i"),
-          Const 5
+  ("eval_deref", [], Seq [
+    Asg (Identifier "i", Const 0);
+    While (
+      BinaryOp (
+        Lth,
+        Deref (Identifier "i"),
+        Const 5
+      ),
+      Printint(Deref (UnaryOp (PreInc, Identifier "i")))
+    );
+    Asg (Identifier "x", Const 5);
+    Asg (Identifier "y", Const 3);
+    Asg (
+      Identifier "z",
+      BinaryOp (Times,
+        BinaryOp (Plus, 
+          Deref (Identifier "x"),
+          Deref (Identifier "y")
         ),
-        Printint(Deref (UnaryOp (PreInc, Identifier "i")))
-      ), Seq (
-        Asg (Identifier "x", Const 5),
-        Seq (
-          Asg (Identifier "y", Const 3),
-          Seq (
-            Asg (
-              Identifier "z",
-              BinaryOp (Times,
-                BinaryOp (Plus, 
-                  Deref (Identifier "x"),
-                  Deref (Identifier "y")
-                ),
-                Const 3
-              )
-            ), Seq (
-              Asg (Identifier "e", Identifier "z"),
-              Seq (
-                Asg (Identifier "f", Identifier "i"),
-                Seq (
-                  Printint(Deref (Deref (Identifier "e"))),
-                  Seq (
-                    Printint(Deref (Deref (Identifier "f"))),
-                    Seq (
-                      Asg (
-                        Deref (
-                          If (Boolean true, Identifier "e", Identifier "f")),
-                        BinaryOp (
-                          Divide,
-                          Deref (Deref (Identifier "e")),
-                          Deref (Deref (Identifier "f"))
-                        )
-                      ), Seq (
-                        Printint(Deref (Deref (Identifier "e"))),
-                        Seq (
-                          Printint(Deref (Deref (Identifier "f"))),
-                          Deref (Identifier "z")
-                        )
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          )
-        )
+        Const 3
       )
-    )
-  ))
+    );
+    Asg (Identifier "e", Identifier "z");
+    Asg (Identifier "f", Identifier "i");
+    Printint(Deref (Deref (Identifier "e")));
+    Printint(Deref (Deref (Identifier "f")));
+    Asg (
+      Deref (
+        If (Boolean true, Identifier "e", Identifier "f")),
+      BinaryOp (
+        Divide,
+        Deref (Deref (Identifier "e")),
+        Deref (Deref (Identifier "f"))
+      )
+    );
+    Printint(Deref (Deref (Identifier "e")));
+    Printint(Deref (Deref (Identifier "f")));
+    Deref (Identifier "z")
+  ])
 ]
 
 /% RESULT %/
