@@ -15,29 +15,25 @@ function eval1() {
 /% TREE %/
 
 Program [
-  ("eval1", [], Seq (
-    Asg (Identifier "x", Const 4),
-    Seq (
-      Asg (Identifier "y", Const 5),
-      Seq (
-        If (
-          BinaryOp (Lth,
-            Deref (Identifier "x"),
-            Deref (Identifier "y")
-          ),
-          Asg (Identifier "a", Const 3),
-          Asg (Identifier "a", Const 1)
-        ),
-        BinaryOp (Minus,
-          BinaryOp (Plus,
-            Deref (Identifier "x"),
-            Deref (Identifier "y")
-          ),
-          Deref (Identifier "a")
-        )
-      )
+  ("eval1", [], Seq [
+    Asg (Identifier "x", Const 4);
+    Asg (Identifier "y", Const 5);
+    If (
+      BinaryOp (Lth,
+        Deref (Identifier "x"),
+        Deref (Identifier "y")
+      ),
+      Asg (Identifier "a", Const 3),
+      Asg (Identifier "a", Const 1)
+    );
+    BinaryOp (Minus,
+      BinaryOp (Plus,
+        Deref (Identifier "x"),
+        Deref (Identifier "y")
+      ),
+      Deref (Identifier "a")
     )
-  ))
+  ])
 ]
 
 /% RESULT %/

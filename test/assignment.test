@@ -11,41 +11,41 @@ function assignment() {
 /% TREE %/
 
 Program [
-  ("assignment", [], Seq (
-    Asg (Identifier "x", Const 4), Seq (
-      Asg (
-        Identifier "y",
-        BinaryOp (Divide, Const 3, Const 1)
-      ), Seq (
-        Asg (Identifier "x",
-          BinaryOp (
-            Plus,
-            Deref (Identifier "x"),
-            Deref (Identifier "y")
-          )
-        ), Seq (
-          Asg (
-            Identifier "z",
-            If (
-              BinaryOp (Or, 
-                Deref (Identifier "x"),
-                Deref (Identifier "y")
-              ),
-              Const 1,
-              Boolean false)
-          ), Asg (
-            Identifier "things",
-            Application (
-              Identifier "stuff",
-              Application (
-                Identifier "and",
-                Identifier "things")
-            )
-          )
+  ("assignment", [], Seq [
+    Asg (Identifier "x", Const 4);
+    Asg (
+      Identifier "y",
+      BinaryOp (Divide, Const 3, Const 1)
+    );
+    Asg (
+      Identifier "x",
+      BinaryOp (Plus,
+        Deref (Identifier "x"),
+        Deref (Identifier "y")
+      )
+    );
+    Asg (
+      Identifier "z",
+      If (
+        BinaryOp (
+          Or, Deref (Identifier "x"),
+          Deref (Identifier "y")
+        ),
+        Const 1,
+        Boolean false
+      )
+    );
+    Asg (
+      Identifier "things",
+      Application (
+        Identifier "stuff",
+        Application (
+          Identifier "and",
+          Identifier "things"
         )
       )
     )
-  ))
+  ])
 ]
 
 /% RESULT %/

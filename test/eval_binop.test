@@ -11,7 +11,7 @@ function evalBinop() {
 /% TREE %/
 
 Program [
-  ("evalBinop", [], Seq (
+  ("evalBinop", [], Seq [
     Asg (
       Identifier "x",
       BinaryOp (
@@ -19,33 +19,31 @@ Program [
         Const 1,
         Const 3
       )
-    ), Seq (
-      Asg (
-        Identifier "n",
-        BinaryOp (
-          Divide,
-          Const 4,
-          Deref (
-            UnaryOp (PreInc, Identifier "x")
-          )
-        )
-      ), Seq (
-        Asg (
-          Identifier "y",
-          BinaryOp (
-            Plus,
-            Deref (Identifier "x"),
-            Deref (Identifier "n")
-          )
-        ),
-        BinaryOp (
-          Leq,
-          Deref (Identifier "y"),
-          Const 5
+    );
+    Asg (
+      Identifier "n",
+      BinaryOp (
+        Divide,
+        Const 4,
+        Deref (
+          UnaryOp (PreInc, Identifier "x")
         )
       )
+    );
+    Asg (
+      Identifier "y",
+      BinaryOp (
+        Plus,
+        Deref (Identifier "x"),
+        Deref (Identifier "n")
+      )
+    );
+    BinaryOp (
+      Leq,
+      Deref (Identifier "y"),
+      Const 5
     )
-  ))
+  ])
 ]
 
 /% RESULT %/

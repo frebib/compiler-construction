@@ -22,62 +22,33 @@ function constants(PI) {
 /% TREE %/
 
 Program [
-  ("constants", ["PI"],
-    Seq (
-      Asg (
-        Identifier "b",
-        Boolean true
-      ), Seq (
-        Asg (
-          Identifier "notb",
-          Boolean false
-        ), Seq (
-          Asg (
-            Identifier "c",
-            UnaryOp (Not, UnaryOp (Not, Deref (Identifier "b")))
-          ),
-          Seq (
-            Asg (
-              Identifier "e",
-              Const 19
-            ),
-            Seq (
-              Asg (
-                Identifier "f",
-                Const 34763567352346
-              ),
-              Seq (
-                Asg (
-                  Identifier "i",
-                  Const 0
-                ),
-                Seq (
-                  Asg (
-                    Identifier "in",
-                    Const 50
-                  ),
-                  Seq (
-                    Printint (
-                      Deref (Identifier "in")
-                    ),
-                    BinaryOp (
-                      Leq,
-                      BinaryOp (Plus, Const 1, BinaryOp (
-                        Divide, Const 13, Const 8)
-                      ), Application (
-                        Identifier "sqrt",
-                        Identifier "PI"
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          )
+  ("constants", ["PI"], Seq [
+    Asg (Identifier "b", Boolean true);
+    Asg (Identifier "notb", Boolean false);
+    Asg (
+      Identifier "c", 
+      UnaryOp (Not,
+        UnaryOp (Not,
+          Deref (Identifier "b")
         )
       )
+    );
+    Asg (Identifier "e", Const 19);
+    Asg (Identifier "f", Const 34763567352346);
+    Asg (Identifier "i", Const 0);
+    Asg (Identifier "in", Const 50);
+    Printint(Deref (Identifier "in"));
+    BinaryOp (Leq,
+      BinaryOp (Plus,
+        Const 1,
+        BinaryOp (Divide, Const 13, Const 8)
+      ),
+      Application (
+        Identifier "sqrt",
+        Identifier "PI"
+      )
     )
-  )
+  ])
 ]
 
 /% RESULT %/

@@ -9,40 +9,34 @@ function sequences() {
 /% TREE %/
 
 Program [
-  ("sequences", [],
-    (* A sequence of function calls *)
-    Seq (
-      (* A sequence of parameters *)
-      Application (Identifier "callme",
-        Seq (Identifier "one",
-          Seq (Identifier "two",
-            Seq (Identifier "three",
-              Seq (Identifier "four",
-                Identifier "five")
-            )
-          )
-        )
-      ), Seq (
-        Application (
-          Identifier "callmeagain",
-          Seq (Identifier "a",
-            Seq (Identifier "b",
-              Seq (Identifier "c",
-                Seq (Const 1,
-                  Seq (Const 2,
-                    Const 3)
-                )
-              )
-            )
-          )
-        ),
-        Application (
-          Identifier "onestopshop",
-          (* A single element as only one param supplied *)
-          Identifier "noope"
-        )
+  ("sequences", [], 
+    Seq [
+      Application (
+        Identifier "callme",
+        Seq [
+          Identifier "one";
+          Identifier "two";
+          Identifier "three";
+          Identifier "four";
+          Identifier "five"
+        ]
+      );
+      Application (
+        Identifier "callmeagain",
+        Seq [
+          Identifier "a";
+          Identifier "b";
+          Identifier "c";
+          Const 1;
+          Const 2;
+          Const 3
+        ]
+      );
+      Application (
+        Identifier "onestopshop",
+        Identifier "noope"
       )
-    )
+    ]
   )
 ]
 

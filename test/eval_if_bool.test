@@ -15,32 +15,31 @@ function evalIfBool() {
 /% TREE %/
 
 Program [
-  ("evalIfBool", [], Seq (
-    Asg (Identifier "g", Boolean true),
-    Seq (
-      Asg (Identifier "s", Boolean false),
-      Seq (
-        If (Deref (Identifier "g"), Seq (
-          Asg (
-            Identifier "x",
-            UnaryOp (Not, Deref (Identifier "g"))
-          ),
-          Asg (
-            Identifier "p",
-            BinaryOp (Or,
-              BinaryOp (And,
-                Deref (Identifier "x"),
-                Deref (Identifier "s")
-              ),
-              Boolean true
-            )
-          )),
-          Asg (Identifier "p", Boolean false)
-        ), 
-        Deref (Identifier "p")
-      )
-    )
-  ))
+  ("evalIfBool", [], Seq [
+    Asg (Identifier "g", Boolean true);
+    Asg (Identifier "s", Boolean false);
+    If (
+      Deref (Identifier "g"),
+      Seq [
+        Asg (
+          Identifier "x",
+          UnaryOp (Not, Deref (Identifier "g"))
+        );
+        Asg (
+          Identifier "p",
+          BinaryOp (Or,
+            BinaryOp (And,
+              Deref (Identifier "x"),
+              Deref (Identifier "s")
+            ),
+            Boolean true
+          )
+        )
+      ],
+      Asg (Identifier "p", Boolean false);
+    );
+    Deref (Identifier "p")
+  ])
 ]
 
 /% RESULT %/

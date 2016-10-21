@@ -14,22 +14,20 @@ function evalFalse() {
 /% TREE %/
 
 Program [
-  ("evalFalse", [], Seq (
+  ("evalFalse", [], Seq [
     While (Boolean false,
       While (Boolean true, Empty)
-    ), Seq (
-      Asg (Identifier "x", Boolean true),
-      Seq (
-        While (
-          BinaryOp (And,
-            Boolean true,
-            Deref (Identifier "x")
-          ),
-          Asg (Identifier "x", Boolean false)
-        ),
-        Const 666)
-    )
-  ))
+    );
+    Asg (Identifier "x", Boolean true);
+    While (
+      BinaryOp (And,
+        Boolean true,
+        Deref (Identifier "x")
+      ),
+      Asg (Identifier "x", Boolean false)
+    );
+    Const 666
+  ])
 ]
 
 /% RESULT %/

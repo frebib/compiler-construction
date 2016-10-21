@@ -1,7 +1,7 @@
 /% CODE %/
 
 function fibonacci() {
-/* Comment me up inside */
+  /* Comment me up inside */
   count = 30;
   n = 1;
   a = 0;
@@ -20,54 +20,34 @@ function fibonacci() {
 /% TREE %/
 
 Program [
-  ("fibonacci", [], 
-    Seq (
-      Asg (
-        Identifier "count",
-        Const 30
-      ), Seq (
+  ("fibonacci", [], Seq [
+    Asg (Identifier "count", Const 30);
+    Asg (Identifier "n", Const 1);
+    Asg (Identifier "a", Const 0);
+    Asg (Identifier "b", Const 1);
+    While (
+      BinaryOp (Lth, 
+        Deref (UnaryOp (PostInc, Identifier "n")),
+        Deref (Identifier "count")
+      ),
+      Seq [
         Asg (
-          Identifier "n",
-          Const 1
-        ), Seq (
-          Asg (
-            Identifier "a",
-            Const 0
-          ), Seq (
-            Asg (
-              Identifier "b",
-              Const 1
-            ), Seq (
-              While (
-                BinaryOp (Lth, 
-                  Deref (UnaryOp (PostInc, Identifier "n")),
-                  Deref (Identifier "count")
-                ), Seq (
-                  Asg (
-                    Identifier "temp",
-                    BinaryOp (Plus, Deref (Identifier "a"), Deref (Identifier "b"))
-                  ), Seq (
-                    Asg (Identifier "a", Deref (Identifier "b")),
-                    Seq (
-                      Asg (Identifier "b", Deref (Identifier "temp")),
-                      Seq (
-                        Printint(Deref (Identifier "n")),
-                        Printint(Deref (Identifier "temp"))
-                      )
-                    )
-                  )
-                )
-              ), Seq (
-                Printint(Deref (Identifier "n")),
-                (* Return a + b *)
-                BinaryOp (Plus, Deref (Identifier "a"), Deref (Identifier "b"))
-              )
-            )
-          )
-        )
-      )
+          Identifier "temp",
+          BinaryOp (Plus, Deref (Identifier "a"), Deref (Identifier "b"))
+        );
+        Asg (Identifier "a", Deref (Identifier "b"));
+        Asg (Identifier "b", Deref (Identifier "temp"));
+        Printint(Deref (Identifier "n"));
+        Printint(Deref (Identifier "temp"))
+      ]
+    );
+    Printint(Deref (Identifier "n"));
+    (* Return a + b *)
+    BinaryOp (Plus,
+      Deref (Identifier "a"),
+      Deref (Identifier "b")
     )
-  )
+  ])
 ]
 
 /% RESULT %/

@@ -18,81 +18,67 @@ function operator(x, z) {
 /% TREE %/
 
 Program [
-  ("operator", ["x"; "z"], Seq (
+  ("operator", ["x"; "z"], Seq [
     Asg (
       Identifier "e",
       BinaryOp (Plus,
         Deref (Identifier "x"),
         Const 1
       )
-    ), Seq (
-      Asg (
-        Identifier "n",
-        BinaryOp (Minus,
-          Deref (Identifier "z"),
-          Const 3
+    );
+    Asg (
+      Identifier "n",
+      BinaryOp (Minus,
+        Deref (Identifier "z"),
+        Const 3
+      )
+    );
+    Asg (
+      Identifier "chickens",
+      BinaryOp (Times,
+        Const 4,
+        Deref (Identifier "e")
+      )
+    );
+    BinaryOp (Divide,
+      Application (
+        Identifier "infinity",
+        BinaryOp (Modulus,
+          Const 1, 
+          Const 1
         )
-      ), Seq (
+      ),
+      Const 1
+    );
+    If (
+      BinaryOp (Gth, Const 6, Const 4),
+      Asg (
+        Identifier "i",
+        BinaryOp (Leq, Const 4, Const 3)
+      ),
+      If (
+        Deref (UnaryOp (PostInc, Identifier "n")),
         Asg (
-          Identifier "chickens",
-          BinaryOp (Times,
-            Const 4,
-            Deref (Identifier "e")
+          Identifier "the",
+          UnaryOp (PreDec, 
+            BinaryOp(Geq, Const 5, Const 5)
           )
-        ), Seq (
-          BinaryOp (Divide,
-            Application (
-              Identifier "infinity",
-              BinaryOp (Modulus,
-                Const 1, 
-                Const 1
-              )
-            ),
-            Const 1
-          ), Seq (
-            If (
-              BinaryOp (Gth,
-                Const 6,
-                Const 4
-              ),
-              Asg (
-                Identifier "i",
-                BinaryOp (
-                  Leq,
-                  Const 4,
-                  Const 3
-                )
-              ), If (
-                Deref (UnaryOp (PostInc, Identifier "n")),
-                Asg (
-                  Identifier "the",
-                  UnaryOp (PreDec,
-                    BinaryOp (Geq,
-                      Const 5,
-                      Const 5
-                    )
-                  )
-                ),
-                BinaryOp (Equal,
-                  UnaryOp (PreInc,
-                    UnaryOp (PostDec,
-                      Const 16
-                    )
-                  ), BinaryOp (Or,
-                    Boolean true,
-                    UnaryOp (Not, Boolean false)
-                  )
-                )
-              )
-            ), BinaryOp (And,
-              Const 3,
-              Identifier "chickens"
+        ),
+        BinaryOp (Equal,
+          UnaryOp (PreInc,
+            UnaryOp (PostDec,
+              Const 16
             )
+          ),
+          BinaryOp (Or,
+            Boolean true,
+            UnaryOp (Not, Boolean false)
           )
         )
       )
-    )
-  ))
+    );
+    BinaryOp (And, Const 3, Identifier "chickens")
+  ])
 ]
 
 /% RESULT %/

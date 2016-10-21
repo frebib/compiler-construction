@@ -11,31 +11,27 @@ function eval5() {
 /% TREE %/
 
 Program [
-  ("eval5", [], Seq (
-    Asg (Identifier "t", Boolean true),
-    Seq (
-      Asg (Identifier "f", Boolean false),
-      Seq (
-        Asg (Identifier "r",
-          If (BinaryOp (
-            And,
-            Deref (Identifier "t"),
-            Deref (Identifier "f")
-          ), 
-            UnaryOp (Not, Deref (Identifier "t")),
-            BinaryOp (Or,
-              UnaryOp (Not, Deref (Identifier "f")),
-              UnaryOp (Not, Deref (Identifier "t"))
-            )
-          )
-        ),
-        BinaryOp (And,
-          Deref (Identifier "r"),
-          Boolean true
+  ("eval5", [], Seq [
+    Asg (Identifier "t", Boolean true);
+    Asg (Identifier "f", Boolean false);
+    Asg (Identifier "r",
+      If (BinaryOp (
+        And,
+        Deref (Identifier "t"),
+        Deref (Identifier "f")
+      ), 
+        UnaryOp (Not, Deref (Identifier "t")),
+        BinaryOp (Or,
+          UnaryOp (Not, Deref (Identifier "f")),
+          UnaryOp (Not, Deref (Identifier "t"))
         )
       )
+    );
+    BinaryOp (And,
+      Deref (Identifier "r"),
+      Boolean true
     )
-  ))
+  ])
 ]
 
 /% RESULT %/

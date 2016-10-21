@@ -12,22 +12,18 @@ function evalIdentPointer() {
 /% TREE %/
 
 Program [
-  ("evalIdentPointer", [], Seq (
-    Asg (Identifier "a", Const 321),
-    Seq (
-      Asg (Identifier "b", Const 235),
-      Seq (
-        Asg (
-          Identifier "x",
-          If (BinaryOp (Lth, Const 1, Const 2),
-            Identifier "a",
-            Identifier "b"
-          )
-        ),
-        Deref (Deref (Identifier "x"))
+  ("evalIdentPointer", [], Seq [
+    Asg (Identifier "a", Const 321);
+    Asg (Identifier "b", Const 235);
+    Asg (
+      Identifier "x",
+      If (BinaryOp (Lth, Const 1, Const 2),
+        Identifier "a",
+        Identifier "b"
       )
-    )
-  ))
+    );
+    Deref (Deref (Identifier "x"))
+  ])
 ]
 
 /% RESULT %/
