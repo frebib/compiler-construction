@@ -30,7 +30,7 @@ and string_of_unop_exp op e =
 
 and string_of_exp = function
   | Empty                 -> "Empty"
-  | Seq (hd, tl)          -> "Seq " ^ wrap (string_of_exp hd ^ ", " ^ string_of_exp tl)
+  | Seq l                 -> "Seq " ^ wrap_sq (map string_of_exp l |> concat "; ")
   | While (e, f)          -> "While " ^ wrap (string_of_exp e ^ ", " ^ string_of_exp f)
   | If (e, a, b)          -> "If " ^ wrap ([e;a;b] |> map string_of_exp |> concat ", ")
   | Asg (x, v)            -> "Asg " ^ wrap (string_of_exp x ^ ", " ^ string_of_exp v)

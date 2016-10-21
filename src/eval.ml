@@ -85,7 +85,7 @@ let rec eval_exp ht = function
   | Printint e   -> printf "%d\n" (get_int (eval_exp ht e)); Empty
   | Readint      -> Const (read_line () |> int_of_string)
 
-  | Seq (hd, tl) -> eval_exp ht hd |> ignore; eval_exp ht tl
+  | Seq (hd::tl) -> eval_exp ht hd |> ignore; eval_exp ht (seq_of_list tl)
   | Deref e      -> eval_exp ht e |> find_var ht
   | e            -> e
 
