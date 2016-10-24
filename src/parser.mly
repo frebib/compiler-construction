@@ -91,8 +91,8 @@ exp:
     | WHILE p = exp_param DO ss = exp { While (p, ss) }
 
 def: 
-    | VAR var = IDENT EQUAL e = exp SEMICOLON i = defin { New (var, e, i) }
-    | LET var = IDENT EQUAL e = exp SEMICOLON i = defin { Let (var, e, i) }
+    | VAR var = IDENT EQUAL e = statement i = defin { New (var, e, i) }
+    | LET var = IDENT EQUAL e = statement i = defin { Let (var, e, i) }
 
 defin:
     | d = def { d }
