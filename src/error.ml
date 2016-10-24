@@ -30,7 +30,7 @@ let eval_error msg = error_of Eval msg
 let error_message buf = function
   | CompileError (err, None) -> sprintf "%sError: Unspecified reason :(" (string_of_etype err)
   | CompileError (err, Some get_msg) -> sprintf "%sError: %s" (string_of_etype err) (get_msg buf)
-  | e -> Printexc.to_string e ^ "\n"
+  | e -> Printexc.to_string e
 ;;
 
 let line_of_buf buf = (Lexing.lexeme_start_p buf).pos_lnum
@@ -43,7 +43,7 @@ let location_message filename lexbuf =
   let line = line_of_buf lexbuf in
   sprintf "File \"%s\" at line %d, columns %d-%d:" filename line col_beg col_end
 
-let print_trace err filename buf = eprintf "%s\n%s" (location_message filename buf) (error_message buf err)
+let print_trace err filename buf = eprintf "%s\n%s\n" (location_message filename buf) (error_message buf err)
 
 let safe parse lex filename lexbuf =
   try parse lex lexbuf
