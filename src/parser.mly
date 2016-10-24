@@ -16,7 +16,7 @@
 %token          DBLEQUAL NOTEQUAL LTHAN GTHAN LEQUAL GEQUAL
 
 (* Keywords *)
-%token          FUNCTION RETURN
+%token          FUNCTION FUN ARROW RETURN
 %token          READINT PRINTINT
 %token          IF ELSE WHILE DO
 %token          LET VAR
@@ -35,31 +35,36 @@
 %nonassoc INC DEC
 %right    RETURN
 
-%start <Types.program> init
+%start <Types.expression> init
 %%
 
 init:
-    | ss = func* EOF { ss }
-
-func:
-    | FUNCTION name = IDENT args = comma_str_params; ss = body { (name, args, ss) }
+    | d = defin EOF { d }
 
 body:
     (* A brace delimited body or a single statement*)
     | s = statement { s }
-    | LBRACE ss = statement* d = def? RBRACE { opt_prepend_seq ss d }
+    | b = blockbody { b }
+
+blockbody:
+    | LBRACE ss = statements RBRACE { ss }
     | LBRACE ss = statement* d = def? error { raise (syntax_error "Expected a '}'") }
+
+statements:
+    | ss = statement* d = def? { opt_append_seq ss d }
 
 statement:
     (* A complete statement; a brace block or semicolon terminated expression*)
     | e = blockexp { e }
     | e = exp SEMICOLON { e }
-
+    | e = exp error { raise (error_of_fn Parse (fun buf -> "Unexpected token '" ^ Lexing.lexeme buf ^ "'. Did you forget a semicolon?")) }
+    
 blockexp:
     (* These block-level expressions usually contain {  } 
      * and specifically don't terminate with a semicolon *)
     | IF e = exp_param ib = body ELSE eb = body { If (e, ib, eb) }
     | WHILE p = exp_param ss = body             { While (p, ss) }
+    | f = anonfunc { f }
 
 exp:
     (* Expressions are anything that can appear inline within a statement *)
@@ -90,9 +95,13 @@ exp:
     (* Example: let x = while(true) do x++; *)
     | WHILE p = exp_param DO ss = exp { While (p, ss) }
 
+anonfunc:
+    | FUN p = comma_sep_str ARROW b = body { Function(p, b) }
+
 def: 
     | VAR var = IDENT EQUAL e = statement i = defin { New (var, e, i) }
     | LET var = IDENT EQUAL e = statement i = defin { Let (var, e, i) }
+    | FUNCTION n = IDENT p = comma_str_params b = blockbody i = defin { Let (n, Function (p, b), i) }
 
 defin:
     | d = def { d }
@@ -137,4 +146,7 @@ comma_exp_params:
     | LPAREN es = separated_list(COMMA, exp) RPAREN { seq_of_list es }
 comma_str_params: 
     | LPAREN ps = separated_list(COMMA, IDENT) RPAREN { ps }
+comma_sep_str: 
+    | s = separated_list(COMMA, IDENT) { s }
+    | LPAREN s = comma_sep_str RPAREN { s }
 

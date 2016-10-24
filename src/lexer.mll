@@ -31,6 +31,7 @@ rule read = parse
   | '*'        { MUL }
   | '/'        { DIV }
   | '%'        { MOD }
+  | "->"       { ARROW }
   | "++"       { INC }
   | "--"       { DEC }
   | "||"       { OR }
@@ -45,6 +46,7 @@ rule read = parse
 
   | "readInt"  { READINT }
   | "printInt" { PRINTINT }
+  | "fun"      { FUN }
   | "function" { FUNCTION }
   | "return"   { RETURN }
   | "let"      { LET }

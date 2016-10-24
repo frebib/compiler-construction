@@ -52,15 +52,15 @@ let run_action cmd file = match cmd with
   | Parse    -> let prog = parse file in
                 (try
                   if !quiet then ()
-                  else prog |> string_of_prog |> printf "%s\n"
+                  else prog |> string_of_exp |> printf "%s\n"
                 with
                   err -> raise err)
 
   | Eval     -> eval file
   | Parseval -> let tree = parse file in
-                printf "%s\n\n" (string_of_prog tree);
-                List.map (fun f -> Types.func_body f |> Eval.eval |> string_of_exp) tree
-                |> String.concat "\n"
+                printf "%s\n\n" (string_of_exp tree);
+                Eval.eval tree
+                |> string_of_exp
                 |> printf "%s\n"
 
   | Nothing  -> eprintf "Nothing to do."; exit 1

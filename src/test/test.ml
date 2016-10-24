@@ -27,7 +27,7 @@ and name = function
 type test_ret = 
   | Exception of exn
   | CompileErr of error * int * int
-  | Program of Types.fundef list
+  | Program of Types.expression
 ;;
 let err_from_buf typ buf = CompileErr (typ, line_of_buf buf, col_of_buf buf)
 let prog_from_ret = function
@@ -51,12 +51,11 @@ let run_test name code tree result =
   
   if (test_passed buf actual tree) then
     try
-      let output = Eval.eval_all (prog_from_ret actual) in
+      let output = Eval.eval (prog_from_ret actual) in
       if output = result then
         exit 0
       else 
-        let out_str = List.map (fun e -> string_of_exp e |> indent 2) output
-          |> String.concat ";\n" |> indent 2 |> sprintf "[\n%s\n]" in
+        let out_str = string_of_exp output |> indent 2 |> sprintf "[\n%s\n]" in
         eprintf ":: Evaluation failed.\n  :: Output:\n%s\n" (indent 2 out_str); exit 1
     with err -> match err with
       | CompileError (Unimplemented, _) -> eprintf ":: %s\n" (error_message buf err); exit 10
@@ -65,7 +64,7 @@ let run_test name code tree result =
 
   else
     (match actual with
-      | Program prog  -> print_string (prog |> List.map string_of_func |> String.concat "\n")
+      | Program prog  -> print_string (string_of_exp prog)
       | Exception err -> print_trace err name buf
       | CompileErr (e, _, _) -> let err = CompileError (e, Some (fun _ -> "")) in
                                 print_trace err name buf);

@@ -30,6 +30,7 @@ and string_of_unop_exp op e =
 
 and string_of_exp = function
   | Empty                 -> "Empty"
+  | Function (a, e)       -> "Function " ^ wrap (wrap_sq (map esc a |> concat "; ") ^ ", " ^ string_of_exp e)
   | Seq l                 -> "Seq " ^ wrap_sq (map string_of_exp l |> concat "; ")
   | While (e, f)          -> "While " ^ wrap (string_of_exp e ^ ", " ^ string_of_exp f)
   | If (e, a, b)          -> "If " ^ wrap ([e;a;b] |> map string_of_exp |> concat ", ")
@@ -46,12 +47,9 @@ and string_of_exp = function
   | Let (x, v, e)         -> "Let " ^ wrap ([esc x; string_of_exp v; string_of_exp e] |> concat ", ")
   | New (x, v, e)         -> "New " ^ wrap ([esc x; string_of_exp v; string_of_exp e] |> concat ", ")
 
-and string_of_func = function
-  | (name, args, exp) -> let arr = concat "; " (map esc args) in
-  let exp_str = string_of_exp exp in
-  sprintf "(%s, [%s], %s)" (esc name) arr exp_str 
-
-and string_of_prog p = p |> List.map string_of_func |> String.concat ";\n" |> sprintf "[\n%s\n]"
+and string_of_prog p = List.map string_of_exp p
+                      |> String.concat ";\n"
+                      |> sprintf "[\n%s\n]"
 ;;
 
 (* Indents lines by n spaces *)

@@ -6,8 +6,7 @@ let parse = Error.safe Parser.init Lexer.read
 
 let parse_print file buf =
   parse file buf
-  |> List.map string_of_func
-  |> String.concat ";\n"
+  |> Print.string_of_exp
   |> Print.indent 2
   |> printf "[\n%s\n]\n"
 

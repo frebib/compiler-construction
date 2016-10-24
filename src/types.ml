@@ -9,6 +9,7 @@ type opcode =
 
 type expression =
   | Empty (* Empty function call: a() or empty statements: ;; *)
+  | Function of string list * expression
   | Seq of expression list
   | While of expression * expression (* while e do e *)
   | If of expression * expression * expression (* if e do e else e *)
@@ -25,21 +26,19 @@ type expression =
   | Let of string * expression * expression (* let x = e in e *)
   | New of string * expression * expression (* new x = e in e *)
 
-type fundef = string * string list * expression 
-type program = fundef list
-
-
 (* Helper functions *)
 let esc s = "\"" ^ s ^ "\""
 let wrap s = "(" ^ s ^ ")"
 let wrap_sq s = "[" ^ s ^ "]"
-let rec opt_prepend_seq l = function
+let rec list_of_seq = function
+  | Seq l -> l
+  | e -> [e]
+and append_seq l e = seq_of_list (List.append l e)
+and opt_append_seq l = function
   | None   -> seq_of_list l
-  | Some a -> seq_of_list (a :: l)
+  | Some a -> append_seq l [a]
 and seq_of_list = function
   | []  -> Empty
   | [e] -> e
   | l   -> Seq l
 
-and func_body = function (name, args, body) -> body
-;;
