@@ -26,7 +26,7 @@ let rec string_of_op = function
   | Not -> "Not"
 
 and string_of_unop_exp op e = 
-  (string_of_op op) ^ ", " ^ string_of_exp e
+  string_of_op op ^ ", " ^ string_of_exp e
 
 and string_of_exp = function
   | Empty                 -> "Empty"
