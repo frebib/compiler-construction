@@ -10,7 +10,7 @@ TEST_BIN_DIR="${BIN_DIR}/test"
 GENTEST_BINARY="${BIN_DIR}/gentest"
 
 if ! [ -f ${GENTEST_BINARY} ]; then
-    exec make clean test TESTS="$@"
+    exec make test TESTS="$@"
     exit $?
 fi
 
