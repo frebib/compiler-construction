@@ -19,7 +19,7 @@ test: gentest.native
 	./runtest $(TESTS)
 
 clean:
-	ocamlbuild -clean
+	ocamlbuild -clean -quiet
 	$(RM) -r $(MENHIR_DIR) $(BINARY_DIR) $(GEN_SRC_DIR)
 
 .PHONY: clean test
