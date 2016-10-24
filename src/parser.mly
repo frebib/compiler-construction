@@ -5,7 +5,7 @@
 
 (* Misc *)
 %token          EOF
-%token <string> STRING
+%token <string> IDENT
 %token <int>    INT
 %token <bool>   BOOL
 
@@ -42,7 +42,7 @@ init:
     | ss = func* EOF { ss }
 
 func:
-    | FUNCTION name = STRING args = comma_str_params; ss = body { (name, args, ss) }
+    | FUNCTION name = IDENT args = comma_str_params; ss = body { (name, args, ss) }
 
 body:
     (* A brace delimited body or a single statement*)
@@ -91,15 +91,15 @@ exp:
     | WHILE p = exp_param DO ss = exp { While (p, ss) }
 
 def: 
-    | VAR var = STRING EQUAL e = exp SEMICOLON i = defin { New (var, e, i) }
-    | LET var = STRING EQUAL e = exp SEMICOLON i = defin { Let (var, e, i) }
+    | VAR var = IDENT EQUAL e = exp SEMICOLON i = defin { New (var, e, i) }
+    | LET var = IDENT EQUAL e = exp SEMICOLON i = defin { Let (var, e, i) }
 
 defin:
     | d = def { d }
     | ss = statement* { seq_of_list ss }
 
 %inline ident:
-    | s = STRING { Identifier s }
+    | s = IDENT { Identifier s }
 
 %inline const:
     | b = BOOL  { Boolean b }
@@ -136,5 +136,5 @@ exp_param:
 comma_exp_params: 
     | LPAREN es = separated_list(COMMA, exp) RPAREN { seq_of_list es }
 comma_str_params: 
-    | LPAREN ps = separated_list(COMMA, STRING) RPAREN { ps }
+    | LPAREN ps = separated_list(COMMA, IDENT) RPAREN { ps }
 

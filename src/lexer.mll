@@ -56,7 +56,7 @@ rule read = parse
   | "true"     { BOOL true }
   | "false"    { BOOL false }
 
-  | identifier { STRING (lexeme lexbuf) }
+  | identifier { IDENT (lexeme lexbuf) }
   | eof        { EOF }
   | _          { raise lexer_error }
 
