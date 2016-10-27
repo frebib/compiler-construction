@@ -1,0 +1,44 @@
+/% CODE %/
+
+function fibonacci(n) {
+  if(n == 0)
+    return 0;
+  else if(n == 1)
+    return 1;
+  else
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+fibonacci(20);
+
+/% TREE %/
+
+Program (
+  Let ("fibonacci",
+    Function (["n"],
+      If (
+        BinaryOp (Equal, Identifier "n", Const 0),
+        Const 0,
+        If (
+          BinaryOp (Equal, Identifier "n", Const 1),
+          Const 1,
+          BinaryOp (Plus,
+            Application (Identifier "fibonacci", [
+              BinaryOp (Minus, Identifier "n", Const 1)
+            ]),
+            Application (Identifier "fibonacci", [
+              BinaryOp (Minus, Identifier "n", Const 2)
+            ])
+          )
+        )
+      )
+    ),
+    Application (Identifier "fibonacci", [Const 20])
+  )
+)
+
+/% RESULT %/
+
+Const 6765
+
+/% END %/

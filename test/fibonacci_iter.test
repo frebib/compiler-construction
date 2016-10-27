@@ -1,0 +1,80 @@
+/% CODE %/
+
+function fibonacci(count) {
+  /* Comment me up inside */
+  if (count == 1)
+    return 1;
+  else {
+    var n = 2;
+    var a = 0;
+    var b = 1;
+    while (~n < count) {
+      let temp = ~a + ~b;
+      a = ~b;
+      b = temp;
+      printInt(~n);
+      printInt(temp);
+      n = ~n + 1;
+    }
+    printInt(~n);
+    return ~a + ~b;
+  }
+}
+
+fibonacci(30);
+
+/% TREE %/
+
+Program (
+  Let ("fibonacci", 
+    Function (["count"], 
+      If (
+        BinaryOp (Equal, Identifier "count", Const 1),
+        Const 1,
+        New ("n", Const 2,
+          New ("a", Const 0,
+            New ("b", Const 1,
+              Seq [
+                While (
+                  BinaryOp (Lth,
+                    Deref (Identifier "n"),
+                    Identifier "count"
+                  ),
+                  Let (
+                    "temp",
+                    BinaryOp (Plus,
+                      Deref (Identifier "a"),
+                      Deref (Identifier "b")
+                    ),
+                    Seq [
+                      Asg (Identifier "a", Deref (Identifier "b"));
+                      Asg (Identifier "b", Identifier "temp");
+                      Printint(Deref (Identifier "n"));
+                      Printint(Identifier "temp");
+                      Asg (
+                        Identifier "n",
+                        BinaryOp (Plus, Deref (Identifier "n"), Const 1)
+                      )
+                    ]
+                  )
+                );
+                Printint(Deref (Identifier "n"));
+                BinaryOp (Plus,
+                  Deref (Identifier "a"),
+                  Deref (Identifier "b")
+                )
+              ]
+            )
+          )
+        )
+      )
+    ),
+    Application (Identifier "fibonacci", [Const 30])
+  )
+)
+
+/% RESULT %/
+
+Const 832040
+
+/% END %/
