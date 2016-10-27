@@ -121,7 +121,7 @@ let rec eval_exp store env = function
     | Ref s -> find_var store (Identifier s)
     | e     -> raise (eval_error ("Can't dereference a non-reference type: " ^ string_of_exp e)))
   
-  | Identifier s -> let v = find_var env (Identifier s) in printf " ~ %s: %s" s (string_of_exp v); v
+  | Identifier s -> find_var env (Identifier s)
   | Ref s        -> printf "%s\n" (string_of_exp (Ref s)); Ref s
   | e            -> e
 
