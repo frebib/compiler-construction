@@ -53,7 +53,7 @@ let rec bind_args fn args = match fn, args with
   | e, _ -> raise (eval_error ("Not a function type: " ^ (string_of_exp e)))
 
 
-let rec eval_exp store env e = printf " > %s\n" (string_of_exp e); match e with
+let rec eval_exp store env = function
   | Asg (e1, e2)    -> let rhs = eval_exp store env e2 in
                        let lhs = eval_exp store env e1 in
                        put_var store lhs rhs; Empty
@@ -111,11 +111,6 @@ let rec eval_exp store env e = printf " > %s\n" (string_of_exp e); match e with
   | New (v, e, i)  -> let value = eval_exp store env e in
                       Hashtbl.add store v value;
                       Hashtbl.add env v (Ref v);
-                      printf "ENV:\n";
-                      Hashtbl.iter (fun k v -> printf "%s: %s\n" k (string_of_exp v)) env;
-                      printf "\nSTORE:\n";
-                      Hashtbl.iter (fun k v -> printf "%s: %s\n" k (string_of_exp v)) store;
-                      printf "\n\n";
                       eval_exp store env i
 
   | Printint e   -> printf "%d\n" (get_int (eval_exp store env e)); Empty
