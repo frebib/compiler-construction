@@ -7,13 +7,13 @@ let rec map_bool fn e = fn (get_bool e)
 and get_bool = function
   | Boolean b -> b
   | Const i   -> (i > 0)
-  | e -> raise (eval_error ("Not a boolean type: " ^ string_of_exp e))
+  | e -> raise (eval_error (IncorrectType ("boolean", e)))
 and map_int fn e  = fn (get_int e)
 and map_int_inc e = Const (map_int (fun i -> i + 1) e)
 and map_int_dec e = Const (map_int (fun i -> i - 1) e)
 and get_int = function
   | Const i   -> i
-  | e -> raise (eval_error ("Not an integer type: " ^ string_of_exp e))
+  | e -> raise (eval_error (IncorrectType ("integer", e)))
 
 and exp_compare a b = match a, b with
   | Const i, Const j     -> compare i j
@@ -26,13 +26,13 @@ let rec find_var store = function
   | Ref s | Identifier s -> (try
                       Hashtbl.find store s
                     with
-                      | Not_found -> raise (eval_error (sprintf "Variable '%s' is not defined" s))
+                      | Not_found -> raise (eval_error (UndefinedVar s))
                       | e -> raise e)
-  | e -> raise (eval_error ("Not a variable. Can't lookup: " ^ string_of_exp e))
+  | e -> raise (eval_error (Error ("Not a variable. Can't lookup: " ^ string_of_exp e)))
 
 and put_var store e v = match e with
   | Ref s | Identifier s -> Hashtbl.add store s v
-  | e -> raise (eval_error ("Not a variable. Can't store: " ^ string_of_exp e))
+  | e -> raise (eval_error (Error ("Not a variable. Can't store: " ^ string_of_exp e)))
 
 and map_var store fn = function
   (* Fetch, map and update the value. Return the Identifier *)
@@ -44,13 +44,12 @@ let rec bind_args fn args = match fn, args with
   | BoundFunction ([], _, _),     []    -> fn (* All arguments applied *)
   | BoundFunction ([], b, ht),    a::tl -> let expected = (Hashtbl.length ht) in
                                            let applied  = expected + (List.length args) in
-                                           raise (eval_error ("Function applied to too many arguments. " ^
-                                           sprintf "Function expects %d but %d were applied" expected applied))
+                                           raise (eval_error (OverAppliedArgs (expected, applied)))
 
   | BoundFunction (p::ps, b, ht), a::tl -> Hashtbl.add ht p a;
                                            bind_args (BoundFunction (ps, b, ht)) tl
 
-  | e, _ -> raise (eval_error ("Not a function type: " ^ (string_of_exp e)))
+  | e, _ -> raise (eval_error (IncorrectType ("function", e)))
 
 
 let rec eval_exp store env = function
@@ -74,7 +73,7 @@ let rec eval_exp store env = function
                         | PostInc -> eval_exp store env e |> map_var env map_int_inc
                         | PostDec -> eval_exp store env e |> map_var env map_int_dec
                         | Not     -> Boolean (eval_exp store env e |> map_bool (not))
-                        | _ -> raise (eval_error ("Not a unary operator: " ^ string_of_op op)))
+                        | _ -> raise (eval_error (Error ("Not a unary operator: " ^ string_of_op op))))
 
   | BinaryOp (op, e1, e2) -> let v1 = eval_exp store env e1 in
                              let v2 = eval_exp store env e2 in
@@ -92,7 +91,7 @@ let rec eval_exp store env = function
                               | Gth     -> Boolean ((exp_compare v1 v2) > 0)
                               | Leq     -> Boolean ((exp_compare v1 v2) <= 0)
                               | Geq     -> Boolean ((exp_compare v1 v2) >= 0)
-                              | _ -> raise (eval_error ("Not a binary operator" ^ string_of_op op)))
+                              | _ -> raise (eval_error (Error ("Not a binary operator: " ^ string_of_op op))))
 
   | Application (id, args) -> let fn = eval_exp store env id in
                               let bound = bind_args fn (List.map (eval_exp store env) args) in
@@ -119,7 +118,7 @@ let rec eval_exp store env = function
   | Seq (hd::tl) -> eval_exp store env hd |> ignore; eval_exp store env (seq_of_list tl)
   | Deref e      -> (eval_exp store env e |> function
     | Ref s -> find_var store (Identifier s)
-    | e     -> raise (eval_error ("Can't dereference a non-reference type: " ^ string_of_exp e)))
+    | e     -> raise (eval_error (InvalidDeref e)))
   
   | Identifier s -> find_var env (Identifier s)
   | Ref s        -> printf "%s\n" (string_of_exp (Ref s)); Ref s
