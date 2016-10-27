@@ -95,7 +95,7 @@ let rec eval_exp store env e = printf " > %s\n" (string_of_exp e); match e with
                               | _ -> raise (eval_error ("Not a binary operator" ^ string_of_op op)))
 
   | Application (id, args) -> let fn = eval_exp store env id in
-                              let bound = bind_args fn args in
+                              let bound = bind_args fn (List.map (eval_exp store env) args) in
                               (match bound with
       | BoundFunction ([], body, ht) -> let subenv = Hashtbl.copy env in
                                         Hashtbl.iter (Hashtbl.add subenv) ht;
@@ -126,7 +126,7 @@ let rec eval_exp store env e = printf " > %s\n" (string_of_exp e); match e with
     | Ref s -> find_var store (Identifier s)
     | e     -> raise (eval_error ("Can't dereference a non-reference type: " ^ string_of_exp e)))
   
-  | Identifier s -> find_var env (Identifier s)
+  | Identifier s -> let v = find_var env (Identifier s) in printf " ~ %s: %s" s (string_of_exp v); v
   | Ref s        -> printf "%s\n" (string_of_exp (Ref s)); Ref s
   | e            -> e
 
