@@ -1,0 +1,41 @@
+/% CODE %/
+
+function overCurried(a, b) {
+  printInt(a);
+  printInt(b);
+}
+
+let f = overCurried(1);
+return f(2, 3);
+
+/% TREE %/
+
+Program (
+  Let ("overCurried",
+    Function (["a"; "b"],
+      Seq [
+        Printint(Identifier "a");
+        Printint(Identifier "b")
+      ]
+    ),
+    Let ("f",
+      Application (
+        Identifier "overCurried", [
+          Const 1
+        ]
+      ),
+      Application (
+        Identifier "f", [
+          Const 2;
+          Const 3
+        ]
+      )
+    )
+  )
+)
+
+/% RESULT %/
+
+EvalErr (OverAppliedArgs (2, 3))
+
+/% END %/

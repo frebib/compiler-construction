@@ -1,0 +1,57 @@
+/% CODE %/
+
+let x = 1;
+let z = 3;
+let addFour = fun a, b, c, d -> a + b + c + d;
+let addTwoMore = addFour(5, 7);
+let addOneMore = addTwoMore(x);
+return addOneMore(z * 2);
+
+/% TREE %/
+
+Program (
+  Let ("x",
+    Const 1,
+    Let ("z",
+      Const 3,
+      Let ("addFour",
+        Function (["a"; "b"; "c"; "d"],
+          BinaryOp (Plus,
+            BinaryOp (Plus,
+              BinaryOp (Plus,
+                Identifier "a",
+                Identifier "b"
+              ),
+              Identifier "c"
+            ),
+            Identifier "d"
+          )
+        ),
+        Let ("addTwoMore",
+          Application (
+            Identifier "addFour",
+            [Const 5; Const 7]
+          ),
+          Let ("addOneMore",
+            Application (
+              Identifier "addTwoMore", [
+                Identifier "x"
+              ]
+            ),
+            Application (
+              Identifier "addOneMore", [
+                BinaryOp (Times, Identifier "z", Const 2)
+              ]
+            )
+          )
+        )
+      )
+    )
+  )
+)
+
+/% RESULT %/
+
+Value (Const 19)
+
+/% END %/
