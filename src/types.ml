@@ -17,7 +17,7 @@ type expression =
   | Deref of expression (* e *)
   | UnaryOp of opcode * expression (* !e *)
   | BinaryOp of opcode * expression * expression (* e + e *)
-  | Application of expression * expression (* e(e) *)
+  | Application of expression * expression list (* e(a, b) *)
   | Const of int (* 7 *)
   | Boolean of bool (* true; false *)
   | Readint (* read_int () *)
@@ -25,6 +25,11 @@ type expression =
   | Identifier of string (* x *)
   | Let of string * expression * expression (* let x = e in e *)
   | New of string * expression * expression (* new x = e in e *)
+  
+  (* These expression types are only used for evaluation *)
+  | BoundFunction of string list * expression * (string, expression) Hashtbl.t
+  | Ref of string (* refid-n *)
+
 
 (* Helper functions *)
 let esc s = "\"" ^ s ^ "\""
@@ -41,4 +46,7 @@ and seq_of_list = function
   | []  -> Empty
   | [e] -> e
   | l   -> Seq l
-
+and func_args = function
+  | Function (a, _) -> a
+  | BoundFunction (a, _, _) -> a
+  | e -> failwith ("Not a function")

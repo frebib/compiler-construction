@@ -21,47 +21,63 @@ and exp_compare a b = match a, b with
   | _, _ -> compare a b (* This will probably fail but yolo *)
 ;;
 
-let rec find_var ht = function
-  | Identifier s -> (try
-                      Hashtbl.find ht s
+(* Environment manipulation *)
+let rec find_var store = function
+  | Ref s | Identifier s -> (try
+                      Hashtbl.find store s
                     with
                       | Not_found -> raise (eval_error (sprintf "Variable '%s' is not defined" s))
                       | e -> raise e)
   | e -> raise (eval_error ("Not a variable. Can't lookup: " ^ string_of_exp e))
 
-and put_var ht e v = match e with
-  | Identifier s -> Hashtbl.replace ht s v
+and put_var store e v = match e with
+  | Ref s | Identifier s -> Hashtbl.add store s v
   | e -> raise (eval_error ("Not a variable. Can't store: " ^ string_of_exp e))
 
-and map_var ht fn = function
+and map_var store fn = function
   (* Fetch, map and update the value. Return the Identifier *)
-  | e -> find_var ht e |> fn |> put_var ht e; e
+  | e -> find_var store e |> fn |> put_var store e; e
 
-let rec eval_exp ht = function
-  | Asg (e1, e2)    -> let rhs = eval_exp ht e2 in
-                       let lhs = eval_exp ht e1 in
-                       put_var ht lhs rhs; Empty
+(* Binding arguments to functions *)
+let rec bind_args fn args = match fn, args with
+  | Function (l, b), _ -> bind_args (BoundFunction (l, b, (Hashtbl.create (List.length l)))) args
+  | BoundFunction ([], _, _),     []    -> fn (* All arguments applied *)
+  | BoundFunction ([], b, ht),    a::tl -> let expected = (Hashtbl.length ht) in
+                                           let applied  = expected + (List.length args) in
+                                           raise (eval_error ("Function applied to too many arguments. " ^
+                                           sprintf "Function expects %d but %d were applied" expected applied))
 
-  | If (e, tr, fa)  -> if eval_exp ht e |> get_bool
-                       then eval_exp ht tr
-                       else eval_exp ht fa
+  | BoundFunction (p::ps, b, ht), a::tl -> Hashtbl.add ht p a;
+                                           bind_args (BoundFunction (ps, b, ht)) tl
+
+  | e, _ -> raise (eval_error ("Not a function type: " ^ (string_of_exp e)))
+
+
+let rec eval_exp store env e = printf " > %s\n" (string_of_exp e); match e with
+  | Asg (e1, e2)    -> let rhs = eval_exp store env e2 in
+                       let lhs = eval_exp store env e1 in
+                       put_var store lhs rhs; Empty
+
+  | If (e, tr, fa)  -> if eval_exp store env e |> get_bool
+                       then eval_exp store env tr
+                       else eval_exp store env fa
 
   | While (e, body) -> let ret = ref Empty in
-                       while get_bool (eval_exp ht e) do
-                         ret := eval_exp ht body
+                       while get_bool (eval_exp store env e) do
+                         ret := eval_exp store env body
                        done;
                        !ret
 
   | UnaryOp (op, e) -> (match op with
-                        | PreInc  -> map_var ht map_int_inc e |> eval_exp ht
-                        | PreDec  -> map_var ht map_int_dec e |> eval_exp ht
-                        | PostInc -> eval_exp ht e |> map_var ht map_int_inc
-                        | PostDec -> eval_exp ht e |> map_var ht map_int_dec
-                        | Not     -> Boolean (eval_exp ht e |> map_bool (not))
+                        | PreInc  -> map_var env map_int_inc e |> eval_exp store env
+                        | PreDec  -> map_var env map_int_dec e |> eval_exp store env
+                        | PostInc -> eval_exp store env e |> map_var env map_int_inc
+                        | PostDec -> eval_exp store env e |> map_var env map_int_dec
+                        | Not     -> Boolean (eval_exp store env e |> map_bool (not))
                         | _ -> raise (eval_error ("Not a unary operator: " ^ string_of_op op)))
 
-  | BinaryOp (op, e1, e2) -> let v1 = eval_exp ht e1 in
-                             let v2 = eval_exp ht e2 in
+  | BinaryOp (op, e1, e2) -> let v1 = eval_exp store env e1 in
+                             let v2 = eval_exp store env e2 in
                              (match op with
                               | Plus    -> Const   ((get_int v1)  +  (get_int v2))
                               | Minus   -> Const   ((get_int v1)  -  (get_int v2))
@@ -77,18 +93,43 @@ let rec eval_exp ht = function
                               | Leq     -> Boolean ((exp_compare v1 v2) <= 0)
                               | Geq     -> Boolean ((exp_compare v1 v2) >= 0)
                               | _ -> raise (eval_error ("Not a binary operator" ^ string_of_op op)))
-  
-  | Let _         -> raise (unimpl_error "Let statements are unimplemented")
-  | New _         -> raise (unimpl_error "New statements are unimplemented")
-  | Application _ -> raise (unimpl_error "Function application is unimplemented")
 
-  | Printint e   -> printf "%d\n" (get_int (eval_exp ht e)); Empty
+  | Application (id, args) -> let fn = eval_exp store env id in
+                              let bound = bind_args fn args in
+                              (match bound with
+      | BoundFunction ([], body, ht) -> let subenv = Hashtbl.copy env in
+                                        Hashtbl.iter (Hashtbl.add subenv) ht;
+                                        eval_exp store subenv body
+      | BoundFunction _              -> bound (* Return the partially applied function *)
+      | _ -> failwith "This will never happen") (* Now just watch me be proved wrong... *)
+
+  | Let (v, e, i)  -> let value = eval_exp store env e in
+                      Hashtbl.add env v value;
+                      let ret = eval_exp store env i in
+                      Hashtbl.remove env v; ret
+
+  | New (v, e, i)  -> let value = eval_exp store env e in
+                      Hashtbl.add store v value;
+                      Hashtbl.add env v (Ref v);
+                      printf "ENV:\n";
+                      Hashtbl.iter (fun k v -> printf "%s: %s\n" k (string_of_exp v)) env;
+                      printf "\nSTORE:\n";
+                      Hashtbl.iter (fun k v -> printf "%s: %s\n" k (string_of_exp v)) store;
+                      printf "\n\n";
+                      eval_exp store env i
+
+  | Printint e   -> printf "%d\n" (get_int (eval_exp store env e)); Empty
   | Readint      -> Const (read_line () |> int_of_string)
 
-  | Seq (hd::tl) -> eval_exp ht hd |> ignore; eval_exp ht (seq_of_list tl)
-  | Deref e      -> eval_exp ht e |> find_var ht
+  | Seq (hd::tl) -> eval_exp store env hd |> ignore; eval_exp store env (seq_of_list tl)
+  | Deref e      -> (eval_exp store env e |> function
+    | Ref s -> find_var store (Identifier s)
+    | e     -> raise (eval_error ("Can't dereference a non-reference type: " ^ string_of_exp e)))
+  
+  | Identifier s -> find_var env (Identifier s)
+  | Ref s        -> printf "%s\n" (string_of_exp (Ref s)); Ref s
   | e            -> e
 
-let eval exp = eval_exp (Hashtbl.create 8) exp
+let eval exp = eval_exp (Hashtbl.create 8) (Hashtbl.create 8) exp
 let eval_all l = eval (Seq l)
 

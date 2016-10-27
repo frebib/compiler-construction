@@ -31,6 +31,8 @@ and string_of_unop_exp op e =
 and string_of_exp = function
   | Empty                 -> "Empty"
   | Function (a, e)       -> "Function " ^ wrap (wrap_sq (map esc a |> concat "; ") ^ ", " ^ string_of_exp e)
+  | BoundFunction (a, e, _) -> string_of_exp (Function (a, e))
+  | Ref s                 -> "Ref " ^ esc s
   | Seq l                 -> "Seq " ^ wrap_sq (map string_of_exp l |> concat "; ")
   | While (e, f)          -> "While " ^ wrap (string_of_exp e ^ ", " ^ string_of_exp f)
   | If (e, a, b)          -> "If " ^ wrap ([e;a;b] |> map string_of_exp |> concat ", ")
@@ -38,7 +40,7 @@ and string_of_exp = function
   | Deref x               -> "Deref " ^ wrap (string_of_exp x)
   | UnaryOp (op, e)       -> "UnaryOp " ^ wrap (string_of_unop_exp op e)
   | BinaryOp (op, e1, e2) -> "BinaryOp "  ^ wrap (string_of_op op ^ ", " ^ string_of_exp e1 ^ ", " ^ string_of_exp e2)
-  | Application (i, e)    -> "Application " ^ wrap ([i;e] |> map string_of_exp |> concat ", ")
+  | Application (f, l)    -> "Application " ^ wrap (string_of_exp f ^ ", " ^ wrap_sq (map string_of_exp l |> concat "; "))
   | Const n               -> "Const " ^ if n < 0 then wrap (string_of_int n) else string_of_int n
   | Boolean b             -> "Boolean " ^ string_of_bool b
   | Readint               -> "Readint"
