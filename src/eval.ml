@@ -41,7 +41,7 @@ and map_var store fn = function
 (* Binding arguments to functions *)
 let rec bind_args fn args = match fn, args with
   | Function (l, b), _ -> bind_args (BoundFunction (l, b, (Hashtbl.create (List.length l)))) args
-  | BoundFunction ([], _, _),     []    -> fn (* All arguments applied *)
+  | BoundFunction (_, _, _),      []    -> fn (* All arguments applied *)
   | BoundFunction ([], b, ht),    a::tl -> let expected = (Hashtbl.length ht) in
                                            let applied  = expected + (List.length args) in
                                            raise (eval_error (OverAppliedArgs (expected, applied)))
