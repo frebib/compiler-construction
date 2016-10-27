@@ -6,34 +6,39 @@ function application() {
 
 /% TREE %/
 
-Program [
-  ("application", [],
-    Application (
-      Identifier "a",
+Program (
+  Let ("application",
+    Function ([],
       Application (
-        Identifier "b",
-        Application (
-          Identifier "c",
-          Seq [
-            Application (Identifier "fish", Empty);
-            Application (Identifier "d", 
-              Seq [
-                Const 1;
-                Identifier "abc";
-                Application (Identifier "xyz", Const 1)
-              ]
-            )
-          ]
-        )
+        Identifier "a", [
+          Application (
+            Identifier "b", [
+              Application (
+                Identifier "c", [
+                  Application (
+                    Identifier "fish", []
+                  );
+                  Application (
+                    Identifier "d", [
+                      Const 1;
+                      Identifier "abc";
+                      Application (
+                        Identifier "xyz",
+                        [
+                          Const 1
+                        ]
+                      )
+                    ]
+                  )
+                ]
+              )
+            ]
+          )
+        ]
       )
-    )
+    ),
+    Empty
   )
-]
-
-/% RESULT %/
-
-[
-  Empty
-]
+)
 
 /% END %/

@@ -4,8 +4,8 @@ open Printf
 
 (* Code, Output: name, code, tree *)
 type test = 
-  | Test of string * string * string
-  | NamedTest of string * string * string * string
+  | Test of string * string * string option
+  | NamedTest of string * string * string * string option
 ;;
 let name_test name test = match test with
   | Test (code, tree, result) -> NamedTest (name, code, tree, result)
@@ -94,7 +94,7 @@ let run_test name code tree result =
 
 (* Generate OCaml code for a test *)
 let rec generate_test = function
-  | NamedTest (name, code, tree, result) -> sprintf "open Test\nopen Types\nopen Error\n\nlet _ =\n  let code = \"%s\" in\n  let tree = %s in\n  let result = %s in\n  run_test \"%s\" code tree result" (String.escaped code) (indent 2 (String.trim tree)) (indent 2 (String.trim result)) name
+  | NamedTest (name, code, tree, result) -> sprintf "open Test\nopen Types\nopen Error\n\n\nlet _ =\n  let code = \"%s\" in\n  let tree = %s in\n  let result = %s in\n  run_test \"%s\" code tree result" (String.escaped code) (String.trim tree |> indent 2 ) (Option.map_def (fun o -> String.trim o |> sprintf "Some (%s)") "None" result) name
   | test -> generate_test (name_test "%inline%" test)
 ;;
 
