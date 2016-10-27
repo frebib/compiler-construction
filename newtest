@@ -14,29 +14,37 @@ else
     name="$1.test"
 fi
 
+camel=${name,}
+snake=$(echo "$camel" | sed -r 's/([A-Z])/_\L\1/g')
+
 if [ -f $name ]; then
     echo "Error: A test with that name already exists"
     echo "Exiting..."
     exit 5
 fi
 
-cat << EOF > $name
+fun=${camel%.*}
+
+cat << EOF > $snake
 /% CODE %/
 
-function ${name%.*}() {
+function ${fun}() {
 }
+
+${fun}();
 
 /% TREE %/
 
-Program [
-  ("${name%.*}", [], Empty)
-]
+Program (
+  Let ("${fun}",
+    Function ([], Empty),
+    Application (Identifier "${fun}", [])
+  )
+)
 
 /% RESULT %/
 
-[
-  Empty
-]
+Empty
 
 /% END %/
 EOF
