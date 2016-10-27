@@ -143,7 +143,7 @@ defin:
 exp_param: 
     | LPAREN e = exp RPAREN { e }
 comma_exp_params: 
-    | LPAREN es = separated_list(COMMA, exp) RPAREN { seq_of_list es }
+    | LPAREN es = separated_list(COMMA, exp) RPAREN { es }
 comma_str_params: 
     | LPAREN ps = separated_list(COMMA, IDENT) RPAREN { ps }
 comma_sep_str: 
