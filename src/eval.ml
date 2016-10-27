@@ -38,10 +38,15 @@ and map_var store fn = function
   (* Fetch, map and update the value. Return the Identifier *)
   | e -> find_var store e |> fn |> put_var store e; e
 
+let merge_env a b = let subenv = Hashtbl.copy a in
+                    Hashtbl.iter (Hashtbl.add subenv) b;
+                    subenv
+
 (* Binding arguments to functions *)
 let rec bind_args fn args = match fn, args with
   | Function (l, b), _ -> bind_args (BoundFunction (l, b, (Hashtbl.create (List.length l)))) args
   | BoundFunction (_, _, _),      []    -> fn (* All arguments applied *)
+  (* TODO: Don't rely on the hashtable being empty to start with *)
   | BoundFunction ([], b, ht),    a::tl -> let expected = (Hashtbl.length ht) in
                                            let applied  = expected + (List.length args) in
                                            raise (eval_error (OverAppliedArgs (expected, applied)))
@@ -96,9 +101,7 @@ let rec eval_exp store env = function
   | Application (id, args) -> let fn = eval_exp store env id in
                               let bound = bind_args fn (List.map (eval_exp store env) args) in
                               (match bound with
-      | BoundFunction ([], body, ht) -> let subenv = Hashtbl.copy env in
-                                        Hashtbl.iter (Hashtbl.add subenv) ht;
-                                        eval_exp store subenv body
+      | BoundFunction ([], body, ht) -> eval_exp store (merge_env env ht) body
       | BoundFunction _              -> bound (* Return the partially applied function *)
       | _ -> failwith "This will never happen") (* Now just watch me be proved wrong... *)
 
