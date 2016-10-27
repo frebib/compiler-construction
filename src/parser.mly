@@ -22,9 +22,9 @@
 %token          LET VAR
 
 (* http://cs.stmarys.ca/~porter/csc/ref/cpp_operators.html *)
+%right    ARROW
 %nonassoc EQUAL
 %right    ELSE DO
-%right    ARROW
 %left     OR
 %left     AND
 %right    DBLEQUAL NOTEQUAL
