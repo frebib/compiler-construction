@@ -73,7 +73,7 @@ let run_test name code tree result =
 
 (* Generate OCaml code for a test *)
 let rec generate_test = function
-  | NamedTest (name, code, tree, result) -> sprintf "open Test\nopen Types\nopen Error\nopen Print\n\nlet _ =\n  let code = \"%s\" in\n  let tree = %s in\n  let result = %s in\n  run_test \"%s\" code tree result" (String.escaped code) (indent 2 (String.trim tree)) (indent 2 (String.trim result)) name
+  | NamedTest (name, code, tree, result) -> sprintf "open Test\nopen Types\n\nlet _ =\n  let code = \"%s\" in\n  let tree = %s in\n  let result = %s in\n  run_test \"%s\" code tree result" (String.escaped code) (indent 2 (String.trim tree)) (indent 2 (String.trim result)) name
   | test -> generate_test (name_test "%inline%" test)
 ;;
 
