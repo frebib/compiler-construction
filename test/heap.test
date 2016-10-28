@@ -1,0 +1,37 @@
+/% CODE %/
+
+function getVar(i) {
+  var x = i;
+  return x;
+}
+
+let v = getVar(5);
+printInt(~v);
+v = 23456;
+return ~v;
+
+/% TREE %/
+
+Program (
+  Let ("getVar",
+    Function (["i"], 
+      New ("x", Identifier "i",
+        (* return *) Identifier "x"
+      )
+    ),
+    Let ("v", 
+      Application (Identifier "getVar", [Const 5]),
+      Seq [
+        Printint (Deref (Identifier "v"));
+        Asg (Identifier "v", Const 23456);
+        Deref (Identifier "v")
+      ]
+    )
+  )
+)
+
+/% RESULT %/
+
+Value (Const 23456);
+
+/% END %/
