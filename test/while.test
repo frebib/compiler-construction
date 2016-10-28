@@ -1,40 +1,30 @@
 /% CODE %/
 
-function whileTest() {
-  while (true) {
-    while (false)
-      doThing();
-    (while (x) do y++) = 4 - y;
-  }
+while (true) {
+  while (false)
+    doThing();
+  (while (x) do y++) = 4 - y;
 }
 
 /% TREE %/
 
-Program [
-  ("whileTest", [],
-    While (
-      Boolean true,
-      Seq [
+Program (
+  While (
+    Boolean true,
+    Seq [
+      While (
+        Boolean false,
+        Application (Identifier "doThing", [])
+      );
+      Asg (
         While (
-          Boolean false,
-          Application (Identifier "doThing", Empty)
-        );
-        Asg (
-          While (
-            Identifier "x",
-            UnaryOp (PostInc, Identifier "y")
-          ),
-          BinaryOp (Minus, Const 4, Identifier "y")
-        )
-      ]
-    )
+          Identifier "x",
+          UnaryOp (PostInc, Identifier "y")
+        ),
+        BinaryOp (Minus, Const 4, Identifier "y")
+      )
+    ]
   )
-]
-
-/% RESULT %/
-
-[
-  Empty
-]
+)
 
 /% END %/

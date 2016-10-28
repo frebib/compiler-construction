@@ -39,6 +39,6 @@ Program (
 
 /% RESULT %/
 
-Const 6765
+Value (Const 6765)
 
 /% END %/

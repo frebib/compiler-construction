@@ -75,6 +75,6 @@ Program (
 
 /% RESULT %/
 
-Const 832040
+Value (Const 832040)
 
 /% END %/

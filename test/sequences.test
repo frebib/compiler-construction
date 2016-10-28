@@ -1,49 +1,39 @@
 /% CODE %/
 
-function sequences() {
-  callme(one, two, three, four, five);
-  callmeagain(a, b, c, 1, 2, 3);
-  onestopshop(noope);
-}
+callme(one, two, three, four, five);
+callmeagain(a, b, c, 1, 2, 3);
+onestopshop(noope);
 
 /% TREE %/
 
-Program [
-  ("sequences", [], 
-    Seq [
-      Application (
-        Identifier "callme",
-        Seq [
-          Identifier "one";
-          Identifier "two";
-          Identifier "three";
-          Identifier "four";
-          Identifier "five"
-        ]
-      );
-      Application (
-        Identifier "callmeagain",
-        Seq [
-          Identifier "a";
-          Identifier "b";
-          Identifier "c";
-          Const 1;
-          Const 2;
-          Const 3
-        ]
-      );
-      Application (
-        Identifier "onestopshop",
-        Identifier "noope"
-      )
-    ]
-  )
-]
-
-/% RESULT %/
-
-[
-  Empty
-]
+Program (
+  Seq [
+    Application (
+      Identifier "callme",
+      [
+        Identifier "one";
+        Identifier "two";
+        Identifier "three";
+        Identifier "four";
+        Identifier "five"
+      ]
+    );
+    Application (
+      Identifier "callmeagain",
+      [
+        Identifier "a";
+        Identifier "b";
+        Identifier "c";
+        Const 1;
+        Const 2;
+        Const 3
+      ]
+    );
+    Application (
+      Identifier "onestopshop",
+      [Identifier "noope"]
+    )
+  ]
+)
 
 /% END %/

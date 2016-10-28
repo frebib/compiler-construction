@@ -14,18 +14,14 @@ function alone() {  }
 
 /% TREE %/
 
-Program [
-  ("funcOne", ["param1"; "param2"], Empty);
-  ("funcTwo", ["a"; "b"; "c"], Deref (Identifier "b"));
-  ("alone", [], Empty)
-]
-
-/% RESULT %/
-
-[
-  Empty;
-  Empty;
-  Empty
-]
+Program (
+  Let ("funcOne", Function (["param1"; "param2"], Empty),
+    Let ("funcTwo", Function (["a"; "b"; "c"], Deref (Identifier "b")),
+      Let ("alone", Function ([], Empty),
+        Empty
+      )
+    )
+  )
+)
 
 /% END %/

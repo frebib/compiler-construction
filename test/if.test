@@ -16,42 +16,42 @@ function ifTest(x, y) {
 
 /% TREE %/
 
-Program [
-  ("ifTest", ["x"; "y"],
-    If (
-      BinaryOp (Or,
-        Identifier "x",
-        Identifier "y"
-      ), If (
-        Application (Identifier "x", Identifier "y"),
+Program (
+  Let ("ifTest", 
+    Function (["x"; "y"],
+      If (
+        BinaryOp (Or,
+          Identifier "x",
+          Identifier "y"
+        ),
         If (
-          Boolean true,
-          Boolean false,
-          Boolean true
-        ), Application (
-          Identifier "yolo",
-          Empty
-        )
-      ), If (
-        Identifier "testy",
-        Application (
-          Identifier "thing",
+          Application (Identifier "x", [Identifier "y"]),
           If (
-            Const 1,
-            Const 0,
-            Const 4
+            Boolean true,
+            Boolean false,
+            Boolean true
+          ),
+          Application (
+            Identifier "yolo",
+            []
           )
         ),
-        Boolean false
+        If (
+          Identifier "testy",
+          Application (
+            Identifier "thing", [
+            If (
+              Const 1,
+              Const 0,
+              Const 4
+            )
+          ]),
+          Boolean false
+        )
       )
-    )
+    ),
+    Empty
   )
-]
+)
 
-/% RESULT %/
-
-[
-  Empty
-]
-
-/% END %/
+  /% END %/
