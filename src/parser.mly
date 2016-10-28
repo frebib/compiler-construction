@@ -106,7 +106,7 @@ def:
 
 defin:
     | d = def { d }
-    | ss = statement* { seq_of_list ss }
+    | ss = statements { ss }
 
 %inline ident:
     | s = IDENT { Identifier s }
