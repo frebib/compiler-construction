@@ -9,7 +9,7 @@ function constants(PI) {
   e = 19;
   f = 34763567352346;
   i = 0;
-  
+
   // Tests shouldn't be interactive.
   // hard-code a value instead
   //in = readInt();
@@ -21,40 +21,37 @@ function constants(PI) {
 
 /% TREE %/
 
-Program [
-  ("constants", ["PI"], Seq [
-    Asg (Identifier "b", Boolean true);
-    Asg (Identifier "notb", Boolean false);
-    Asg (
-      Identifier "c", 
-      UnaryOp (Not,
+Program (
+  Let ("constants", 
+    Function (["PI"], Seq [
+      Asg (Identifier "b", Boolean true);
+      Asg (Identifier "notb", Boolean false);
+      Asg (
+        Identifier "c", 
         UnaryOp (Not,
-          Deref (Identifier "b")
+          UnaryOp (Not,
+            Deref (Identifier "b")
+          )
+        )
+      );
+      Asg (Identifier "e", Const 19);
+      Asg (Identifier "f", Const 34763567352346);
+      Asg (Identifier "i", Const 0);
+      Asg (Identifier "in", Const 50);
+      Printint(Deref (Identifier "in"));
+      BinaryOp (Leq,
+        BinaryOp (Plus,
+          Const 1,
+          BinaryOp (Divide, Const 13, Const 8)
+        ),
+        Application (
+          Identifier "sqrt",
+          [Identifier "PI"]
         )
       )
-    );
-    Asg (Identifier "e", Const 19);
-    Asg (Identifier "f", Const 34763567352346);
-    Asg (Identifier "i", Const 0);
-    Asg (Identifier "in", Const 50);
-    Printint(Deref (Identifier "in"));
-    BinaryOp (Leq,
-      BinaryOp (Plus,
-        Const 1,
-        BinaryOp (Divide, Const 13, Const 8)
-      ),
-      Application (
-        Identifier "sqrt",
-        Identifier "PI"
-      )
-    )
-  ])
-]
-
-/% RESULT %/
-
-[
-  Empty
-]
+    ]),
+    Empty
+  )
+)
 
 /% END %/

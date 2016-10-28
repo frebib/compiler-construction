@@ -1,39 +1,39 @@
 /% CODE %/
 
-function evalFalse() {
-  while (false) {
-    while (true) {}
-  }
-  x = true;
-  while (true && ~x) {
-    x = false;
-  }
-  return 666;
+while (false) {
+  while (true) {}
 }
+var x = true;
+while (true && ~x) {
+  x = false;
+}
+return 666;
 
 /% TREE %/
 
-Program [
-  ("evalFalse", [], Seq [
+Program (
+  Seq [
     While (Boolean false,
       While (Boolean true, Empty)
     );
-    Asg (Identifier "x", Boolean true);
-    While (
-      BinaryOp (And,
-        Boolean true,
-        Deref (Identifier "x")
-      ),
-      Asg (Identifier "x", Boolean false)
-    );
-    Const 666
-  ])
-]
+    New ("x",
+      Boolean true,
+      Seq [
+        While (
+          BinaryOp (And,
+            Boolean true,
+            Deref (Identifier "x")
+          ),
+          Asg (Identifier "x", Boolean false)
+        );
+        Const 666
+      ]
+    )
+  ]
+)
 
 /% RESULT %/
 
-[
-  Const 666
-]
+Value (Const 666)
 
 /% END %/

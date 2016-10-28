@@ -9,35 +9,29 @@ function deref(c) {
 
 /% TREE %/
 
-Program [
-  ("deref", ["c"], 
-    Let ("x", 
-      Deref (Identifier "c"),
-      Let ("y", 
-        Deref (
-          If (Boolean true,
-            Identifier "x",
-            Identifier "y"
-          )
-        ),
-        Let ("fourteen",
+Program (
+  Let ("deref", 
+    Function (["c"], 
+      Let ("x", 
+        Deref (Identifier "c"),
+        Let ("y", 
           Deref (
-            Application (
-              Identifier "y",
-              Empty
+            If (Boolean true,
+              Identifier "x",
+              Identifier "y"
             )
-          ), 
-          Deref (Deref (Identifier "c"))
+          ),
+          Let ("fourteen",
+            Deref (
+              Application (Identifier "y", [])
+            ), 
+            Deref (Deref (Identifier "c"))
+          )
         )
       )
-    )
+    ),
+    Empty
   )
-]
-
-/% RESULT %/
-
-[
-  Empty
-]
+)
 
 /% END %/

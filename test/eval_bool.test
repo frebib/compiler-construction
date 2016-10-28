@@ -1,43 +1,39 @@
 /% CODE %/
 
 // Test boolean operations
-function eval5() {
-  t = true;
-  f = false;
-  r = if (~t && ~f) !~t else !~f || !~t;
-  return ~r && true;
-}
+let t = true;
+let f = false;
+let r = if (t && f) !t else !f || !t;
+return r && true;
 
 /% TREE %/
 
-Program [
-  ("eval5", [], Seq [
-    Asg (Identifier "t", Boolean true);
-    Asg (Identifier "f", Boolean false);
-    Asg (Identifier "r",
-      If (BinaryOp (
-        And,
-        Deref (Identifier "t"),
-        Deref (Identifier "f")
-      ), 
-        UnaryOp (Not, Deref (Identifier "t")),
-        BinaryOp (Or,
-          UnaryOp (Not, Deref (Identifier "f")),
-          UnaryOp (Not, Deref (Identifier "t"))
+Program (
+  Let ("t", Boolean true,
+    Let ("f", Boolean false,
+      Let ("r",
+        If (
+          BinaryOp (And,
+            Identifier "t",
+            Identifier "f"
+          ), 
+          UnaryOp (Not, Identifier "t"),
+          BinaryOp (Or,
+            UnaryOp (Not, Identifier "f"),
+            UnaryOp (Not, Identifier "t")
+          )
+        ),
+        BinaryOp (And,
+          Identifier "r",
+          Boolean true
         )
       )
-    );
-    BinaryOp (And,
-      Deref (Identifier "r"),
-      Boolean true
     )
-  ])
-]
+  )
+)
 
 /% RESULT %/
 
-[
-  Boolean true
-]
+Value (Boolean true)
 
 /% END %/

@@ -1,55 +1,46 @@
 /% CODE %/
 
 // Test some binary operations
-function evalBinop() {
-  x = 1 * 3;
-  n = 4 / ~++x;
-  y = ~x + ~n;
-  return ~y <= 5;
-}
+var x = 1 * 3;
+var n = 4 / ~x;
+var y = ~x + ~n;
+return ~y <= 5;
 
 /% TREE %/
 
-Program [
-  ("evalBinop", [], Seq [
-    Asg (
-      Identifier "x",
-      BinaryOp (
-        Times,
-        Const 1,
-        Const 3
-      )
-    );
-    Asg (
-      Identifier "n",
+Program (
+  New (
+    "x",
+    BinaryOp (
+      Times,
+      Const 1,
+      Const 3
+    ),
+    New (
+      "n",
       BinaryOp (
         Divide,
         Const 4,
-        Deref (
-          UnaryOp (PreInc, Identifier "x")
+        Deref (Identifier "x")
+      ),
+      New (
+        "y",
+        BinaryOp (
+          Plus,
+          Deref (Identifier "x"),
+          Deref (Identifier "n")
+        ),
+        BinaryOp (
+          Leq,
+          Deref (Identifier "y"),
+          Const 5
         )
       )
-    );
-    Asg (
-      Identifier "y",
-      BinaryOp (
-        Plus,
-        Deref (Identifier "x"),
-        Deref (Identifier "n")
-      )
-    );
-    BinaryOp (
-      Leq,
-      Deref (Identifier "y"),
-      Const 5
-    )
-  ])
-]
-
+    ) 
+  )
+)
 /% RESULT %/
 
-[
-  Boolean true
-]
+Value (Boolean true)
 
 /% END %/

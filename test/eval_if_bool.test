@@ -1,51 +1,56 @@
 /% CODE %/
 
-function evalIfBool() {
-  g = true;
-  s = false;
-  if (~g) {
-    x = !~g;
-    p = ~x && ~s || true;
-  } else {
-    p = false;
-  }
-  return ~p;
+let g = true;
+let s = false;
+var p = 0;
+if (g) {
+  let x = !g;
+  p = x && s || true;
+} else {
+  p = false;
 }
+return ~p;
 
 /% TREE %/
 
-Program [
-  ("evalIfBool", [], Seq [
-    Asg (Identifier "g", Boolean true);
-    Asg (Identifier "s", Boolean false);
-    If (
-      Deref (Identifier "g"),
-      Seq [
-        Asg (
-          Identifier "x",
-          UnaryOp (Not, Deref (Identifier "g"))
-        );
-        Asg (
-          Identifier "p",
-          BinaryOp (Or,
-            BinaryOp (And,
-              Deref (Identifier "x"),
-              Deref (Identifier "s")
+Program (
+  Let ("g", 
+    Boolean true, 
+    Let ("s", 
+      Boolean false, 
+      New ("p", 
+        Const 0,
+        Seq [
+          If (
+            Identifier "g",
+            Let (
+              "x",
+              UnaryOp (Not, Identifier "g"),
+              Asg (
+                Identifier "p",
+                BinaryOp (Or,
+                  BinaryOp (And,
+                    Identifier "x",
+                    Identifier "s"
+                  ),
+                  Boolean true
+                )
+              )
             ),
-            Boolean true
-          )
-        )
-      ],
-      Asg (Identifier "p", Boolean false);
-    );
-    Deref (Identifier "p")
-  ])
-]
+            Asg (
+              Identifier "p",
+              Boolean false
+            )
+          );
+          Deref (Identifier "p")
+        ]
+      )
+    )
+  )
+)
 
 /% RESULT %/
 
-[
-  Boolean true
-]
+Value (Boolean true)
 
 /% END %/
