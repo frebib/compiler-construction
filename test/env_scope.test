@@ -1,0 +1,59 @@
+/% CODE %/
+
+function envScope() {
+  let x = 5;
+  var y = 6;
+  let x = 12;
+  if (x == 5) {
+    printInt(x);
+    return false;
+  } else {
+    // This lambda should modify y as it's still in scope
+    let f = (fun i -> y = i);
+    f(1);
+    printInt(~y);
+    return (~y == 1);
+  }
+}
+
+envScope();
+
+/% TREE %/
+
+Program (
+  Let ("envScope",
+    Function ([],
+      Let ("x", Const 5,
+        New ("y", Const 6,
+          Let ("x", Const 12,
+            If (
+              BinaryOp (Equal, Identifier "x", Const 5),
+              Seq [
+                Printint(Identifier "x");
+                Boolean false
+              ],
+              Let ("f",
+                Function (["i"], Asg (Identifier "y", Identifier "i")),
+                Seq [
+                  Application (Identifier "f", [Const 1]);
+                  Printint(Deref (Identifier "y"));
+                  BinaryOp (Equal,
+                    Deref (Identifier "y"),
+                    Const 1
+                  )
+                ]
+              )
+            )
+          )
+        )
+      )
+    ),
+    Application (Identifier "envScope", [])
+  )
+)
+
+/% RESULT %/
+
+Value (Boolean true)
+
+/% END %/
