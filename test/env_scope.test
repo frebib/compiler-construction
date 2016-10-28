@@ -1,5 +1,7 @@
 /% CODE %/
 
+// Tests variable shadowing and scope within lambdas
+
 function envScope() {
   let x = 5;
   var y = 6;

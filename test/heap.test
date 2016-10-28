@@ -1,5 +1,8 @@
 /% CODE %/
 
+// Return a heap variable from 
+// a function and assign to it
+
 function getVar(i) {
   var x = i;
   return x;
