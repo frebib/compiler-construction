@@ -1,95 +1,122 @@
 /% CODE %/
 
-function rootBisec(f, a, b, tolerance, nmax) {
-  let n = 1;
-  while (~n <= ~nmax) { // limit iterations to prevent infinite loop
-    let c = (~a + ~b) / 2; // new midpoint
-    if (f(~c) == 0 || (~b - ~a) / 2 < ~tolerance) { // solution found
-      printInt(~c);
-      return ~c;
-    } else {
-      n++; // increment step counter
-      (if (sign(f(~c)) == sign(f(~a))) a else b) = ~c; // new interval
+function rootBisec(f, a, b, tolerance) {
+  let fa = f(a);
+  let fb = f(b);
+  if (fa * fb > 0) {
+    return -1;
+  } else {
+    var a = a;
+    var b = b;
+    var c = 0;
+    while (~b - ~a > tolerance) {
+      c = (~a + ~b) / 2;
+      (if (f(~c) * fa > 0) a else b) = ~c;
     }
+    return ~c;
   }
-  return -1;
-  // max number of steps exceeded
-  // printf("Method failed.") 
 }
+
+rootBisec((fun x -> 2 * x - 2), -347, 123, 1);
 
 /% TREE %/
 
-Program [
-  ("rootBisec", ["f"; "a"; "b"; "tolerance"; "nmax"],
-    Let (
-      "n",
-      Const 1,
-      Seq [
-        While (
-          BinaryOp (Leq, Deref (Identifier "n"), Deref (Identifier "nmax")),
-          Let (
-            "c",
-            BinaryOp (Divide, BinaryOp (Plus, Deref (Identifier "a"), Deref (Identifier "b")), Const 2),
-            If (
-              BinaryOp (Or,
-                BinaryOp (Equal,
-                  Application (Identifier "f", Deref (Identifier "c")),
-                  Const 0
-                ),
-                BinaryOp (Lth,
-                  BinaryOp (Divide,
-                    BinaryOp (Minus,
-                      Deref (Identifier "b"),
-                      Deref (Identifier "a")
-                    ),
-                    Const 2
-                  ),
-                  Deref (Identifier "tolerance")
-                )
+Program (
+  Let ("rootBisec",
+    Function (["f"; "a"; "b"; "tolerance"],
+      Let ("fa",
+        Application (
+          Identifier "f", [
+            Identifier "a"
+          ]),
+        Let ("fb",
+          Application (
+            Identifier "f", [
+              Identifier "b"
+            ]),
+          If (
+            BinaryOp (Gth,
+              BinaryOp (Times,
+                Identifier "fa",
+                Identifier "fb"
               ),
-              Seq [
-                Printint(Deref (Identifier "c"));
-                Deref (Identifier "c")
-              ],
-              Seq [
-                UnaryOp (PostInc, Identifier "n");
-                Asg (
-                  If (
-                    BinaryOp (Equal,
-                      Application (
-                        Identifier "sign",
-                        Application (
-                          Identifier "f",
+              Const 0
+            ),
+            Const (-1),
+            New ("a",
+              Identifier "a",
+              New ("b",
+                Identifier "b",
+                New ("c",
+                  Const 0,
+                  Seq [
+                    While (
+                      BinaryOp (Gth,
+                        BinaryOp (Minus,
+                          Deref (Identifier "b"),
+                          Deref (Identifier "a")
+                        ),
+                        Identifier "tolerance"),
+                      Seq [
+                        Asg (
+                          Identifier "c",
+                          BinaryOp (Divide,
+                            BinaryOp (Plus,
+                              Deref (Identifier "a"),
+                              Deref (Identifier "b")
+                            ),
+                            Const 2)
+                        );
+                        Asg (
+                          If (
+                            BinaryOp (Gth,
+                              BinaryOp (Times,
+                                Application (
+                                  Identifier "f", [
+                                    Deref (Identifier "c")
+                                  ]
+                                ),
+                                Identifier "fa"
+                              ), 
+                              Const 0
+                            ),
+                            Identifier "a",
+                            Identifier "b"
+                          ),
                           Deref (Identifier "c")
                         )
-                      ),
-                      Application (
-                        Identifier "sign",
-                        Application (
-                          Identifier "f",
-                          Deref (Identifier "a")
-                        )
-                      )
-                    ),
-                    Identifier "a",
-                    Identifier "b"
-                  ), 
-                  Deref (Identifier "c")
+                      ]
+                    );
+                    Deref (Identifier "c")
+                  ]
                 )
-              ]
+              )
             )
           )
-        );
-        Const (-1)
+        )
+      )
+    ),
+    Application (
+      Identifier "rootBisec", [
+        Function (["x"],
+          BinaryOp (Minus,
+            BinaryOp (Times,
+              Const 2,
+              Identifier "x"
+            ),
+            Const 2
+          )
+        ); 
+        Const (-347);
+        Const 123;
+        Const 1
       ]
     )
   )
-]
+)
 
 /% RESULT %/
 
-[
-  Empty
-]
+Value (Const 0)
 
 /% END %/
