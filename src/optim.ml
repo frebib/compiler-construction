@@ -18,7 +18,11 @@ let rec optimise store env e = e |> function
   | Printint _
   | Ref     _          -> e
 
-  | UnaryOp (op, e)    -> UnaryOp (op, e) 
+  | UnaryOp (op, e)    -> let e' = optimise store env e in
+                          (match op, e' with
+    | Not, Boolean b -> Boolean (not b)
+    | _ -> UnaryOp (op, e'))
+
   | BinaryOp (o, a, b) -> let a' = optimise store env a in
                           let b' = optimise store env b in
                           (match a', b' with
