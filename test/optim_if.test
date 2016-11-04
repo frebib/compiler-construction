@@ -1,0 +1,27 @@
+/% CODE %/
+
+let x = true;
+var y = if (!x) 6 else 4;
+return ~y;
+
+/% TREE %/
+
+Program (
+  Let ("x", 
+    Boolean true,
+    New ("y",
+      If (
+        UnaryOp (Not, Identifier "x"),
+        Const 6,
+        Const 4
+      ),
+      Deref (Identifier "y")
+    )
+  )
+)
+
+/% RESULT %/
+
+Value (Const 4)
+
+/% END %/
