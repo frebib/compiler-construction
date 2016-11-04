@@ -13,7 +13,6 @@ let rec optimise store env e = e |> function
   | Const   _
   | Boolean _
   | Asg     _
-  | Deref   _
   | Application _ 
   | Readint
   | Printint _
@@ -67,9 +66,17 @@ let rec optimise store env e = e |> function
                             Hashtbl.remove env v;
                             tree)
                           else
-                            Let (v, value, (optimise store env i))
+                            Let (v, value, optimise store env i)
 
-  | New (v, e, i)      -> New (v, optimise store env e, optimise store env i)
+  | New (v, e, i)      -> let value = optimise store env e in
+                          if constant value then
+                            (Hashtbl.add store v value;
+                            optimise store env i)
+                          else
+                            New (v, value, optimise store env i)
 
+  | Deref e            -> match optimise store env e with
+    | Identifier s -> (try Hashtbl.find store s with _ -> e)
+    | _ -> Deref e
 
 let optimise_prog = optimise (Hashtbl.create 8) (Hashtbl.create 8)

@@ -1,0 +1,32 @@
+/% CODE %/
+
+let x = 1 + 2 + 3;
+var y = x + 5436;
+return ~y;
+
+/% TREE %/
+
+Program (
+  Let ("x",
+    BinaryOp (Plus,
+      BinaryOp (Plus,
+        Const 1,
+        Const 2
+      ),
+      Const 3
+    ),
+    New ("y",
+      BinaryOp (Plus,
+        Identifier "x",
+        Const 5436
+      ),
+      Deref (Identifier "y")
+    )
+  )
+)
+
+/% RESULT %/
+
+Value (Const 5442)
+
+/% END %/
