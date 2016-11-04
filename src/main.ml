@@ -12,10 +12,11 @@ let cmd_of_string = function
   | s -> Nothing
 ;;
 
-let command = ref Nothing
-let is_test = ref false
-let quiet   = ref false
-let files   = ref []
+let command  = ref Nothing
+let is_test  = ref false
+let quiet    = ref false
+let optimise = ref false
+let files    = ref []
 
 let rec parse_args = function
   | [] -> ()
@@ -26,6 +27,7 @@ let rec parse_args = function
                           else failwith (sprintf "Action already set: '%s'.\n" arg)
     | "-t" | "--test"  -> is_test := true
     | "-q" | "--quiet" -> quiet := true
+    | "-o" | "--optimise" -> optimise := true
     | s                -> if !command != Nothing
                           then files := s :: !files
                           else failwith (sprintf "Unrecognised option: '%s'" s));
@@ -48,8 +50,11 @@ let parse file =
  * possible to read a data structure from file -_- *)
 let eval file = failwith "Can't evaluate from file just yet."
 
+let parse_optim p = let tree = parse p in 
+                       if !optimise then tree |> Optim.optimise_prog else tree
+
 let run_action cmd file = match cmd with
-  | Parse    -> let prog = parse file in
+  | Parse    -> let prog = parse_optim file in
                 (try
                   if !quiet then ()
                   else prog |> string_of_exp |> printf "%s\n"
@@ -57,7 +62,7 @@ let run_action cmd file = match cmd with
                   err -> raise err)
 
   | Eval     -> eval file
-  | Parseval -> let tree = parse file in
+  | Parseval -> let tree = parse_optim file in
                 printf "%s\n\n" (string_of_exp tree);
                 Eval.eval tree
                 |> string_of_exp

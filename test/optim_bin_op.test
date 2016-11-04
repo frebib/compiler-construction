@@ -1,0 +1,23 @@
+/% CODE %/
+
+let x = 4 + 5;
+let y = x + 7;
+return x + y;
+
+/% TREE %/
+
+Program (
+  Let ("x",
+    BinaryOp (Plus, Const 4, Const 5),
+    Let ("y",
+      BinaryOp (Plus, Identifier "x", Const 7),
+      BinaryOp (Plus, Identifier "x", Identifier "y")
+    )
+  )
+)
+
+/% RESULT %/
+
+Value (Const 25)
+
+/% END %/
