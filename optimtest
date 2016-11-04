@@ -1,0 +1,21 @@
+#!/bin/sh
+set -e
+
+cd $(dirname $0)
+
+if [ -z "$1" ]; then
+    echo "Usage: $0 <test file...>"
+    exit 1;
+fi
+
+make clean main &>/dev/null
+for test in $@; do
+    echo "$test:"
+
+    echo -ne ":: Without:\n   "
+    bin/main parse -t $test
+
+    echo -ne "\n:: Optimised:\n   "
+    bin/main parse -o -t $test
+    echo ""
+done
