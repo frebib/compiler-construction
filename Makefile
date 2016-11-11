@@ -9,14 +9,14 @@ default: main
 main: $(TARGET)
 
 %.native:
-	export OCAMLRUNPARAM=b
+	@export OCAMLRUNPARAM=b
 	ocamlbuild -use-menhir -use-ocamlfind -cflag -g $@
-	mkdir -p $(BINARY_DIR)
+	@mkdir -p $(BINARY_DIR)
 	mv $@ $(BINARY_DIR)/$*
 
 test: gentest.native
-	mkdir -p _build/test
-	./runtest $(TESTS)
+	@mkdir -p _build/test
+	@./runtest $(TESTS)
 
 clean:
 	ocamlbuild -clean -quiet
