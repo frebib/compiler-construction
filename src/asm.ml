@@ -7,6 +7,7 @@ let itob 				 = function 1 -> true | _ -> false
 let btoi b       = if b then 1 else 0
 let optoi op a b = btoi (op a b)
 let btoifn o a b = o (itob a) (itob b)
+
 let instr_of_op  = function
   | Plus    -> "add"
   | Minus   -> "sub"
@@ -22,6 +23,25 @@ let instr_of_op  = function
   | And     -> "and"
   | Or      -> "or"
   | Not     -> "not"
+  | _ -> failwith "instr_of_op"
+let fn_of_op = function
+  | Plus    -> (+)
+  | Minus   -> (-)
+  | Times   -> ( * )
+  | Divide  -> (/)
+  | Modulus -> (mod)
+  | o -> optoi (match o with
+  | Lth     -> (<)
+  | Gth     -> (>)
+  | Leq     -> (<=)
+  | Geq     -> (>=)
+  | Equal   -> (=)
+  | Noteq   -> (!=)
+  | o -> btoifn (match o with
+  | And     -> (&&)
+  | Or      -> (||)
+  | _ -> failwith "fn_of_op"))
+
 
 let pad len str =
   let pad_sz = len - (String.length str) in
@@ -115,24 +135,6 @@ module Assembler = struct
 end
 
 module Interpreter = struct
-
-  let fn_of_op = function
-		| Plus    -> (+)
-		| Minus   -> (-)
-		| Times   -> ( * )
-		| Divide  -> (/)
-		| Modulus -> (mod)
-		| o -> optoi (match o with
-		| Lth     -> (<)
-		| Gth     -> (>)
-		| Leq     -> (<=)
-		| Geq     -> (>=)
-		| Equal   -> (=)
-		| Noteq   -> (!=)
-		| o -> btoifn (match o with
-		| And     -> (&&)
-		| Or      -> (||)
-		| _ -> failwith "fn_of_op"))
 
   module Interp = struct
     type addr = int
