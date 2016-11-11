@@ -155,15 +155,15 @@ module Assembler = struct
     let st   ad   = addinst ("st",  sprintf "r%Ld" ad)
     let mv   a  b = addinst ("mv",  sprintf "r%Ld,  r%Ld" a b)
     let op o a  b = addinst (instr_of_op o, sprintf "r%Ld,  r%Ld" a b)
-    let jz   ad   = addinst ("jz",  sprintf "r%Ld" ad)
-    let jmp  ad   = addinst ("jmp", sprintf "r%Ld" ad)
+    let jz   ad   = addinst ("jz",  sprintf "l%Ld" ad)
+    let jmp  ad   = addinst ("jmp", sprintf "l%Ld" ad)
 
     let comment s = Hashtbl.add cmnts !ip s
 
     let set_jmp ip ad = 
       let index = (to_int ip) in
       let instr = fst (Array.get buf index) in
-      Array.set buf index (instr, sprintf "r%Ld" ad)
+      Array.set buf index (instr, sprintf "l%Ld" ad)
 
   end
 
