@@ -4,11 +4,13 @@ open Printf
 
 let usage = sprintf "Parses languages and prints the tree\nUsage: %s <filename>\n" Sys.argv.(0)
 
-type cmd = Parse | Eval | Parseval | Nothing
+type cmd = Parse | Eval | Parseval | Compile | Interpret | Nothing
 let cmd_of_string = function
   | "parse" -> Parse
   | "eval"  -> Eval
+  | "compile" -> Compile
   | "parseval" -> Parseval
+  | "interpret" -> Interpret
   | s -> Nothing
 ;;
 
@@ -22,6 +24,7 @@ let rec parse_args = function
   | [] -> ()
   | arg :: tail -> (match arg with
     | "parse" | "eval"
+    | "compile" | "interpret"
     | "parseval"       -> if !command = Nothing
                           then command := cmd_of_string arg
                           else failwith (sprintf "Action already set: '%s'.\n" arg)
@@ -67,6 +70,10 @@ let run_action cmd file = match cmd with
                 Eval.eval tree
                 |> string_of_exp
                 |> printf "%s\n"
+                
+  | Compile  -> parse_optim file |> Asm.Assembler.compile
+
+  | Interpret -> parse_optim file |> Asm.Interpreter.interpret
 
   | Nothing  -> eprintf "Nothing to do."; exit 1
 
