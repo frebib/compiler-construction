@@ -45,7 +45,7 @@ let fn_of_op = function
 
 module type Compiler = sig
   type addr
-  val empty_addr : addr
+  val empty_addr : unit -> addr
 
   val sp  : addr ref
   val fp  : addr ref
@@ -75,7 +75,7 @@ end
 module MakeCompiler (C : Compiler) = struct
 
   let symtbl = Hashtbl.create 1024
-  let last   = ref (C.empty_addr)
+  let last   = ref (C.empty_addr ())
 
   let rec compile = function
     | Let (v, e1, e2)  -> C.comment ("let " ^ v);
@@ -147,7 +147,7 @@ module Assembler = struct
 
   module Asmb = struct
     type addr = int64
-    let empty_addr = zero
+    let empty_addr () = zero
 
     let sp  = ref minus_one
     let fp  = ref zero
@@ -195,7 +195,7 @@ module Interpreter = struct
 
   module Interp = struct
     type addr = int
-    let empty_addr = 0
+    let empty_addr () = 0
 
     let sp  = ref (-1)
     let fp  = ref 0
