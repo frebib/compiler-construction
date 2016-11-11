@@ -78,8 +78,8 @@ module MakeCompiler (C : Compiler) = struct
   let last   = ref (C.empty_addr)
 
   let rec compile = function
-    | Let (v, e1, e2)  -> let addr1 = compile e1; !last in
-                          C.comment ("let " ^ v);
+    | Let (v, e1, e2)  -> C.comment ("let " ^ v);
+                          let addr1 = compile e1; !last in
                           Hashtbl.replace symtbl v !C.sp;
 													let addr2 = compile e2; !last in
                           Hashtbl.remove symtbl v;
@@ -107,11 +107,11 @@ module MakeCompiler (C : Compiler) = struct
     | Boolean b        -> C.comment ("bool " ^ string_of_bool b);
                           compile (Const (btoi b)) (* Booleans are just 1 or 0 *)
                           
-
     | Seq l            -> List.iter compile l
 
     | If (g, a, b)     -> let gval = compile g; !last in
-                          C.ld gval; C.comment "Load if gate"; C.inc_ip ();
+                          C.ld gval; C.comment "Load if gate";
+                          C.inc_ip ();
                           C.jz gval; C.comment "if";
                           let jmp_one = !C.ip in
                           C.inc_ip ();
@@ -126,6 +126,18 @@ module MakeCompiler (C : Compiler) = struct
                           let pst_els = !C.ip in
                           C.set_jmp jmp_one pre_els;
                           C.set_jmp jmp_two pst_els
+                          
+    | While (g, b)     -> C.comment "while";
+                          compile g;
+                          C.ld !last; C.comment "Load while cond";
+                          C.inc_ip ();
+                          C.jz !C.ip ; C.comment "break loop";
+                          let brk_loop = !C.ip in
+                          C.inc_ip ();
+                          C.comment "body";
+                          compile b |> C.inc_ip;
+                          C.set_jmp brk_loop !C.ip;
+                          C.comment "end loop";
 
 		| Empty            -> ()
 end
