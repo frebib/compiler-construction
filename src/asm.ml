@@ -1,7 +1,10 @@
+open Int64
 open Array
 open Types
 open Print
 open Printf
+
+type cmp_typ = Ideal | X86_64
 
 let itob 				 = function 1 -> true | _ -> false
 let btoi b       = if b then 1 else 0
@@ -43,153 +46,164 @@ let fn_of_op = function
   | _ -> failwith "fn_of_op"))
 
 
-module type Compiler = sig
-  type addr
-  val empty_addr : unit -> addr
+type 'addr instr =
+  | Ld of 'addr | Ldc of int
+  | St of 'addr | Mv  of 'addr * 'addr
+  | Jz of 'addr | Jmp of 'addr
+  | Op of opcode * 'addr * 'addr
+  | Nop
 
-  val sp  : addr ref
-  val fp  : addr ref
-  val ip  : addr ref
-  val acc : addr ref
+let string_of_instr = function
+  | Ld  ad     -> "ld",  sprintf "r%Ld" ad
+  | Ldc n      -> "ldc", string_of_int n
+  | St  ad     -> "st",  sprintf "r%Ld" ad
+  | Jz  ad     -> "jz",  sprintf "l%Ld" ad
+  | Jmp ad     -> "jmp", sprintf "l%Ld" ad
+  | Mv (a,b)   -> "mv",  sprintf "r%Ld,  r%Ld" a b
+  | Op (o,a,b) -> instr_of_op o, sprintf "r%Ld,  r%Ld" a b
+  | Nop        -> "nop", ""
+
+class virtual ['addr, 'ret] compiler = object (this)
+
+  val virtual sp  : 'addr ref
+  val virtual fp  : 'addr ref
+  val virtual ip  : 'addr ref
+  val virtual acc : 'addr ref
   
-  val set_sp : addr -> unit
-  val inc_sp : unit -> addr
-  val inc_ip : unit -> unit
+  method get_ip () = !ip
+  method get_sp () = !sp
+  method set_sp v  = sp := v
+  method virtual inc_sp :  unit -> 'addr
+  method virtual inc_ip :  unit ->  unit
 
-  (* Special instruction for updating
-   * the address of a jump after-the-fact *)
-  val set_jmp : addr -> addr -> unit
+  method ld  a     = Ld a         |> this#instruct
+  method ldc n     = Ldc n        |> this#instruct
+  method st  a     = St a         |> this#instruct
+  method mv  a b   = Mv (a, b)    |> this#instruct
+  method op  o a b = Op (o, a, b) |> this#instruct
+  method jz  a     = Jz a         |> this#instruct
+  method jmp a     = Jmp a        |> this#instruct
 
-  val ld  : addr -> unit
-  val ldc : int  -> unit
-  val st  : addr -> unit
-  val mv  : addr -> addr -> unit
-  val op  : opcode -> addr -> addr -> unit
-  val jz  : addr -> unit
-  val jmp : addr -> unit
+  method virtual instruct : 'addr instr -> unit
 
-  val comment : string -> unit
-
+  method virtual get_buf   : unit -> 'ret
+  method virtual comment   : string -> unit
+  method virtual get_cmnts : unit -> ('addr, string) Hashtbl.t
 end
 
-module MakeCompiler (C : Compiler) = struct
+class asmcompiler = object (self)
+  inherit [int64, int64 instr array] compiler
 
-  let symtbl = Hashtbl.create 1024
-  let last   = ref (C.empty_addr ())
+  val buffer = Array.make 256 Nop
+  method get_buf () = Array.sub buffer 0 ((to_int !ip) - 1)
 
-  let rec compile = function
-    | Let (v, e1, e2)  -> C.comment ("let " ^ v);
-                          let addr1 = compile e1; !last in
-                          Hashtbl.replace symtbl v !C.sp;
-													let addr2 = compile e2; !last in
+  val sp  = ref zero
+  val fp  = ref zero
+  val ip  = ref zero
+  val acc = ref zero
+
+  method inc_sp () = sp := (add !sp one); !sp
+  method inc_ip () = ip := (add !ip one)
+
+  method instruct  = Array.set buffer (to_int !ip) 
+
+  val cmnts  = Hashtbl.create 256
+  method comment s = Hashtbl.add cmnts !ip s
+  method get_cmnts () = cmnts
+end
+
+class runcompile (cmp : ('addr, 'ret) compiler) = object (this)
+
+  val symtbl = Hashtbl.create 1024
+  val last   = ref (cmp#get_sp ())
+
+  method cmpexp = function
+    | Let (v, e1, e2)  -> cmp#comment ("let " ^ v);
+                          let addr1 = this#cmpexp e1; !last in
+                          Hashtbl.replace symtbl v (cmp#get_sp ());
+													let addr2 = this#cmpexp e2; !last in
                           Hashtbl.remove symtbl v;
-                          C.mv addr2 addr1 |> C.inc_ip;
-                          C.set_sp addr1 |> C.inc_ip;
+                          cmp#mv addr2 addr1 |> cmp#inc_ip;
+                          cmp#set_sp addr1 |> cmp#inc_ip;
                           last := addr1
 
     | Identifier v     -> let addr1 = Hashtbl.find symtbl v in
-                          let addr2 = C.inc_sp () in
-                          C.mv addr1 addr2 |> C.inc_ip;
+                          let addr2 = cmp#inc_sp () in
+                          cmp#mv addr1 addr2 |> cmp#inc_ip;
                           last := addr2
 
-    | BinaryOp (o,e1,e2) -> let addr1 = compile e1; !last  in
-                          let addr2 = compile e2; !last in
-                          C.op o addr1 addr2 |> C.inc_ip;
-                          C.set_sp addr1;
-                          C.st addr1 |> C.inc_ip;
+    | BinaryOp (o,e1,e2) -> let addr1 = this#cmpexp e1; !last  in
+                          let addr2 = this#cmpexp e2; !last in
+                          cmp#op o addr1 addr2 |> cmp#inc_ip;
+                          cmp#set_sp addr1;
+                          cmp#st addr1 |> cmp#inc_ip;
                           last := addr1
 
-    | Const n          -> let addr = C.inc_sp () in
-                          C.ldc n |> C.inc_ip;
-                          C.st addr |> C.inc_ip;
+    | Const n          -> let addr = cmp#inc_sp () in
+                          cmp#ldc n |> cmp#inc_ip;
+                          cmp#st addr |> cmp#inc_ip;
                           last := addr
 
-    | Boolean b        -> C.comment ("bool " ^ string_of_bool b);
-                          compile (Const (btoi b)) (* Booleans are just 1 or 0 *)
+    | Boolean b        -> cmp#comment ("bool " ^ string_of_bool b);
+                          this#cmpexp(Const (btoi b)) (* Booleans are just 1 or 0 *)
                           
-    | Seq l            -> List.iter compile l
+    | Seq l            -> List.iter this#cmpexp l
 
-    | If (g, a, b)     -> let gval = compile g; !last in
-                          C.ld gval; C.comment "Load if gate";
-                          C.inc_ip ();
-                          C.jz gval; C.comment "if";
-                          let jmp_one = !C.ip in
-                          C.inc_ip ();
-                          compile a;
-                          C.jmp jmp_one;
-                          C.comment "else";
-                          let jmp_two = !C.ip in
-                          C.inc_ip ();
-                          let pre_els = !C.ip in
-                          compile b;
-                          C.comment "outside if";
-                          let pst_els = !C.ip in
-                          C.set_jmp jmp_one pre_els;
-                          C.set_jmp jmp_two pst_els
+    | If (g, a, b)     -> let gval = this#cmpexp g; !last in
+                          cmp#ld gval; cmp#comment "Load if gate";
+                          cmp#inc_ip ();
+                          cmp#jz gval; cmp#comment "if";
+                          let jmp_one = cmp#get_ip () in
+                          cmp#inc_ip ();
+                          this#cmpexp a;
+                          cmp#jmp jmp_one;
+                          cmp#comment "else";
+                          let jmp_two = cmp#get_ip () in
+                          cmp#inc_ip ();
+                          let pre_els = cmp#get_ip () in
+                          this#cmpexp b;
+                          cmp#comment "outside if";
+                          let pst_els = cmp#get_ip () in
+                          ()
                           
-    | While (g, b)     -> C.comment "while";
-                          compile g;
-                          C.ld !last; C.comment "Load while cond";
-                          C.inc_ip ();
-                          C.jz !C.ip ; C.comment "break loop";
-                          let brk_loop = !C.ip in
-                          C.inc_ip ();
-                          C.comment "body";
-                          compile b |> C.inc_ip;
-                          C.set_jmp brk_loop !C.ip;
-                          C.comment "end loop";
+                          (* Allocate a buffer to save into
+                           * whilst the jumps are calculated *)
+    | While (g, b)     -> let buf = new asmcompiler in
+                          buf#comment "while";
+                          this#cmpexp g;
+                          buf#ld !last; cmp#comment "Load while cond";
+                          cmp#inc_ip ();
+                          buf#jz (buf#get_ip ()); cmp#comment "break loop";
+                          let brk_loop = buf#get_ip () in
+                          cmp#inc_ip ();
+                          cmp#comment "body";
+                          this#cmpexp b |> buf#inc_ip;
+                          (* buf#set_jmp brk_loop buf#get_ip; *)
+                          buf#comment "end loop";
 
 		| Empty            -> ()
+
 end
 
-module Assembler = struct
-  open Int64
+(* Functional? What's that? *)
+let compile typ e =
+  let impl = new asmcompiler in
+  let compiler = new runcompile impl in
+  let lines = compiler#cmpexp e
+    |> impl#get_buf
+    |> Array.map string_of_instr
+    |> Array.map (fun t -> sprintf "%-4s %s" (fst t) (snd t)) in
 
-  module Asmb = struct
-    type addr = int64
-    let empty_addr () = zero
+  Hashtbl.iter (fun k v ->
+    let i = to_int k in
+    let s = Array.get lines i in
+    Array.set lines i (sprintf "%-16s # %s" s v))
+      (impl#get_cmnts ());
+      
+  Array.iteri (printf "%3d:\t%s\n") lines
+;;
 
-    let sp  = ref minus_one
-    let fp  = ref zero
-    let ip  = ref zero
-    let acc = ref zero
-
-    let set_sp n  = sp := n
-    let inc_sp () = sp := add !sp one; !sp
-    let inc_ip () = ip := add !ip one
-
-    let cmnts     = Hashtbl.create 256
-    let buf       = Array.make 4096 ("", "")
-    let addinst t = Array.set buf (to_int !ip) t
-
-    let ld   ad   = addinst ("ld",  sprintf "r%Ld" ad)
-    let ldc  n    = addinst ("ldc", string_of_int n)
-    let st   ad   = addinst ("st",  sprintf "r%Ld" ad)
-    let mv   a  b = addinst ("mv",  sprintf "r%Ld,  r%Ld" a b)
-    let op o a  b = addinst (instr_of_op o, sprintf "r%Ld,  r%Ld" a b)
-    let jz   ad   = addinst ("jz",  sprintf "l%Ld" ad)
-    let jmp  ad   = addinst ("jmp", sprintf "l%Ld" ad)
-
-    let comment s = Hashtbl.add cmnts !ip s
-
-    let set_jmp ip ad = 
-      let index = (to_int ip) in
-      let instr = fst (Array.get buf index) in
-      Array.set buf index (instr, sprintf "l%Ld" ad)
-
-  end
-
-  module AsmCmp = MakeCompiler(Asmb)
-
-  let compile e = AsmCmp.compile e;
-                  let str_arr = Array.sub Asmb.buf 0 ((to_int !Asmb.ip) - 1) 
-                  |> Array.map (fun t -> sprintf "%-4s %s" (fst t) (snd t)) in
-                  Hashtbl.iter (fun k v -> let i = to_int k in
-                                           let s = Array.get str_arr i in
-                                           Array.set str_arr i (sprintf "%-14s # %s" s v))
-                  Asmb.cmnts;
-                  Array.iteri (printf "%3.0d  %s\n" ) str_arr
-end
+let interpret = compile X86_64
 
 module Interpreter = struct
 
@@ -227,9 +241,11 @@ module Interpreter = struct
 
   end
 
+  (* 
   module InterpCmp = MakeCompiler(Interp)
 
   let interpret e = InterpCmp.compile e;
 									Array.get Interp.stck !InterpCmp.last
 									|> printf "%s\n%d\n" (Interp.string_of_stck)
+  *)
 end

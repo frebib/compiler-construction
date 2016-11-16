@@ -71,9 +71,9 @@ let run_action cmd file = match cmd with
                 |> string_of_exp
                 |> printf "%s\n"
                 
-  | Compile  -> parse_optim file |> Asm.Assembler.compile
+  | Compile  -> parse_optim file |> Asm.compile Asm.X86_64
 
-  | Interpret -> parse_optim file |> Asm.Interpreter.interpret
+  | Interpret -> parse_optim file |> Asm.interpret
 
   | Nothing  -> eprintf "Nothing to do."; exit 1
 
