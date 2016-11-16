@@ -91,7 +91,7 @@ class virtual ['addr, 'ret] compiler = object (this)
   method virtual get_cmnts : unit -> ('addr, string) Hashtbl.t
 end
 
-class asmcompiler = object (self)
+class asmcompiler = object (this)
   inherit [int64, int64 instr array] compiler
 
   val buffer = Array.make 256 Nop
@@ -105,7 +105,7 @@ class asmcompiler = object (self)
   method inc_sp () = sp := (add !sp one); !sp
   method inc_ip () = ip := (add !ip one)
 
-  method instruct  = Array.set buffer (to_int !ip) 
+  method instruct i = Array.set buffer (to_int !ip) i |> this#inc_ip
 
   val cmnts  = Hashtbl.create 256
   method comment s = Hashtbl.add cmnts !ip s
@@ -118,30 +118,30 @@ class runcompile (cmp : ('addr, 'ret) compiler) = object (this)
   val last   = ref (cmp#get_sp ())
 
   method cmpexp = function
-    | Let (v, e1, e2)  -> cmp#comment ("let " ^ v);
-                          let addr1 = this#cmpexp e1; !last in
+    | Let (v, e1, e2)  -> let addr1 = this#cmpexp e1; !last in
+                          cmp#comment ("let " ^ v);
                           Hashtbl.replace symtbl v (cmp#get_sp ());
 													let addr2 = this#cmpexp e2; !last in
                           Hashtbl.remove symtbl v;
-                          cmp#mv addr2 addr1 |> cmp#inc_ip;
-                          cmp#set_sp addr1 |> cmp#inc_ip;
+                          cmp#mv addr2 addr1;
+                          cmp#set_sp addr1;
                           last := addr1
 
     | Identifier v     -> let addr1 = Hashtbl.find symtbl v in
                           let addr2 = cmp#inc_sp () in
-                          cmp#mv addr1 addr2 |> cmp#inc_ip;
+                          cmp#mv addr1 addr2;
                           last := addr2
 
     | BinaryOp (o,e1,e2) -> let addr1 = this#cmpexp e1; !last  in
                           let addr2 = this#cmpexp e2; !last in
-                          cmp#op o addr1 addr2 |> cmp#inc_ip;
+                          cmp#op o addr1 addr2;
                           cmp#set_sp addr1;
-                          cmp#st addr1 |> cmp#inc_ip;
+                          cmp#st addr1;
                           last := addr1
 
     | Const n          -> let addr = cmp#inc_sp () in
-                          cmp#ldc n |> cmp#inc_ip;
-                          cmp#st addr |> cmp#inc_ip;
+                          cmp#ldc n;
+                          cmp#st addr;
                           last := addr
 
     | Boolean b        -> cmp#comment ("bool " ^ string_of_bool b);
@@ -151,10 +151,8 @@ class runcompile (cmp : ('addr, 'ret) compiler) = object (this)
 
     | If (g, a, b)     -> let gval = this#cmpexp g; !last in
                           cmp#ld gval; cmp#comment "Load if gate";
-                          cmp#inc_ip ();
                           cmp#jz gval; cmp#comment "if";
                           let jmp_one = cmp#get_ip () in
-                          cmp#inc_ip ();
                           this#cmpexp a;
                           cmp#jmp jmp_one;
                           cmp#comment "else";
@@ -172,10 +170,8 @@ class runcompile (cmp : ('addr, 'ret) compiler) = object (this)
                           buf#comment "while";
                           this#cmpexp g;
                           buf#ld !last; cmp#comment "Load while cond";
-                          cmp#inc_ip ();
                           buf#jz (buf#get_ip ()); cmp#comment "break loop";
                           let brk_loop = buf#get_ip () in
-                          cmp#inc_ip ();
                           cmp#comment "body";
                           this#cmpexp b |> buf#inc_ip;
                           (* buf#set_jmp brk_loop buf#get_ip; *)
