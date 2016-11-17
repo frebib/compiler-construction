@@ -1,0 +1,101 @@
+open Types
+open Printf
+
+let instr_of_op = function
+	| Plus -> "addq"
+	| Minus -> "subq"
+	| _ -> "nop"
+
+let code = Buffer.create 1024
+let add_instr s = Buffer.add_string code ("\t" ^ s ^ "\n")
+
+let sp = ref 0
+
+let rec compile symtbl = function
+  | Let (v, e1, e2)    -> compile symtbl e1;
+                          Hashtbl.replace symtbl v !sp;
+                          compile symtbl e2;
+                          Hashtbl.remove symtbl v;
+                          add_instr "popq	%rax";
+                          add_instr "popq	%rbx";
+                          add_instr "pushq	%rax"
+
+  | Identifier v       -> let addr = Hashtbl.find symtbl v in
+                          add_instr (sprintf "movq	%d(%%rbp), %%rax" (-16 - 8 * addr));
+                          add_instr ("pushq	%rax");
+                          sp := !sp + 1
+
+  | Const n            -> add_instr (sprintf "pushq	$%d" n);
+                          sp := !sp + 1
+
+  | BinaryOp (o, a, b) -> compile symtbl a;
+                          compile symtbl b;
+                          add_instr "popq	%rax";
+                          add_instr "popq	%rbx";
+													add_instr (sprintf "%s	%%rax, %%rbx" (instr_of_op o));
+                          add_instr "pushq	%rbx"
+
+  | Seq (hd::tl)       -> compile symtbl hd;
+                          compile symtbl (Seq tl)
+;;
+
+let templ_prefix = 
+".LC0:
+	.string	\"%d\\n\"
+	.text
+	.globl	printInt
+	.type	printInt, @function
+printInt:
+.LFB2:
+	.cfi_startproc
+	pushq	%rbp
+	.cfi_def_cfa_offset 16
+	.cfi_offset 6, -16
+	movq	%rsp, %rbp
+	.cfi_def_cfa_register 6
+	subq	$16, %rsp
+	movl	%edi, -4(%rbp)
+	movl	-4(%rbp), %eax
+	movl	%eax, %esi
+	movl	$.LC0, %edi
+	movl	$0, %eax
+	call	printf
+	movl	$0, %edi
+	call	exit
+	.cfi_endproc
+.LFE2:
+	.size	printInt, .-printInt
+	.globl	main
+	.type	main, @function
+main:
+.LFB3:
+	.cfi_startproc
+	pushq	%rbp
+	.cfi_def_cfa_offset 16
+	.cfi_offset 6, -16
+	movq	%rsp, %rbp
+	.cfi_def_cfa_register 6
+	subq	$16, %rsp
+	// End template code\n"
+let templ_suffix = 
+"	// End of program code
+	// Print and exit
+	popq	%rdi
+	call	printInt
+	movl	$1, %eax
+	popq	%rbp
+	.cfi_def_cfa 7, 8
+	ret
+	.cfi_endproc
+.LFE3:
+	.size	main, .-main
+	.ident	\"GCC: (GNU) 6.2.1 20160830\"
+	.section	.note.GNU-stack,\"\",@progbits\n"
+
+
+let assemble e = 
+  Buffer.reset code;
+  Buffer.add_string code templ_prefix;
+  compile (Hashtbl.create 1024) e;
+  Buffer.add_string code templ_suffix;
+  print_endline (Buffer.contents code)

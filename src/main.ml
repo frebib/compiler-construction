@@ -71,7 +71,7 @@ let run_action cmd file = match cmd with
                 |> string_of_exp
                 |> printf "%s\n"
                 
-  | Compile  -> parse_optim file |> Asm.compile Asm.X86_64
+  | Compile  -> parse_optim file |> Asmx86.assemble
 
   | Interpret -> parse_optim file |> Asm.interpret
 
