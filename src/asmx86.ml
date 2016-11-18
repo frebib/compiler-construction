@@ -51,6 +51,7 @@ let rec compile symtbl = function
                           add_instr "popq	%rax";
                           add_instr "test	%rax, %rax";
                           add_instr ("je	" ^ (mklbl elsjmp));
+                          sp := !sp - 1;
                           Buffer.add_string code "// true\n";
                           compile symtbl a;
                           add_instr ("jmp	" ^ (mklbl endjmp));
