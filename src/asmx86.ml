@@ -1,11 +1,6 @@
 open Types
 open Printf
 
-let instr_of_op = function
-	| Plus -> "addq"
-	| Minus -> "subq"
-	| _ -> "nop"
-
 let sp = ref 0
 let lblid = ref 0
 let mklbl = sprintf "_%d"
@@ -37,10 +32,21 @@ let rec compile symtbl = function
 
   | BinaryOp (o, a, b) -> compile symtbl a;
                           compile symtbl b;
-                          add_instr "popq	%rax";
                           add_instr "popq	%rbx";
-                          add_instr (sprintf "%s	%%rax, %%rbx" (instr_of_op o));
-                          add_instr "pushq	%rbx";
+                          add_instr "popq	%rax";
+                          (match o with
+                            | Divide -> "xor	%rdx, %rdx" |> add_instr;
+                                        "idivq	%rbx"     |> add_instr
+                            | Equal  -> "cmp	%rbx, %rax" |> add_instr;
+                                        "setz	%al"        |> add_instr
+                            | Noteq  -> "cmp	%rbx, %rax" |> add_instr;
+                                        "setnz	%al"      |> add_instr
+                            | o -> (match o with
+                            | Plus  -> "addq	%rbx, %rax"
+                            | Minus -> "subq	%rbx, %rax"
+                            | Times -> "imulq	%rbx, %rax")
+                              |> add_instr);
+                          add_instr "pushq	%rax";
                           sp := !sp - 1
 
   | Seq (hd::tl)       -> compile symtbl hd;
