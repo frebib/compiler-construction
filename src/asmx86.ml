@@ -23,7 +23,8 @@ let rec compile symtbl = function
                           Hashtbl.remove symtbl v;
                           add_instr "popq	%rax";
                           add_instr "popq	%rbx";
-                          add_instr "pushq	%rax"
+                          add_instr "pushq	%rax";
+                          sp := !sp - 1
 
   | Identifier v       -> let addr = Hashtbl.find symtbl v in
                           add_instr (sprintf "movq	%d(%%rbp), %%rax" (-16 - 8 * addr));
@@ -38,10 +39,12 @@ let rec compile symtbl = function
                           compile symtbl b;
                           add_instr "popq	%rax";
                           add_instr "popq	%rbx";
-													add_instr (sprintf "%s	%%rax, %%rbx" (instr_of_op o));
-                          add_instr "pushq	%rbx"
+                          add_instr (sprintf "%s	%%rax, %%rbx" (instr_of_op o));
+                          add_instr "pushq	%rbx";
+                          sp := !sp - 1
 
   | Seq (hd::tl)       -> compile symtbl hd;
+                          add_instr "popq	%rax"; (* Dispose of value *)
                           compile symtbl (Seq tl)
 
 	| If (g, a, b)       -> Buffer.add_string code "// Begin if\n";
