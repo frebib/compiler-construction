@@ -6,10 +6,15 @@ let instr_of_op = function
 	| Minus -> "subq"
 	| _ -> "nop"
 
+let sp = ref 0
+let lblid = ref 0
+let mklbl = sprintf "_%d"
+
 let code = Buffer.create 1024
 let add_instr s = Buffer.add_string code ("\t" ^ s ^ "\n")
-
-let sp = ref 0
+let add_label i = let label = mklbl i in
+                  Buffer.add_string code (label ^ ":\n")
+let new_lblid _ = lblid := !lblid + 1; !lblid
 
 let rec compile symtbl = function
   | Let (v, e1, e2)    -> compile symtbl e1;
@@ -25,6 +30,7 @@ let rec compile symtbl = function
                           add_instr ("pushq	%rax");
                           sp := !sp + 1
 
+  | Boolean b          -> compile symtbl (Const (if b then 1 else 0))
   | Const n            -> add_instr (sprintf "pushq	$%d" n);
                           sp := !sp + 1
 
@@ -37,6 +43,22 @@ let rec compile symtbl = function
 
   | Seq (hd::tl)       -> compile symtbl hd;
                           compile symtbl (Seq tl)
+
+	| If (g, a, b)       -> Buffer.add_string code "// Begin if\n";
+                          let elsjmp = new_lblid () in
+                          let endjmp = new_lblid () in
+                          compile symtbl g;
+                          add_instr "popq	%rax";
+                          add_instr "test	%rax, %rax";
+                          add_instr ("je	" ^ (mklbl elsjmp));
+                          Buffer.add_string code "// true\n";
+                          compile symtbl a;
+                          add_instr ("jmp	" ^ (mklbl endjmp));
+                          Buffer.add_string code "// false\n";
+                          add_label elsjmp;
+                          compile symtbl b;
+                          Buffer.add_string code "// End if\n";
+                          add_label endjmp;
 ;;
 
 let templ_prefix = 
