@@ -21,6 +21,32 @@ let rec compile symtbl = function
                           add_instr "pushq	%rax";
                           sp := !sp - 1
 
+  | New (v, e1, e2)    -> compile symtbl e1;
+                          add_instr (sprintf "leaq	%d(%%rbp), %%rax" (-16 - 8 * !sp));
+                          add_instr "pushq	%rax";
+                          sp := !sp + 1;
+                          Hashtbl.replace symtbl v !sp;
+                          compile symtbl e2;
+                          Hashtbl.remove symtbl v;
+                          add_instr "popq	%rax";
+                          add_instr "addq	$8, %rsp"; (* Dispose of unused value *)
+                          add_instr "popq	%rbx";
+                          add_instr "pushq	%rax";
+                          sp := !sp - 2
+
+  | Deref e            -> compile symtbl e;
+                          add_instr "popq	%rax";
+                          add_instr "movq	(%rax), %rbx";
+                          add_instr "pushq	%rbx"
+
+  | Asg (v, e)         -> compile symtbl v;
+                          compile symtbl e;
+                          add_instr "popq	%rax";
+                          add_instr "popq	%rbx";
+                          add_instr "movq	%rax, (%rbx)";
+                          add_instr "pushq	%rax";
+                          sp := !sp - 1;
+
   | Identifier v       -> let addr = Hashtbl.find symtbl v in
                           add_instr (sprintf "movq	%d(%%rbp), %%rax" (-16 - 8 * addr));
                           add_instr ("pushq	%rax");
@@ -49,9 +75,12 @@ let rec compile symtbl = function
                           add_instr "pushq	%rax";
                           sp := !sp - 1
 
+  | Seq (hd::[])       -> compile symtbl hd      (* Keep last exp in Seq *)
   | Seq (hd::tl)       -> compile symtbl hd;
                           add_instr "popq	%rax"; (* Dispose of value *)
+                          sp := !sp - 1;
                           compile symtbl (Seq tl)
+  | Seq []             -> ()
 
 	| If (g, a, b)       -> Buffer.add_string code "// Begin if\n";
                           let elsjmp = new_lblid () in
@@ -69,6 +98,7 @@ let rec compile symtbl = function
                           compile symtbl b;
                           Buffer.add_string code "// End if\n";
                           add_label endjmp;
+  | Empty -> ()
 ;;
 
 let templ_prefix = 
@@ -92,8 +122,10 @@ printInt:
 	movl	$.LC0, %edi
 	movl	$0, %eax
 	call	printf
-	movl	$0, %edi
-	call	exit
+	nop
+	leave
+	.cfi_def_cfa 7, 8
+	ret
 	.cfi_endproc
 .LFE2:
 	.size	printInt, .-printInt
@@ -114,8 +146,8 @@ let templ_suffix =
 	// Print and exit
 	popq	%rdi
 	call	printInt
-	movl	$1, %eax
-	popq	%rbp
+	movl	$0, %eax
+	leave
 	.cfi_def_cfa 7, 8
 	ret
 	.cfi_endproc
