@@ -7,8 +7,7 @@ let mklbl = sprintf "._L%d"
 
 let code = Buffer.create 1024
 let add_instr s = Buffer.add_string code ("\t" ^ s ^ "\n")
-let add_label i = let label = mklbl i in
-                  Buffer.add_string code (label ^ ":\n")
+let add_label i = Buffer.add_string code (mklbl i ^ ":\n")
 let new_lblid _ = lblid := !lblid + 1; !lblid
 
 let rec compile symtbl = function
