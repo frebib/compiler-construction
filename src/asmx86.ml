@@ -3,7 +3,7 @@ open Printf
 
 let sp = ref 0
 let lblid = ref 0
-let mklbl = sprintf "_%d"
+let mklbl = sprintf "._L%d"
 
 let code = Buffer.create 1024
 let add_instr s = Buffer.add_string code ("\t" ^ s ^ "\n")
