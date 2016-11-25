@@ -21,6 +21,28 @@ let arg_reg = function
 	| _ -> failwith "arg_reg"
 
 let rec compile symtbl = function
+  | Let (n, Function (a, b), i)
+                       -> let funbuf = Buffer.create 1024 in
+                          let add_finstr s = Buffer.add_string funbuf ("\t" ^ s ^ "\n") in
+                          let add_flabel s = Buffer.add_string funbuf (s ^ ":\n") in
+                          add_finstr (".globl	" ^ n);
+                          add_finstr (".type	" ^ n ^ ", @function");
+                          add_flabel n; (* Add function name as label *)
+                          add_finstr "pushq	%rbp";
+                          add_finstr "movq	%rsp, %rbp";
+
+                          (* TODO: Add all arguments to symtbl *)
+                          (*compile symtbl b;*)
+                          add_finstr "pushq $0";
+
+                          add_finstr "popq	%rax";
+                          add_finstr "leave";
+                          add_finstr "ret";
+                          add_finstr (".size	" ^ n ^ ", .-" ^ n);
+
+                          Buffer.add_buffer funs funbuf;
+                          compile symtbl i
+
   | Let (v, e1, e2)    -> compile symtbl e1;
                           Hashtbl.replace symtbl v !sp;
                           compile symtbl e2;
@@ -106,7 +128,8 @@ let rec compile symtbl = function
                             let i = (List.length a) - i - 1 in (* Add arguments in correct order *)
                             compile symtbl e;
                             if i < 6 then
-                              add_instr ("popq	" ^ arg_reg i)
+                              add_instr ("popq	" ^ arg_reg i);
+                              sp := !sp - 1
                           ); 
 
                           (match e with
