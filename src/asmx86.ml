@@ -115,7 +115,8 @@ let rec compile symtbl = function
                             | o -> (match o with
                             | Plus  -> "addq	%rbx, %rax"
                             | Minus -> "subq	%rbx, %rax"
-                            | Times -> "imulq	%rbx, %rax")
+                            | Times -> "imulq	%rbx, %rax"
+                            | _ -> failwith (sprintf "BinaryOp(%s, ..)" (Print.string_of_op o)))
                               |> add_instr);
                           add_instr "pushq	%rax";
                           sp := !sp - 1
