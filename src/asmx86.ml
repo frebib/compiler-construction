@@ -20,6 +20,10 @@ let arg_reg = function
 	| 5 -> "%r9"
 	| _ -> failwith "arg_reg"
 
+type location =
+  | Register of string
+  | Stack of int
+
 let rec compile symtbl = function
   | Let (n, Function (a, b), i)
                        -> let funbuf = Buffer.create 1024 in
@@ -44,7 +48,7 @@ let rec compile symtbl = function
                           compile symtbl i
 
   | Let (v, e1, e2)    -> compile symtbl e1;
-                          Hashtbl.replace symtbl v !sp;
+                          Hashtbl.replace symtbl v (Stack !sp);
                           compile symtbl e2;
                           Hashtbl.remove symtbl v;
                           add_instr "popq	%rax";
@@ -56,7 +60,7 @@ let rec compile symtbl = function
                           add_instr (sprintf "leaq	%d(%%rbp), %%rax" (-16 - 8 * !sp));
                           add_instr "pushq	%rax";
                           sp := !sp + 1;
-                          Hashtbl.replace symtbl v !sp;
+                          Hashtbl.replace symtbl v (Stack !sp);
                           compile symtbl e2;
                           Hashtbl.remove symtbl v;
                           add_instr "popq	%rax";
@@ -78,8 +82,11 @@ let rec compile symtbl = function
                           add_instr "pushq	%rax";
                           sp := !sp - 1;
 
-  | Identifier v       -> let addr = Hashtbl.find symtbl v in
-                          add_instr (sprintf "movq	%d(%%rbp), %%rax" (-16 - 8 * addr));
+  | Identifier v       -> add_instr ("// Identifier " ^ v); (match Hashtbl.find symtbl v with
+                            | Register r when r == "%rax" -> ()
+                            | Register r -> add_instr (sprintf "movq	%s, %%rax" r)
+                            | Stack addr -> add_instr (sprintf "movq	%d(%%rbp), %%rax" (-16 - 8 * addr))
+                          );
                           add_instr ("pushq	%rax");
                           sp := !sp + 1
 
