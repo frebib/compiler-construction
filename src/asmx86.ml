@@ -3,7 +3,7 @@ open Printf
 
 let sp = ref 0
 let lblid = ref 0
-let mklbl = sprintf "._L%d"
+let mklbl = sprintf ".LBL%d"
 
 let code = Buffer.create 1048576 (* 1024 ^ 2 *)
 let funs = Buffer.create 1048576 (* 1024 ^ 2 *)
