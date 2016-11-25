@@ -97,6 +97,7 @@ let rec compile symtbl = function
                           add_instr "pushq	%rax";
                           sp := !sp - 1
 
+  | Readint            -> compile symtbl (Application (Identifier "readInt",  []))
   | Printint e         -> compile symtbl (Application (Identifier "printInt", [e]))
 
   | Application (e, a) -> (* Reverse args for cdecl convention *)
@@ -177,6 +178,22 @@ printInt:
 	addq	$8, %rsp
 	ret
 	.size	printInt, .-printInt
+	.globl	main
+	.type	main, @function
+.LC2:
+	.string	\"%d+\\n\"
+	.globl	readInt
+	.type	readInt, @function
+readInt:
+	subq	$24, %rsp
+	movl	$.LC2, %edi
+	xorl	%eax, %eax
+	leaq	12(%rsp), %rsi
+	call	__isoc99_scanf
+	movl	12(%rsp), %eax
+	addq	$24, %rsp
+	ret
+	.size	readInt, .-readInt
 	.globl	main
 	.type	main, @function
 main:
