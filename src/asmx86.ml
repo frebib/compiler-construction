@@ -136,7 +136,7 @@ let rec compile symtbl = function
                           add_label elsjmp;
                           compile symtbl b;
                           add_instr "// End if";
-                          add_label endjmp;
+                          add_label endjmp
 
   | While (g, e)       -> add_instr "// Begin while";
                           let base_sp = !sp in
