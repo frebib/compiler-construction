@@ -121,7 +121,7 @@ let rec compile symtbl = function
                           compile symtbl (Seq tl)
   | Seq []             -> ()
 
-	| If (g, a, b)       -> Buffer.add_string code "// Begin if\n";
+  | If (g, a, b)       -> add_instr "// Begin if";
                           let elsjmp = new_lblid () in
                           let endjmp = new_lblid () in
                           compile symtbl g;
@@ -129,13 +129,13 @@ let rec compile symtbl = function
                           add_instr "test	%rax, %rax";
                           add_instr ("je	" ^ (mklbl elsjmp));
                           sp := !sp - 1;
-                          Buffer.add_string code "// true\n";
+                          add_instr "// true";
                           compile symtbl a;
                           add_instr ("jmp	" ^ (mklbl endjmp));
-                          Buffer.add_string code "// false\n";
+                          add_instr "// false";
                           add_label elsjmp;
                           compile symtbl b;
-                          Buffer.add_string code "// End if\n";
+                          add_instr "// End if";
                           add_label endjmp;
   | Empty -> ()
 ;;
