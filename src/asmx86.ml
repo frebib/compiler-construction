@@ -6,6 +6,7 @@ let lblid = ref 0
 let mklbl = sprintf "._L%d"
 
 let code = Buffer.create 1048576 (* 1024 ^ 2 *)
+let funs = Buffer.create 1048576 (* 1024 ^ 2 *)
 let add_instr s = Buffer.add_string code ("\t" ^ s ^ "\n")
 let add_label i = Buffer.add_string code (mklbl i ^ ":\n")
 let new_lblid _ = lblid := !lblid + 1; !lblid
@@ -162,7 +163,7 @@ let rec compile symtbl = function
                           sp := !sp + 1
 ;;
 
-let templ_prefix = 
+let templ_printInt = 
 ".LC0:
 	.string	\"%d\\n\"
 	.text
@@ -177,31 +178,33 @@ printInt:
 	xorl	%eax, %eax
 	addq	$8, %rsp
 	ret
-	.size	printInt, .-printInt
-	.globl	main
-	.type	main, @function
-.LC2:
+	.size	printInt, .-printInt\n"
+
+let templ_readInt = 
+".LC1:
 	.string	\"%d+\\n\"
 	.globl	readInt
 	.type	readInt, @function
 readInt:
 	subq	$24, %rsp
-	movl	$.LC2, %edi
+	movl	$.LC1, %edi
 	xorl	%eax, %eax
 	leaq	12(%rsp), %rsi
 	call	__isoc99_scanf
 	movl	12(%rsp), %eax
 	addq	$24, %rsp
 	ret
-	.size	readInt, .-readInt
-	.globl	main
+  .size	readInt, .-readInt\n"
+
+let main_prefix = 
+"	.globl	main
 	.type	main, @function
 main:
 	pushq	%rbp
 	movq	%rsp, %rbp
 	subq	$16, %rsp
 	// End template code\n"
-let templ_suffix = 
+let main_suffix = 
 "	// End of program code
 	// Print and exit
 	popq	%rdi
@@ -213,8 +216,12 @@ let templ_suffix =
 
 
 let assemble e = 
+  Buffer.reset funs;
+  Buffer.add_string funs templ_printInt;
+  Buffer.add_string funs templ_readInt;
   Buffer.reset code;
-  Buffer.add_string code templ_prefix;
+  Buffer.add_string code main_prefix;
   compile (Hashtbl.create 1024) e;
-  Buffer.add_string code templ_suffix;
-  print_endline (Buffer.contents code)
+  Buffer.add_string code main_suffix;
+  Buffer.add_buffer funs code;
+  print_endline (Buffer.contents funs)
