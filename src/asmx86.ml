@@ -145,8 +145,9 @@ let rec compile symtbl = function
   | Printint e         -> compile symtbl (Application (Identifier "printInt", [e]))
 
   | Application (e, a) -> (* Reverse args for cdecl convention *)
+                          let arg_count = List.length a in
                           List.rev a |> List.iteri (fun i e ->
-                            let i = (List.length a) - i - 1 in (* Add arguments in correct order *)
+                            let i = arg_count - i - 1 in (* Add arguments in correct order *)
                             compile symtbl e;
                             if i < 6 then
                               add_instr ("popq	" ^ arg_reg i);
@@ -157,6 +158,11 @@ let rec compile symtbl = function
                             | Identifier v -> add_instr ("call	" ^ v)
                             | _ -> failwith (sprintf "Application (%s, ..)" (Print.string_of_exp e))
                           );
+                          
+                          (* Remove all stack arguments *)
+                          if arg_count > 6 then
+                            add_instr (sprintf "addq	$%d, %%rsp" ((arg_count - 6) * 8));
+
                           add_instr "pushq	%rax";
                           sp := !sp + 1
 
