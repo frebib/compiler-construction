@@ -183,11 +183,11 @@ let rec compile symtbl = function
                           sp := !sp - 1;
                           add_instr "// true";
                           compile symtbl a;
+                          sp := !sp - 1;
                           add_instr ("jmp	" ^ (mklbl endjmp));
                           add_instr "// false";
                           add_label elsjmp;
                           compile symtbl b;
-                          compile symtbl Empty;
                           add_instr "// End if";
                           add_label endjmp
 
