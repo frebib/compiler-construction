@@ -209,9 +209,7 @@ let templ_suffix =
 	movl	$0, %eax
 	leave
 	ret
-	.size	main, .-main
-	.ident	\"GCC: (GNU) 6.2.1 20160830\"
-	.section	.note.GNU-stack,\"\",@progbits\n"
+	.size	main, .-main\n"
 
 
 let assemble e = 
