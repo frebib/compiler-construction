@@ -63,9 +63,23 @@ let rec compile symtbl = function
                             | Divide -> "xor	%rdx, %rdx" |> add_instr;
                                         "idivq	%rbx"     |> add_instr
                             | Equal  -> "cmp	%rbx, %rax" |> add_instr;
-                                        "setz	%al"        |> add_instr
+                                        "setz	%al"        |> add_instr;
+                                        "movsbq %al, %rax"|> add_instr
                             | Noteq  -> "cmp	%rbx, %rax" |> add_instr;
-                                        "setnz	%al"      |> add_instr
+                                        "setnz	%al"      |> add_instr;
+                                        "movsbq %al, %rax"|> add_instr
+                            | Lth    -> "cmp	%rbx, %rax" |> add_instr;
+                                        "setl	%al"        |> add_instr;
+                                        "movsbq %al, %rax"|> add_instr
+                            | Gth    -> "cmp	%rbx, %rax" |> add_instr;
+                                        "setg	%al"        |> add_instr;
+                                        "movsbq %al, %rax"|> add_instr
+                            | Leq    -> "cmp	%rbx, %rax" |> add_instr;
+                                        "setle	%al"      |> add_instr;
+                                        "movsbq %al, %rax"|> add_instr
+                            | Geq    -> "cmp	%rbx, %rax" |> add_instr;
+                                        "setge	%al"      |> add_instr;
+                                        "movsbq %al, %rax"|> add_instr
                             | o -> (match o with
                             | Plus  -> "addq	%rbx, %rax"
                             | Minus -> "subq	%rbx, %rax"
