@@ -27,6 +27,8 @@ type location =
 let rec compile symtbl = function
   | Let (n, Function (a, b), i)
                        -> let funbuf = Buffer.create 1024 in
+                          let sp_temp = !sp in sp := 0;
+                          let code_temp = !code in code := funbuf;
                           let add_finstr s = Buffer.add_string funbuf ("\t" ^ s ^ "\n") in
                           let add_flabel s = Buffer.add_string funbuf (s ^ ":\n") in
                           add_finstr (".globl	" ^ n);
@@ -35,9 +37,15 @@ let rec compile symtbl = function
                           add_finstr "pushq	%rbp";
                           add_finstr "movq	%rsp, %rbp";
 
-                          (* TODO: Add all arguments to symtbl *)
-                          (*compile symtbl b;*)
-                          add_finstr "pushq $0";
+                          let fsymtbl = Hashtbl.copy symtbl in
+                          List.iteri (fun i a ->
+                            Hashtbl.replace fsymtbl a 
+                              (if i < 6 then
+                                Register (arg_reg i)
+                              else
+                                Stack (2 - i))
+                          ) a;
+                          compile fsymtbl b;
 
                           add_finstr "popq	%rax";
                           add_finstr "leave";
@@ -45,6 +53,10 @@ let rec compile symtbl = function
                           add_finstr (".size	" ^ n ^ ", .-" ^ n);
 
                           Buffer.add_buffer funs funbuf;
+
+                          code := code_temp;
+                          sp := sp_temp;
+
                           compile symtbl i
 
   | Let (v, e1, e2)    -> compile symtbl e1;
@@ -82,7 +94,8 @@ let rec compile symtbl = function
                           add_instr "pushq	%rax";
                           sp := !sp - 1;
 
-  | Identifier v       -> add_instr ("// Identifier " ^ v); (match Hashtbl.find symtbl v with
+  | Identifier v       -> add_instr ("// Identifier " ^ v);
+                          (match Hashtbl.find symtbl v with
                             | Register r when r == "%rax" -> ()
                             | Register r -> add_instr (sprintf "movq	%s, %%rax" r)
                             | Stack addr -> add_instr (sprintf "movq	%d(%%rbp), %%rax" (-16 - 8 * addr))
