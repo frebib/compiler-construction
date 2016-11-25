@@ -194,7 +194,7 @@ readInt:
 	movl	12(%rsp), %eax
 	addq	$24, %rsp
 	ret
-  .size	readInt, .-readInt\n"
+	.size	readInt, .-readInt\n"
 
 let main_prefix = 
 "	.globl	main
