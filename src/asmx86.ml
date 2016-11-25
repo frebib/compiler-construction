@@ -137,6 +137,24 @@ let rec compile symtbl = function
                           compile symtbl b;
                           add_instr "// End if";
                           add_label endjmp;
+
+  | While (g, e)       -> add_instr "// Begin while";
+                          let base_sp = !sp in
+                          let endjmp = new_lblid () in
+                          let loopjmp = new_lblid () in
+                          add_label loopjmp;
+                          compile symtbl g;
+                          add_instr "popq	%rax";
+                          add_instr "test	%rax, %rax";
+                          add_instr ("je	" ^ (mklbl endjmp));
+                          sp := !sp - 1;
+                          compile symtbl e;
+                          add_instr "addq	$8, %rsp"; (* Dispose of unused value *)
+                          sp := base_sp;
+                          add_instr ("jmp	" ^ (mklbl loopjmp));
+                          add_label endjmp;
+                          add_instr "// End while"
+
   | Empty -> ()
 ;;
 
