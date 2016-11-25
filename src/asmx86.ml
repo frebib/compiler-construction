@@ -135,6 +135,7 @@ let rec compile symtbl = function
                           add_instr "// false";
                           add_label elsjmp;
                           compile symtbl b;
+                          compile symtbl Empty;
                           add_instr "// End if";
                           add_label endjmp
 
@@ -153,9 +154,11 @@ let rec compile symtbl = function
                           sp := base_sp;
                           add_instr ("jmp	" ^ (mklbl loopjmp));
                           add_label endjmp;
+                          compile symtbl Empty;
                           add_instr "// End while"
 
-  | Empty -> ()
+  | Empty              -> add_instr "pushq	$0";
+                          sp := !sp + 1
 ;;
 
 let templ_prefix = 
