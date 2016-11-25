@@ -142,8 +142,8 @@ let rec compile symtbl = function
 
   | While (g, e)       -> add_instr "// Begin while";
                           let base_sp = !sp in
-                          let endjmp = new_lblid () in
                           let loopjmp = new_lblid () in
+                          let endjmp = new_lblid () in
                           add_label loopjmp;
                           compile symtbl g;
                           add_instr "popq	%rax";
