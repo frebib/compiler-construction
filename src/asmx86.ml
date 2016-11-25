@@ -5,10 +5,10 @@ let sp = ref 0
 let lblid = ref 0
 let mklbl = sprintf ".LBL%d"
 
-let code = Buffer.create 1048576 (* 1024 ^ 2 *)
+let code = ref (Buffer.create 1048576) (* 1024 ^ 2 *)
 let funs = Buffer.create 1048576 (* 1024 ^ 2 *)
-let add_instr s = Buffer.add_string code ("\t" ^ s ^ "\n")
-let add_label i = Buffer.add_string code (mklbl i ^ ":\n")
+let add_instr s = Buffer.add_string !code ("\t" ^ s ^ "\n")
+let add_label i = Buffer.add_string !code (mklbl i ^ ":\n")
 let new_lblid _ = lblid := !lblid + 1; !lblid
 
 let arg_reg = function
@@ -243,9 +243,9 @@ let assemble e =
   Buffer.reset funs;
   Buffer.add_string funs templ_printInt;
   Buffer.add_string funs templ_readInt;
-  Buffer.reset code;
-  Buffer.add_string code main_prefix;
+  Buffer.reset !code;
+  Buffer.add_string !code main_prefix;
   compile (Hashtbl.create 1024) e;
-  Buffer.add_string code main_suffix;
-  Buffer.add_buffer funs code;
+  Buffer.add_string !code main_suffix;
+  Buffer.add_buffer funs !code;
   print_endline (Buffer.contents funs)
