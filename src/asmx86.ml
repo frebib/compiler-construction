@@ -10,6 +10,15 @@ let add_instr s = Buffer.add_string code ("\t" ^ s ^ "\n")
 let add_label i = Buffer.add_string code (mklbl i ^ ":\n")
 let new_lblid _ = lblid := !lblid + 1; !lblid
 
+let arg_reg = function
+	| 0 -> "%rdi"
+	| 1 -> "%rsi"
+	| 2 -> "%rdx"
+	| 3 -> "%rcx"
+	| 4 -> "%r8"
+	| 5 -> "%r9"
+	| _ -> failwith "arg_reg"
+
 let rec compile symtbl = function
   | Let (v, e1, e2)    -> compile symtbl e1;
                           Hashtbl.replace symtbl v !sp;
@@ -87,6 +96,23 @@ let rec compile symtbl = function
                               |> add_instr);
                           add_instr "pushq	%rax";
                           sp := !sp - 1
+
+  | Printint e         -> compile symtbl (Application (Identifier "printInt", [e]))
+
+  | Application (e, a) -> (* Reverse args for cdecl convention *)
+                          List.rev a |> List.iteri (fun i e ->
+                            let i = (List.length a) - i - 1 in (* Add arguments in correct order *)
+                            compile symtbl e;
+                            if i < 6 then
+                              add_instr ("popq	" ^ arg_reg i)
+                          ); 
+
+                          (match e with
+                            | Identifier v -> add_instr ("call	" ^ v)
+                            | _ -> failwith (sprintf "Application (%s, ..)" (Print.string_of_exp e))
+                          );
+                          add_instr "pushq	%rax";
+                          sp := !sp + 1
 
   | Seq (hd::[])       -> compile symtbl hd      (* Keep last exp in Seq *)
   | Seq (hd::tl)       -> compile symtbl hd;
