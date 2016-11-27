@@ -11,17 +11,30 @@ let add_instr s = Buffer.add_string !code ("\t" ^ s ^ "\n")
 let add_label i = Buffer.add_string !code (mklbl i ^ ":\n")
 let new_lblid _ = lblid := !lblid + 1; !lblid
 
+type reg64 = 
+  | RAX | RBX | RCX | RDX
+  | RSI | RDI | RBP | RSP
+  | R8  | R9  | R10 | R11
+  | R12 | R13 | R14 | R15
+
+let string_of_reg64 = function e -> "%" ^ 
+  (e |> function
+    | RAX -> "rax" | RBX -> "rbx" | RCX -> "rcx" | RDX -> "rdx"
+    | RSI -> "rax" | RDI -> "rdi" | RBP -> "rbp" | RSP -> "rsp"
+    | R8 -> "r8"   | R9 -> "r9"   | R10 -> "r10" | R11 -> "r11"
+    | R12 -> "r12" | R13 -> "r13" | R14 -> "r14" | R15 -> "r15")
+
 let arg_reg = function
-	| 0 -> "%rdi"
-	| 1 -> "%rsi"
-	| 2 -> "%rdx"
-	| 3 -> "%rcx"
-	| 4 -> "%r8"
-	| 5 -> "%r9"
+	| 0 -> RDI
+	| 1 -> RSI
+	| 2 -> RDX
+	| 3 -> RCX
+	| 4 -> R8
+	| 5 -> R9
 	| _ -> failwith "arg_reg"
 
 type location =
-  | Register of string
+  | Register of reg64
   | Stack of int
 
 let rec compile symtbl = function
@@ -41,7 +54,7 @@ let rec compile symtbl = function
                           List.iteri (fun i a ->
                             Hashtbl.replace fsymtbl a 
                               (if i < 6 then
-                                (add_instr ("pushq	" ^ arg_reg i);
+                                (add_instr ("pushq	" ^ (arg_reg i |> string_of_reg64));
                                 sp := !sp + 1;
                                 Stack !sp)
                               else
@@ -99,8 +112,8 @@ let rec compile symtbl = function
 
   | Identifier v       -> add_instr ("// Identifier " ^ v);
                           (match Hashtbl.find symtbl v with
-                            | Register r when r == "%rax" -> ()
-                            | Register r -> add_instr (sprintf "movq	%s, %%rax" r)
+                            | Register RAX -> ()
+                            | Register r -> add_instr (sprintf "movq	%s, %%rax" (string_of_reg64 r))
                             | Stack addr -> add_instr (sprintf "movq	%d(%%rbp), %%rax" (-8 * addr))
                           );
                           add_instr ("pushq	%rax");
@@ -153,7 +166,7 @@ let rec compile symtbl = function
                             let i = arg_count - i - 1 in (* Add arguments in correct order *)
                             compile symtbl e;
                             if i < 6 then
-                              add_instr ("popq	" ^ arg_reg i);
+                              add_instr ("popq	" ^ (arg_reg i |> string_of_reg64));
                               sp := !sp - 1
                           ); 
 
