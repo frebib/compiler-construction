@@ -41,11 +41,14 @@ let rec compile symtbl = function
                           List.iteri (fun i a ->
                             Hashtbl.replace fsymtbl a 
                               (if i < 6 then
-                                Register (arg_reg i)
+                                (add_instr ("pushq	" ^ arg_reg i);
+                                sp := !sp + 1;
+                                Stack !sp)
                               else
-                                Stack (2 - i))
+                                Stack (4 - i))
                           ) a;
                           compile fsymtbl b;
+                          sp := !sp - 1;
 
                           add_finstr "popq	%rax";
                           add_finstr "leave";
@@ -69,7 +72,7 @@ let rec compile symtbl = function
                           sp := !sp - 1
 
   | New (v, e1, e2)    -> compile symtbl e1;
-                          add_instr (sprintf "leaq	%d(%%rbp), %%rax" (-16 - 8 * !sp));
+                          add_instr (sprintf "leaq	%d(%%rbp), %%rax" (-8 * !sp));
                           add_instr "pushq	%rax";
                           sp := !sp + 1;
                           Hashtbl.replace symtbl v (Stack !sp);
@@ -98,7 +101,7 @@ let rec compile symtbl = function
                           (match Hashtbl.find symtbl v with
                             | Register r when r == "%rax" -> ()
                             | Register r -> add_instr (sprintf "movq	%s, %%rax" r)
-                            | Stack addr -> add_instr (sprintf "movq	%d(%%rbp), %%rax" (-16 - 8 * addr))
+                            | Stack addr -> add_instr (sprintf "movq	%d(%%rbp), %%rax" (-8 * addr))
                           );
                           add_instr ("pushq	%rax");
                           sp := !sp + 1
@@ -252,7 +255,6 @@ let main_prefix =
 main:
 	pushq	%rbp
 	movq	%rsp, %rbp
-	subq	$16, %rsp
 	// End template code\n"
 let main_suffix = 
 "	// End of program code
