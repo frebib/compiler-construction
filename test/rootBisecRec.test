@@ -1,30 +1,31 @@
 /% CODE %/
 
-function rootBisec(l, r) {
+function rootBisec(f, l, r) {
   let mid = (~r - ~l) / 2;
   if (~mid > ~E) { // E being the constant
     if (f(~r) * f(~mid) < 0)
       l = ~mid;
     else
       r = ~mid; 
-    bisect(~l, ~r);
-  } else { }
-  return ~mid;
+    bisect(f, l, r);
+  } else {
+    return ~mid;
+  }
 }
 
 /% TREE %/
 
-Program [
-  ("rootBisec", ["l"; "r"],
-    Let (
-      "mid",
-      BinaryOp (Divide,
-        BinaryOp (Minus,
-          Deref (Identifier "r"),
-          Deref (Identifier "l")
+Program (
+  Let ("rootBisec",
+    Function (["f"; "l"; "r"],
+      Let ("mid",
+        BinaryOp (Divide,
+          BinaryOp (Minus,
+            Deref (Identifier "r"),
+            Deref (Identifier "l")
+          ),
+          Const 2
         ),
-        Const 2
-      ), Seq [
         If (
           BinaryOp (Gth,
             Deref (Identifier "mid"),
@@ -35,12 +36,14 @@ Program [
               BinaryOp (Lth,
                 BinaryOp (Times,
                   Application (
-                    Identifier "f",
-                    Deref (Identifier "r")
+                    Identifier "f", [
+                      Deref (Identifier "r")
+                    ]
                   ),
                   Application (
-                    Identifier "f",
-                    Deref (Identifier "mid")
+                    Identifier "f", [
+                      Deref (Identifier "mid")
+                    ]
                   )
                 ),
                 Const 0
@@ -55,25 +58,22 @@ Program [
               )
             );
             Application (
-              Identifier "bisect",
-              Seq [
-                Deref (Identifier "l");
-                Deref (Identifier "r")
+              Identifier "bisect", [
+                Identifier "f";
+                Identifier "l"; 
+                Identifier "r"
               ]
             )
           ],
-          Empty
-        );
-        Deref (Identifier "mid")
-      ]
-    )
+          Deref (Identifier "mid")
+        )
+      )
+    ), Empty
   )
-]
+)
 
 /% RESULT %/
 
-[
-  Empty
-]
+Value (Empty)
 
 /% END %/
