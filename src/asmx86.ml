@@ -56,9 +56,9 @@ let rec compile symtbl = function
                               (if i < 6 then
                                 (add_instr ("pushq	" ^ (arg_reg i |> string_of_reg64));
                                 sp := !sp + 1;
-                                Stack !sp)
+                                Stack (!sp * -8))
                               else
-                                Stack (4 - i))
+                                Stack ((i - 4) * 8))
                           ) a;
                           compile fsymtbl b;
                           sp := !sp - 1;
@@ -76,7 +76,7 @@ let rec compile symtbl = function
                           compile symtbl i
 
   | Let (v, e1, e2)    -> compile symtbl e1;
-                          Hashtbl.replace symtbl v (Stack !sp);
+                          Hashtbl.replace symtbl v (Stack (!sp * -8));
                           compile symtbl e2;
                           Hashtbl.remove symtbl v;
                           add_instr "popq	%rax";
@@ -88,7 +88,7 @@ let rec compile symtbl = function
                           add_instr (sprintf "leaq	%d(%%rbp), %%rax" (-8 * !sp));
                           add_instr "pushq	%rax";
                           sp := !sp + 1;
-                          Hashtbl.replace symtbl v (Stack !sp);
+                          Hashtbl.replace symtbl v (Stack (!sp * -8));
                           compile symtbl e2;
                           Hashtbl.remove symtbl v;
                           add_instr "popq	%rax";
@@ -114,7 +114,7 @@ let rec compile symtbl = function
                           (match Hashtbl.find symtbl v with
                             | Register RAX -> ()
                             | Register r -> add_instr (sprintf "movq	%s, %%rax" (string_of_reg64 r))
-                            | Stack addr -> add_instr (sprintf "movq	%d(%%rbp), %%rax" (-8 * addr))
+                            | Stack offs -> add_instr (sprintf "movq	%d(%%rbp), %%rax" offs)
                           );
                           add_instr ("pushq	%rax");
                           sp := !sp + 1
