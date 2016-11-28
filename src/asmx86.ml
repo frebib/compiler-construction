@@ -55,6 +55,7 @@ let movto s = function
   | Register r -> sprintf "movq	%s, %s" s (string_of_reg64 r) |> add_instr
   | Stack offs -> sprintf "movq	%s, %d(%%rbp)" s offs |> add_instr;
                   sp := !sp + 1
+  | Const _
   | Void -> ()
 
 let next_reg symtbl =
@@ -198,6 +199,7 @@ let rec compile symtbl = function
                             | Register RAX -> ()
                             | Register r -> movto (string_of_reg64 r) target
                             | Stack offs -> movto (string_of_int offs ^ "(%rbp)") target
+                            | Const _
                             | Void -> ())
 
   | Boolean b          -> compile symtbl target (Const (if b then 1 else 0))
