@@ -76,6 +76,38 @@ let free_reg = function
   | Register r -> regs := (List.filter (fun x -> r != x) !regs)
   | _ -> ()
 
+let fmt_instr  i a   = sprintf "%s\t%s"     i (string_of_location a)
+let fmt_instr2 i a b = sprintf "%s\t%s, %s" i (string_of_location a) (string_of_location b)
+
+let compile_binop ra rb = function
+  | Divide -> "xor	%rdx, %rdx" |> add_instr;
+              "idivq	%rbx"     |> add_instr
+  | Equal  -> "cmp	%rbx, %rax" |> add_instr;
+              "setz	%al"        |> add_instr;
+              "movsbq	%al, %rax"|> add_instr
+  | Noteq  -> "cmp	%rbx, %rax" |> add_instr;
+              "setnz	%al"      |> add_instr;
+              "movsbq	%al, %rax"|> add_instr
+  | Lth    -> "cmp	%rbx, %rax" |> add_instr;
+              "setl	%al"        |> add_instr;
+              "movsbq	%al, %rax"|> add_instr
+  | Gth    -> "cmp	%rbx, %rax" |> add_instr;
+              "setg	%al"        |> add_instr;
+              "movsbq	%al, %rax"|> add_instr
+  | Leq    -> "cmp	%rbx, %rax" |> add_instr;
+              "setle	%al"      |> add_instr;
+              "movsbq	%al, %rax"|> add_instr
+  | Geq    -> "cmp	%rbx, %rax" |> add_instr;
+              "setge	%al"      |> add_instr;
+              "movsbq	%al, %rax"|> add_instr
+  | o -> (match o with
+  | Plus  -> fmt_instr2 "addq" rb ra
+  | Minus -> fmt_instr2 "subq" rb ra
+  | Times -> fmt_instr2 "imulq" rb ra
+  | _ -> failwith (sprintf "BinaryOp(%s, ..)" (Print.string_of_op o)))
+    |> add_instr
+
+
 let rec compile symtbl = function
   | Let (n, Function (a, b), i)
                        -> let funbuf = Buffer.create 1024 in
@@ -99,7 +131,7 @@ let rec compile symtbl = function
                               else
                                 Stack ((i - 4) * 8))
                           ) a;
-                          compile fsymtbl b;
+                          compile fsymtbl target b;
                           sp := !sp - 1;
 
                           add_finstr "popq	%rax";
@@ -112,23 +144,23 @@ let rec compile symtbl = function
                           code := code_temp;
                           sp := sp_temp;
 
-                          compile symtbl i
+                          compile symtbl target i
 
-  | Let (v, e1, e2)    -> compile symtbl e1;
+  | Let (v, e1, e2)    -> compile symtbl target e1;
                           Hashtbl.replace symtbl v (Stack (!sp * -8));
-                          compile symtbl e2;
+                          compile symtbl target e2;
                           Hashtbl.remove symtbl v;
                           add_instr "popq	%rax";
                           add_instr "popq	%rbx";
                           add_instr "pushq	%rax";
                           sp := !sp - 1
 
-  | New (v, e1, e2)    -> compile symtbl e1;
+  | New (v, e1, e2)    -> compile symtbl target e1;
                           add_instr (sprintf "leaq	%d(%%rbp), %%rax" (-8 * !sp));
                           add_instr "pushq	%rax";
                           sp := !sp + 1;
                           Hashtbl.replace symtbl v (Stack (!sp * -8));
-                          compile symtbl e2;
+                          compile symtbl target e2;
                           Hashtbl.remove symtbl v;
                           add_instr "popq	%rax";
                           add_instr "addq	$8, %rsp"; (* Dispose of unused value *)
@@ -136,13 +168,14 @@ let rec compile symtbl = function
                           add_instr "pushq	%rax";
                           sp := !sp - 2
 
-  | Deref e            -> compile symtbl e;
+  | Deref e            -> compile symtbl target e;
                           add_instr "popq	%rax";
                           add_instr "movq	(%rax), %rbx";
                           add_instr "pushq	%rbx"
 
-  | Asg (v, e)         -> compile symtbl v;
-                          compile symtbl e;
+
+  | Asg (v, e)         -> compile symtbl target v;
+                          compile symtbl target e;
                           add_instr "popq	%rax";
                           add_instr "popq	%rbx";
                           add_instr "movq	%rax, (%rbx)";
@@ -152,61 +185,35 @@ let rec compile symtbl = function
   | Identifier v       -> add_instr ("// Identifier " ^ v);
                           (match Hashtbl.find symtbl v with
                             | Register RAX -> ()
-                            | Register r -> add_instr (sprintf "movq	%s, %%rax" (string_of_reg64 r))
-                            | Stack offs -> add_instr (sprintf "movq	%d(%%rbp), %%rax" offs)
-                          );
-                          add_instr ("pushq	%rax");
+                            | Register r -> movto (string_of_reg64 r) target
+                            | Stack offs -> movto (string_of_int offs ^ "(%rbp)") target
+                            | Void -> ())
+
+  | Boolean b          -> compile symtbl target (Const (if b then 1 else 0))
+  | Const n            -> movto (sprintf "$%d" n) target;
                           sp := !sp + 1
 
-  | Boolean b          -> compile symtbl (Const (if b then 1 else 0))
-  | Const n            -> add_instr (sprintf "pushq	$%d" n);
-                          sp := !sp + 1
+  | BinaryOp (o, a, Const b) ->
+                          compile symtbl target a;
+                          compile_binop target (Const b) o;
 
-  | BinaryOp (o, a, b) -> compile symtbl a;
-                          compile symtbl b;
-                          add_instr "popq	%rbx";
-                          add_instr "popq	%rax";
-                          (match o with
-                            | Divide -> "xor	%rdx, %rdx" |> add_instr;
-                                        "idivq	%rbx"     |> add_instr
-                            | Equal  -> "cmp	%rbx, %rax" |> add_instr;
-                                        "setz	%al"        |> add_instr;
-                                        "movsbq	%al, %rax"|> add_instr
-                            | Noteq  -> "cmp	%rbx, %rax" |> add_instr;
-                                        "setnz	%al"      |> add_instr;
-                                        "movsbq	%al, %rax"|> add_instr
-                            | Lth    -> "cmp	%rbx, %rax" |> add_instr;
-                                        "setl	%al"        |> add_instr;
-                                        "movsbq	%al, %rax"|> add_instr
-                            | Gth    -> "cmp	%rbx, %rax" |> add_instr;
-                                        "setg	%al"        |> add_instr;
-                                        "movsbq	%al, %rax"|> add_instr
-                            | Leq    -> "cmp	%rbx, %rax" |> add_instr;
-                                        "setle	%al"      |> add_instr;
-                                        "movsbq	%al, %rax"|> add_instr
-                            | Geq    -> "cmp	%rbx, %rax" |> add_instr;
-                                        "setge	%al"      |> add_instr;
-                                        "movsbq	%al, %rax"|> add_instr
-                            | o -> (match o with
-                            | Plus  -> "addq	%rbx, %rax"
-                            | Minus -> "subq	%rbx, %rax"
-                            | Times -> "imulq	%rbx, %rax"
-                            | _ -> failwith (sprintf "BinaryOp(%s, ..)" (Print.string_of_op o)))
-                              |> add_instr);
-                          add_instr "pushq	%rax";
-                          sp := !sp - 1
+  | BinaryOp (o, a, b) -> let rega = next_reg symtbl in
+                          compile symtbl rega a;
+                          compile symtbl target b;
+                          compile_binop target rega o;
+                          free_reg rega
 
-  | Readint            -> compile symtbl (Application (Identifier "readInt",  []))
-  | Printint e         -> compile symtbl (Application (Identifier "printInt", [e]))
+  | Readint            -> compile symtbl target (Application (Identifier "readInt",  []))
+  | Printint e         -> compile symtbl target (Application (Identifier "printInt", [e]))
 
   | Application (e, a) -> (* Reverse args for cdecl convention *)
                           let arg_count = List.length a in
                           List.rev a |> List.iteri (fun i e ->
                             let i = arg_count - i - 1 in (* Add arguments in correct order *)
-                            compile symtbl e;
-                            if i < 6 then
+                            compile symtbl (Register (arg_reg i)) e;
+                            (* if i < 6 then
                               add_instr ("popq	" ^ (arg_reg i |> string_of_reg64));
-                              sp := !sp - 1
+                              sp := !sp - 1 *)
                           ); 
 
                           (match e with
@@ -221,28 +228,28 @@ let rec compile symtbl = function
                           add_instr "pushq	%rax";
                           sp := !sp + 1
 
-  | Seq (hd::[])       -> compile symtbl hd      (* Keep last exp in Seq *)
-  | Seq (hd::tl)       -> compile symtbl hd;
-                          add_instr "popq	%rax"; (* Dispose of value *)
+  | Seq (hd::[])       -> compile symtbl target hd      (* Keep last exp in Seq *)
+  | Seq (hd::tl)       -> compile symtbl target hd;
+                          add_instr "addq	$8, %rsp"; (* Dispose of unused value *)
                           sp := !sp - 1;
-                          compile symtbl (Seq tl)
+                          compile symtbl target (Seq tl)
   | Seq []             -> ()
 
   | If (g, a, b)       -> add_instr "// Begin if";
                           let elsjmp = new_lblid () in
                           let endjmp = new_lblid () in
-                          compile symtbl g;
+                          compile symtbl target g;
                           add_instr "popq	%rax";
                           add_instr "test	%rax, %rax";
                           add_instr ("je	" ^ (mklbl elsjmp));
                           sp := !sp - 1;
                           add_instr "// true";
-                          compile symtbl a;
+                          compile symtbl target a;
                           sp := !sp - 1;
                           add_instr ("jmp	" ^ (mklbl endjmp));
                           add_instr "// false";
                           add_label elsjmp;
-                          compile symtbl b;
+                          compile symtbl target b;
                           add_instr "// End if";
                           add_label endjmp
 
@@ -251,17 +258,17 @@ let rec compile symtbl = function
                           let loopjmp = new_lblid () in
                           let endjmp = new_lblid () in
                           add_label loopjmp;
-                          compile symtbl g;
+                          compile symtbl target g;
                           add_instr "popq	%rax";
                           add_instr "test	%rax, %rax";
                           add_instr ("je	" ^ (mklbl endjmp));
                           sp := !sp - 1;
-                          compile symtbl e;
+                          compile symtbl target e;
                           add_instr "addq	$8, %rsp"; (* Dispose of unused value *)
                           sp := base_sp;
                           add_instr ("jmp	" ^ (mklbl loopjmp));
                           add_label endjmp;
-                          compile symtbl Empty;
+                          compile symtbl target Empty;
                           add_instr "// End while"
 
   | Empty              -> add_instr "pushq	$0";
@@ -311,7 +318,6 @@ main:
 let main_suffix = 
 "	// End of program code
 	// Print and exit
-	popq	%rdi
 	call	printInt
 	movl	$0, %eax
 	leave
@@ -325,7 +331,7 @@ let assemble e =
   Buffer.add_string funs templ_readInt;
   Buffer.reset !code;
   Buffer.add_string !code main_prefix;
-  compile (Hashtbl.create 1024) e;
+  compile (Hashtbl.create 1024) (Register RDI) e;
   Buffer.add_string !code main_suffix;
   Buffer.add_buffer funs !code;
   print_endline (Buffer.contents funs)
