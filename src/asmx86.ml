@@ -79,9 +79,20 @@ let free_reg = function
 let fmt_instr  i a   = sprintf "%s\t%s"     i (string_of_location a)
 let fmt_instr2 i a b = sprintf "%s\t%s, %s" i (string_of_location a) (string_of_location b)
 
-let compile_binop ra rb = function
-  | Divide -> "xor	%rdx, %rdx" |> add_instr;
-              "idivq	%rbx"     |> add_instr
+let backup_reg symtbl r =
+  if List.mem r !regs then
+    let tmp = next_reg symtbl in
+    fmt_instr2 "movq" (Register r) tmp |> add_instr;
+    tmp
+  else
+    Void
+
+let restore_reg dest loc = match loc with
+  | Register _ -> fmt_instr2 "movq" loc dest |> add_instr
+  | Stack _    -> fmt_instr "popq" loc |> add_instr
+  | _ -> ()
+
+let compile_binop symtbl ra rb = function
   | Equal  -> "cmp	%rbx, %rax" |> add_instr;
               "setz	%al"        |> add_instr;
               "movsbq	%al, %rax"|> add_instr
@@ -193,14 +204,28 @@ let rec compile symtbl = function
   | Const n            -> movto (sprintf "$%d" n) target;
                           sp := !sp + 1
 
+  | BinaryOp (Divide, a, b) ->
+                          let tmp_rdx = backup_reg symtbl RDX in
+                          let tmp_rax = backup_reg symtbl RAX in
+                          let rb = next_reg symtbl in
+                          compile symtbl (Register RAX) a;
+                          compile symtbl rb b;
+                          "xor	%rdx, %rdx" |> add_instr;
+                          "cqo" |> add_instr;
+                          fmt_instr "idivq" rb |> add_instr;
+                          (if target != Register RAX then
+                            fmt_instr2 "movq" (Register RAX) target |> add_instr);
+                          restore_reg (Register RDX) tmp_rdx;
+                          restore_reg (Register RAX) tmp_rax
+
   | BinaryOp (o, a, Const b) ->
                           compile symtbl target a;
-                          compile_binop target (Const b) o;
+                          compile_binop symtbl target (Const b) o;
 
   | BinaryOp (o, a, b) -> let rega = next_reg symtbl in
                           compile symtbl rega a;
                           compile symtbl target b;
-                          compile_binop target rega o;
+                          compile_binop symtbl target rega o;
                           free_reg rega
 
   | Readint            -> compile symtbl target (Application (Identifier "readInt",  []))
