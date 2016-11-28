@@ -1,7 +1,19 @@
 open Types
 open Printf
 
+type reg64 = 
+  | RAX | RBX | RCX | RDX
+  | RSI | RDI | RBP | RSP
+  | R8  | R9  | R10 | R11
+  | R12 | R13 | R14 | R15
+type location =
+  | Register of reg64
+  | Stack of int
+  | Const of int
+  | Void
+
 let sp = ref 0
+let regs = ref []
 let lblid = ref 0
 let mklbl = sprintf ".LBL%d"
 
@@ -11,11 +23,12 @@ let add_instr s = Buffer.add_string !code ("\t" ^ s ^ "\n")
 let add_label i = Buffer.add_string !code (mklbl i ^ ":\n")
 let new_lblid _ = lblid := !lblid + 1; !lblid
 
-type reg64 = 
-  | RAX | RBX | RCX | RDX
-  | RSI | RDI | RBP | RSP
-  | R8  | R9  | R10 | R11
-  | R12 | R13 | R14 | R15
+let all_reg = [
+  RAX; RBX; RCX; RDX;
+  RSI; RDI; RBP; RSP;
+  R8;  R9;  R10; R11;
+  R12; R13; R14; R15;
+]
 
 let string_of_reg64 = function e -> "%" ^ 
   (e |> function
@@ -23,6 +36,11 @@ let string_of_reg64 = function e -> "%" ^
     | RSI -> "rax" | RDI -> "rdi" | RBP -> "rbp" | RSP -> "rsp"
     | R8 -> "r8"   | R9 -> "r9"   | R10 -> "r10" | R11 -> "r11"
     | R12 -> "r12" | R13 -> "r13" | R14 -> "r14" | R15 -> "r15")
+let string_of_location = function
+  | Register v -> string_of_reg64 v
+  | Stack o    -> sprintf "%d(%%rbp)" o   
+  | Const i    -> sprintf "$%d" i
+  | Void       -> "<void>"
 
 let arg_reg = function
 	| 0 -> RDI
@@ -33,9 +51,30 @@ let arg_reg = function
 	| 5 -> R9
 	| _ -> failwith "arg_reg"
 
-type location =
-  | Register of reg64
-  | Stack of int
+let movto s = function
+  | Register r -> sprintf "movq	%s, %s" s (string_of_reg64 r) |> add_instr
+  | Stack offs -> sprintf "movq	%s, %d(%%rbp)" s offs |> add_instr;
+                  sp := !sp + 1
+  | Void -> ()
+
+let next_reg symtbl =
+  let unused =
+    Hashtbl.fold (fun k v ac -> match v with
+      | Register v -> if List.mem v ac then ac else v :: ac
+      | _ -> ac) symtbl !regs
+    |> fun l -> List.filter (fun x -> not (List.mem x l)) all_reg
+  in
+  printf "\n// ["; List.iter (printf "%s; ") (List.map string_of_reg64 unused); printf "]\n";
+  if List.length unused < 1
+  then Stack !sp
+  else
+    let reg = List.hd unused in
+    regs := (reg :: !regs);
+    Register reg
+
+let free_reg = function
+  | Register r -> regs := (List.filter (fun x -> r != x) !regs)
+  | _ -> ()
 
 let rec compile symtbl = function
   | Let (n, Function (a, b), i)
