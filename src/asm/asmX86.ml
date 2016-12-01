@@ -102,15 +102,18 @@ class x86assembler = object(this)
         | Const 0 -> this#instr2 "xorq" dest dest; dest
         | Const i -> this#instr2 "movq" (ConstInt i) dest; dest
         | e -> this#commnt (string_of_exp e); dest)
+
     | EmptyRegister -> (function
       | Const 0  -> let reg = this#next_reg () in
 										this#instr2 "xorq" reg reg;	reg
       | Const i  -> let reg = this#next_reg () in
 										this#instr2 "movq" (ConstInt i) reg; reg
       | e -> this#commnt (string_of_exp e); Void)
+
     | Stack -> (function
       | Const i -> Void
       | e -> this#commnt (string_of_exp e); Void)
+
     | Discard -> (function
       | Const i -> Void
       | e -> this#commnt (string_of_exp e); Void)
