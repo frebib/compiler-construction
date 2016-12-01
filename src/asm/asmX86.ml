@@ -96,6 +96,7 @@ class x86assembler = object(this)
     ret
 
   method private genasm = function
+    (* Destination is a specific register *)
     | Register r ->
       let dest = DRegister r in
       (function
@@ -106,6 +107,7 @@ class x86assembler = object(this)
                           this#genasm (Register r) (Seq es)
         | e -> this#commnt (string_of_exp e); dest)
 
+    (* Destination is any available register. Chosen reg is returned *)
     | EmptyRegister -> (function
       | Const 0  -> let reg = this#next_reg () in
 										this#instr2 "xorq" reg reg;	reg
@@ -116,6 +118,7 @@ class x86assembler = object(this)
                         this#genasm EmptyRegister (Seq es)
       | e -> this#commnt (string_of_exp e); Void)
 
+    (* Destination is on the stack. Address is returned *)
     | Stack -> (function
       | Const i -> Void
       | Seq (e::[])  -> this#genasm Stack e
@@ -123,6 +126,7 @@ class x86assembler = object(this)
                         this#genasm Stack (Seq es)
       | e -> this#commnt (string_of_exp e); Void)
 
+    (* Result is discarded *)
     | Discard -> (function
       | Const i -> Void
       | Seq (e::[])  -> this#genasm Discard e
