@@ -156,12 +156,12 @@ class runcompile (cmp : ('addr, 'ret) compiler) = object (this)
                           this#cmpexp a;
                           cmp#jmp jmp_one;
                           cmp#comment "else";
-                          let jmp_two = cmp#get_ip () in
+                          (* let jmp_two = cmp#get_ip () in
                           cmp#inc_ip ();
                           let pre_els = cmp#get_ip () in
                           this#cmpexp b;
                           cmp#comment "outside if";
-                          let pst_els = cmp#get_ip () in
+                          let pst_els = cmp#get_ip () in*)
                           ()
                           
                           (* Allocate a buffer to save into
@@ -171,13 +171,13 @@ class runcompile (cmp : ('addr, 'ret) compiler) = object (this)
                           this#cmpexp g;
                           buf#ld !last; cmp#comment "Load while cond";
                           buf#jz (buf#get_ip ()); cmp#comment "break loop";
-                          let brk_loop = buf#get_ip () in
+                          (* let brk_loop = buf#get_ip () in *)
                           cmp#comment "body";
                           this#cmpexp b |> buf#inc_ip;
                           (* buf#set_jmp brk_loop buf#get_ip; *)
                           buf#comment "end loop";
 
-		| Empty            -> ()
+		| _                -> ()
 
 end
 

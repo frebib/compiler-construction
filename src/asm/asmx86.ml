@@ -3,13 +3,16 @@ open Printf
 
 let sp = ref 0
 let lblid = ref 0
+let funid = ref 0
 let mklbl = sprintf ".LBL%d"
+let mkfun = sprintf ".FUN%d"
 
 let code = ref (Buffer.create 1048576) (* 1024 ^ 2 *)
 let funs = Buffer.create 1048576 (* 1024 ^ 2 *)
 let add_instr s = Buffer.add_string !code ("\t" ^ s ^ "\n")
 let add_label i = Buffer.add_string !code (mklbl i ^ ":\n")
 let new_lblid _ = lblid := !lblid + 1; !lblid
+let new_funid _ = funid := !funid + 1; !funid
 
 type reg64 = 
   | RAX | RBX | RCX | RDX
@@ -38,15 +41,15 @@ type location =
   | Stack of int
 
 let rec compile symtbl = function
-  | Let (n, Function (a, b), i)
-                       -> let funbuf = Buffer.create 1024 in
+  | Function (a, b)    -> let funbuf = Buffer.create 1024 in
                           let sp_temp = !sp in sp := 0;
                           let code_temp = !code in code := funbuf;
                           let add_finstr s = Buffer.add_string funbuf ("\t" ^ s ^ "\n") in
                           let add_flabel s = Buffer.add_string funbuf (s ^ ":\n") in
-                          add_finstr (".globl	" ^ n);
-                          add_finstr (".type	" ^ n ^ ", @function");
-                          add_flabel n; (* Add function name as label *)
+                          let name = mkfun (new_funid ()) in
+                          add_finstr (".globl	" ^ name);
+                          add_finstr (".type	" ^ name ^ ", @function");
+                          add_flabel name; (* Add function name as label *)
                           add_finstr "pushq	%rbp";
                           add_finstr "movq	%rsp, %rbp";
 
@@ -66,14 +69,12 @@ let rec compile symtbl = function
                           add_finstr "popq	%rax";
                           add_finstr "leave";
                           add_finstr "ret";
-                          add_finstr (".size	" ^ n ^ ", .-" ^ n);
+                          add_finstr (".size	" ^ name ^ ", .-" ^ name);
 
                           Buffer.add_buffer funs funbuf;
 
                           code := code_temp;
                           sp := sp_temp;
-
-                          compile symtbl i
 
   | Let (v, e1, e2)    -> compile symtbl e1;
                           Hashtbl.replace symtbl v (Stack (!sp * -8));
