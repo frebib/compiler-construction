@@ -101,6 +101,9 @@ class x86assembler = object(this)
       (function
         | Const 0 -> this#instr2 "xorq" dest dest; dest
         | Const i -> this#instr2 "movq" (ConstInt i) dest; dest
+        | Seq (e::[])  -> this#genasm (Register r) e
+        | Seq (e::es)  -> this#genasm Discard e |> ignore;
+                          this#genasm (Register r) (Seq es)
         | e -> this#commnt (string_of_exp e); dest)
 
     | EmptyRegister -> (function
@@ -108,14 +111,23 @@ class x86assembler = object(this)
 										this#instr2 "xorq" reg reg;	reg
       | Const i  -> let reg = this#next_reg () in
 										this#instr2 "movq" (ConstInt i) reg; reg
+      | Seq (e::[])  -> this#genasm EmptyRegister e
+      | Seq (e::es)  -> this#genasm Discard e |> ignore;
+                        this#genasm EmptyRegister (Seq es)
       | e -> this#commnt (string_of_exp e); Void)
 
     | Stack -> (function
       | Const i -> Void
+      | Seq (e::[])  -> this#genasm Stack e
+      | Seq (e::es)  -> this#genasm Discard e |> ignore;
+                        this#genasm Stack (Seq es)
       | e -> this#commnt (string_of_exp e); Void)
 
     | Discard -> (function
       | Const i -> Void
+      | Seq (e::[])  -> this#genasm Discard e
+      | Seq (e::es)  -> this#genasm Discard e |> ignore;
+                        this#genasm Discard (Seq es)
       | e -> this#commnt (string_of_exp e); Void)
 
   method output_code o =
