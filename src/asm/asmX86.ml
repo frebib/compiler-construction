@@ -53,11 +53,11 @@ class x86assembler = object(this)
   method instr1 i a   = fmt_instr i a    |> this#instr  
   method instr2 i a b = fmt_instr2 i a b |> this#instr  
 
-	(* Finds and reserves the next unused 64bit register *)
+	(* Finds the next unused 64bit register *)
 	method next_reg _ =
 		let unused =
 			Hashtbl.fold (fun k v ac -> match v with
-				| Register v -> if List.mem v ac then ac else v :: ac
+				| DRegister v -> if List.mem v ac then ac else v :: ac
 				| _ -> ac) symtbl registers
 			|> fun l -> List.filter (fun x -> not (List.mem x l)) all_reg64
 		in
@@ -65,14 +65,12 @@ class x86assembler = object(this)
       (* Returns a stack address if no registers available *)
 			(this#incsp 8; BasePtrOffs sp)
 		else
-			let reg = List.hd unused in
-			registers <- (reg :: registers);
-			DRegister reg
+			DRegister (List.hd unused)
 
+	(* Reserves a register *)
+  method resrv_reg r = registers <- (r :: registers)
 	(* Frees a reserved register *)
-	method free_reg = function
-		| Register r -> registers <- (List.filter (fun x -> r != x) registers)
-		| _ -> ()
+	method free_reg  r = registers <- (List.filter (fun x -> r != x) registers)
 
   method compile exp =
     (* Add printInt function *)
