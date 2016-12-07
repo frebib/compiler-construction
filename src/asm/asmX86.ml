@@ -44,7 +44,7 @@ class x86assembler = object(this)
 
   val code = Buffer.create 1048576 (* 1024 ^ 2 *)
   val mutable funs = [] (* List of compiled functions *)
-	val mutable registers = []
+  val mutable registers = []
 
   method label  s     = Buffer.add_string code (s ^ ":\n")
   method labeln s i   = Buffer.add_string code (s ^ mklbl i ^ ":\n")
