@@ -63,7 +63,7 @@ class x86assembler = object(this)
 		in
 		if List.length unused < 1 then
       (* Returns a stack address if no registers available *)
-			(this#incsp 8; BasePtrOffs sp)
+			(this#incsp 8; BasePtrOffs (-sp))
 		else
 			DRegister (List.hd unused)
 
@@ -82,6 +82,7 @@ class x86assembler = object(this)
     this#instr1 "pushq" (DRegister RBP);
     this#instr2 "movq"  (DRegister RSP) (DRegister RBP);
     this#instr2 "xorq"  (DRegister RDI)	(DRegister RDI);
+    this#incsp  8;
     this#commnt "End template code";
     let ret = this#genasm (Register RDI) exp in
     this#commnt "End of program code";
@@ -89,6 +90,7 @@ class x86assembler = object(this)
     this#instr  "call	printInt";
     this#instr  "xorl	%eax, %eax";
     this#instr  "leave";
+    this#decsp  8;
     this#instr  "ret";
     this#instr  ".size	main, .-main\n";
     ret
