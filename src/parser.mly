@@ -74,6 +74,8 @@ exp:
     | c = const                         { c }
     | i = ident                         { i }
     | i = ident; ps = comma_exp_params  { Application (i, ps) }
+    | LPAREN e = exp RPAREN;
+        ps = comma_exp_params           { Application (e, ps) }
     | TILDE e = exp                     { Deref e }
     | READINT LPAREN RPAREN             { Readint }
     | PRINTINT LPAREN e = exp RPAREN    { Printint e }
