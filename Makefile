@@ -1,5 +1,6 @@
 SRC_DIR=src
 TEST_SRC_DIR=src/test
+GEN_ASM_DIR=test/asm
 GEN_SRC_DIR=test/generated
 BINARY_DIR=bin
 MENHIR_DIR=_menhir
@@ -20,6 +21,6 @@ test: gentest.native
 
 clean:
 	ocamlbuild -clean -quiet
-	$(RM) -r $(MENHIR_DIR) $(BINARY_DIR) $(GEN_SRC_DIR)
+	$(RM) -r $(MENHIR_DIR) $(BINARY_DIR) $(GEN_SRC_DIR) $(GEN_ASM_DIR)
 
 .PHONY: clean test

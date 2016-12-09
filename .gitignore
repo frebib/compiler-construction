@@ -1,5 +1,6 @@
 # Binaries and Generated sources
 bin
+test/asm
 test/generated
 
 # OCaml and Menhir files

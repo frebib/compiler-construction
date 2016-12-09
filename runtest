@@ -7,6 +7,7 @@ cd $(dirname $0)
 
 BIN_DIR="bin"
 TEST_BIN_DIR="${BIN_DIR}/test"
+TEST_ELF_DIR="${BIN_DIR}/test/elf"
 GENTEST_BINARY="${BIN_DIR}/gentest"
 
 if ! [ -f ${GENTEST_BINARY} ]; then
@@ -18,7 +19,10 @@ SRC_DIR="src"
 TEST_DIR="test"
 
 TEST_SRC_DIR="${TEST_DIR}/generated"
+TEST_ASM_DIR="${TEST_DIR}/asm"
 TEST_GEN_SRC_DIR="${SRC_DIR}/test"
+
+mkdir -p ${BIN_DIR} ${TEST_BIN_DIR} ${TEST_ELF_DIR} ${TEST_SRC_DIR} ${TEST_ASM_DIR} ${TEST_GEN_SRC_DIR}
 
 set +e # Dont fail if a test fails
 failed=()
@@ -69,6 +73,30 @@ for exe in ${natives[@]}; do
             failed+=("$testname")
         fi
     fi
+done
+
+make main
+for testfile in ${tests[@]}; do
+    filenameext=$(basename ${testfile})
+    filename="${filenameext%.*}"
+    out_asm_file="${TEST_ASM_DIR}/${filename}.s"
+    out_bin_file="${TEST_ELF_DIR}/${filename}.elf"
+
+    if bin/main compile -t ${testfile} > ${out_asm_file}; then
+        if gcc -x assembler ${out_asm_file} -o ${out_bin_file}; then
+            if ${out_bin_file}; then
+                echo " :: Success!"
+            else
+                echo "It crashed :("
+                failed+=("$filename")
+            fi
+        else
+            failed+=("$filename")
+        fi
+    else
+        failed+=("$filename")
+    fi
+
 done
 
 failcount=${#failed[@]}
