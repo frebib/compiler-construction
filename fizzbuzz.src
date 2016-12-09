@@ -1,0 +1,19 @@
+function mod(a, b) {
+  return a - (b * (a / b));
+}
+
+var i = 1;
+while (~i < 100) {
+  printInt(~i);
+  let div3 = mod(~i, 3) == 0;
+  let div5 = mod(~i, 5) == 0;
+  if (div3 == div5 == 0) {
+    printInt(50);
+  } else if (div3) {
+    printInt(3);
+  } else if (div5) {
+    printInt(5);
+  } else { }
+
+  i = ~i + 1;
+}
